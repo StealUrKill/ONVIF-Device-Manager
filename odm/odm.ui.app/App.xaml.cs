@@ -70,9 +70,17 @@ namespace odm.ui {
 		protected override void OnStartup(StartupEventArgs e) {
 			//some devices don't understand http header "Expect: 100-Continue"
 			ServicePointManager.Expect100Continue = false;
-			//accept any certificate for tls connections
+			// Cameras use self-signed certificates. Trust a certificate on first use,
+			// and refuse it if it changes later (see utils.CertificatePinStore).
+			CertificatePinStore.Instance.Initialize(System.IO.Path.Combine(AppDefaults.ConfigFolderPath, "trusted-certs.txt"));
 			ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, policyErrors) => {
-				return true;
+				var request = sender as HttpWebRequest;
+				if (request == null) {
+					// There is no endpoint to pin. Keep the previous behavior.
+					return true;
+				}
+				var uri = request.Address ?? request.RequestUri;
+				return CertificatePinStore.Instance.Validate(uri.Host, uri.Port, certificate, policyErrors);
 			};
 
             LoadCurrentLanguage();

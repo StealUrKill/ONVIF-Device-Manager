@@ -93,6 +93,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="WeakReference.cs" />
+    <Compile Include="CertificatePinStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\utils.diagnostics\utils.diagnostics.csproj">

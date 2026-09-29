@@ -145,16 +145,21 @@ module internal SslStreamHelpers =
         tcp.ReceiveTimeout <- timeoutMs
         tcp.SendTimeout <- timeoutMs
 
-        // TODO(security): TLS certificate validation is intentionally disabled to support
-        // self-signed camera certificates, which is the norm on LAN/IP-camera deployments.
-        // This is a MITM vector on untrusted networks — credentials can be intercepted.
-        // Issue #19 tracks adding a configurable trust policy (per-device or global setting).
+        // Cameras use self-signed certificates. Trust a certificate on first use and pin it per host:port.
+        // Refuse a different certificate later (issue #19). See utils.CertificatePinStore.
         use ssl = new SslStream(tcp.GetStream(), false,
-                      RemoteCertificateValidationCallback(fun _ _ _ _ -> true))
+                      RemoteCertificateValidationCallback(fun _ cert _ errors ->
+                          utils.CertificatePinStore.Instance.Validate(host, port, cert, errors)))
         // SslProtocols.Tls12 = 0xC00 = 3072; enum value exists at runtime on .NET 4.0+
         // but the named constant was added to the BCL metadata only in .NET 4.5.
         // Cast the raw integer to avoid a compile-time reference to the 4.5-only symbol.
-        ssl.AuthenticateAsClient(host, null, enum<SslProtocols> 3072, false)
+        try
+            ssl.AuthenticateAsClient(host, null, enum<SslProtocols> 3072, false)
+        with :? AuthenticationException as ex when
+                utils.CertificatePinStore.Instance.GetMismatch(host, port) <> null ->
+            raise (AuthenticationException(
+                    sprintf "The TLS certificate of %s:%d has changed since it was first trusted. Review it under Trusted Certificates." host port,
+                    ex))
 
         // Single ssl.Write() call: headers and body must arrive in one TLS record.
         // gSOAP cameras (2.8.x firmware) stall indefinitely when the TLS payload is

@@ -83,6 +83,9 @@ namespace odm.ui.views
             btLogin.Command = _loginCommand;
             btLogout.Command = new DelegateCommand(new Action(btLogout_Click));
             lnkManageCredentials.Click += BtManageCredentials_Click;
+            lnkTrustedCertificates.Click += LnkTrustedCertificates_Click;
+            // Show a prompt if the pinned TLS certificate of a camera changes. Attach it one time only.
+            CertificateChangePrompt.Attach(Dispatcher, eventAggregator);
 
             username.KeyDown += (s, e) => { if (e.Key == Key.Enter) btLogin_Click(); };
             password.KeyDown += (s, e) => { if (e.Key == Key.Enter) btLogin_Click(); };
@@ -116,6 +119,20 @@ namespace odm.ui.views
             try
             {
                 var win = new CredentialManagerView(eventAggregator);
+                win.Owner = Window.GetWindow(this);
+                win.ShowDialog();
+            }
+            catch (Exception err)
+            {
+                dbg.Error(err);
+            }
+        }
+
+        void LnkTrustedCertificates_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var win = new TrustedCertificatesView(eventAggregator);
                 win.Owner = Window.GetWindow(this);
                 win.ShowDialog();
             }

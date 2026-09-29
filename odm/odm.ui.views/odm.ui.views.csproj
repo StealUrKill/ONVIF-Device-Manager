@@ -259,6 +259,7 @@
     </Compile>
     <Compile Include="core\AccountManager.cs" />
     <Compile Include="core\CredentialStore.cs" />
+    <Compile Include="core\CertificateChangePrompt.cs" />
     <Compile Include="core\LoginActionHelper.cs" />
     <Compile Include="core\CustomCommands.cs" />
     <Compile Include="core\DataProcessInfo.cs" />
@@ -296,6 +297,9 @@
     </Compile>
     <Compile Include="views\CredentialManagerView.xaml.cs">
       <DependentUpon>CredentialManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\TrustedCertificatesView.xaml.cs">
+      <DependentUpon>TrustedCertificatesView.xaml</DependentUpon>
     </Compile>
     <Compile Include="views\KeyValuePairsBlock.xaml.cs">
       <DependentUpon>KeyValuePairsBlock.xaml</DependentUpon>
@@ -637,6 +641,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="views\CredentialManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="views\TrustedCertificatesView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

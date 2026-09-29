@@ -42,6 +42,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
         <!-- Col 0: login panel (anonymous) or logged-in panel — mutually exclusive -->
@@ -148,6 +149,27 @@
             <TextBlock>
                 <Hyperlink x:Name="lnkManageCredentials">
                     <Run Text="Manage Credentials" Foreground="LightGray"/>
+                </Hyperlink>
+            </TextBlock>
+        </Border>
+
+        <!-- Column 2: Trusted Certificates (TLS certificates pinned on first use) -->
+        <Border Grid.Column="2" Margin="3,0,3,0" Padding="2,1" VerticalAlignment="Center"
+                BorderThickness="1" CornerRadius="2"
+                KeyboardNavigation.TabIndex="6">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter Property="BorderBrush" Value="White"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock>
+                <Hyperlink x:Name="lnkTrustedCertificates">
+                    <Run Text="Trusted Certificates" Foreground="LightGray"/>
                 </Hyperlink>
             </TextBlock>
         </Border>

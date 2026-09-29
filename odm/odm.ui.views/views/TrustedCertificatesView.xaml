@@ -1,0 +1,72 @@
+﻿<Window x:Class="odm.ui.views.TrustedCertificatesView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Trusted Certificates"
+        Width="720" Height="380"
+        MinWidth="480" MinHeight="260"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Margin="0,0,0,6">
+            Cameras usually use self-signed certificates. ODM trusts each camera's certificate the
+            first time it connects over HTTPS, and blocks the connection if that certificate later
+            changes. Remove an entry to trust that camera's next certificate automatically.
+        </TextBlock>
+
+        <DataGrid x:Name="certGrid" Grid.Row="1"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="False"
+                  CanUserResizeRows="False"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow"
+                  HeadersVisibility="Column">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsChanged}" Value="True">
+                            <Setter Property="Foreground" Value="DarkRed"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Device" Width="140" Binding="{Binding Endpoint}"/>
+                <DataGridTextColumn Header="Status" Width="120" Binding="{Binding Status}"/>
+                <DataGridTemplateColumn Header="Fingerprint (SHA-256)" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Fingerprint}" ToolTip="{Binding FingerprintDetails}"
+                                       TextTrimming="CharacterEllipsis" Padding="2,0"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Subject" Width="150" Binding="{Binding Subject}"/>
+                <DataGridTextColumn Header="Trusted Since" Width="130" Binding="{Binding FirstSeen}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="2" Margin="0,6,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button x:Name="btTrustNew" Content="Trust New Certificate" Padding="8,0" Margin="0,0,4,0"
+                        IsEnabled="False" Click="BtTrustNew_Click"
+                        ToolTip="Replace the pinned certificate with the one the camera now presents"/>
+                <Button x:Name="btRemove" Content="Remove" Width="80"
+                        IsEnabled="False" Click="BtRemove_Click"
+                        ToolTip="Forget this camera; its next certificate is trusted on first use"/>
+            </StackPanel>
+            <Button x:Name="btClose" Content="Close" Width="80" HorizontalAlignment="Right"
+                    IsCancel="True" Click="BtClose_Click"/>
+        </Grid>
+    </Grid>
+</Window>
