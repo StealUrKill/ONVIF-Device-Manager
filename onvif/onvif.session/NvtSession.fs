@@ -177,7 +177,8 @@ namespace odm.core
             //let created = DateTime.UtcNow.AddTicks(secToken.delta).ToString(@"yyyy\-MM\-dd\THH\:mm\:ss\.fff\Z")
             //let ticks = int64(float(Stopwatch.GetTimestamp()) * (10000000.0/ float(Stopwatch.Frequency)))
             //let created = (new System.DateTime(ticks + secToken.delta)).ToString(@"yyyy\-MM\-dd\THH\:mm\:ss\.fff\Z")
-            let created = secToken.GetCurrentDeviceTime().ToString(@"yyyy\-MM\-dd\THH\:mm\:ss\.fff\Z")
+            // Use the invariant culture. Other calendars (th-TH, ar-SA) give an incorrect year.
+            let created = secToken.GetCurrentDeviceTime().ToString(@"yyyy\-MM\-dd\THH\:mm\:ss\.fff\Z", CultureInfo.InvariantCulture)
 //            let nonce = Seq.toArray(seq{
 //                yield! guid
 //                yield! getNonceCounter() |> BitConverter.GetBytes
