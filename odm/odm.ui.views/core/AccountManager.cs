@@ -90,6 +90,18 @@ namespace odm.ui.core
             get { return Account.Anonymous != this.CurrentAccount; }
         }
 
+        /// <summary>The credential that the session of this device used to connect. Use it for
+        /// work on one device. If there is no session, use CurrentAccount.</summary>
+        public static Account AccountFor(odm.core.INvtSession session)
+        {
+            if (session == null)
+                return Instance.CurrentAccount;
+            var cred = session.credentials;
+            if (cred == null)
+                return Account.Anonymous;
+            return new Account { Name = cred.UserName, Password = cred.Password };
+        }
+
         /// <summary>
         /// Returns all stored credentials from CredentialStore.
         /// </summary>

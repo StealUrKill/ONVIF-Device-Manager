@@ -233,7 +233,7 @@ namespace odm.ui.activities {
 				.Subscribe(
 					uri => {
 						VideoInfo.MediaUri = uri.uri;
-						VideoStartup(VideoInfo);
+						VideoStartup(VideoInfo, session);
 					}, 
 					err => {
 					}
@@ -243,10 +243,10 @@ namespace odm.ui.activities {
 
 		IPlayer playerEngine;
 		IPlaybackSession playbackSession;
-		void VideoStartup(IVideoInfo iVideo) {
+		void VideoStartup(IVideoInfo iVideo, INvtSession session) {
 			playerEngine = new HostedPlayer();
-			
-			var account = AccountManager.Instance.CurrentAccount;
+
+			var account = AccountManager.AccountFor(session);
 			UserNameToken usToken = null;
 			if (!account.IsAnonymous) {
 				usToken = new UserNameToken(account.Name, account.Password);

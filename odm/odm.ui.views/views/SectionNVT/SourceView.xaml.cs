@@ -158,7 +158,7 @@ namespace odm.ui.views.SectionNVT {
 			}
 		}
 		void CreateEmergencyButtons(SourceViewArgs args) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(args.nvtSession);
 			//Name = "No profile available. Video source name: " + profToken;
 			////Snapshot = doGetImageSourceFromResource("odm-ui-views", "images/snapshot.png");
 			//Snapshot = Resources.snapshot.ToBitmapSource();
@@ -166,7 +166,7 @@ namespace odm.ui.views.SectionNVT {
 			Buttons.Add(new ProfilesButton(container.Resolve<EventAggregator>(), args.nvtSession, args.channelDescr.videoSource.token, null, curAccount, dataProcInfo));
 		}
 		void LoadButtons(SourceViewArgs args) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(args.nvtSession);
 			var vsToken = args.channelDescr.videoSource.token;
 
 			if (args.selectedProfile.videoEncoderConfiguration != null) {

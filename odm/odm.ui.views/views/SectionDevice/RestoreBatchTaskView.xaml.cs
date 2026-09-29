@@ -110,7 +110,7 @@ namespace odm.ui.views {
 		}
 
 		void StartRestore(BatchItem bitem, string binPath) {
-			NvtSessionFactory sessionFactory = new NvtSessionFactory(LoadCurrentAccount());
+			NvtSessionFactory sessionFactory = new NvtSessionFactory(LoadAccountFor(bitem.Device));
 
 			IdentitySubscriptions.Add(sessionFactory.CreateSession(bitem.Device.Uris)
 					  .ObserveOnCurrentDispatcher()
@@ -248,8 +248,9 @@ namespace odm.ui.views {
 			}
 		}
 
-		System.Net.NetworkCredential LoadCurrentAccount() {
-			var acc = AccountManager.Instance.CurrentAccount;
+		System.Net.NetworkCredential LoadAccountFor(DeviceDescriptionHolder dev) {
+			// Use the credential that this device used to connect, not the current account.
+			var acc = AccountManager.AccountFor(dev.session);
 			System.Net.NetworkCredential account = null;
             if (!acc.IsAnonymous)
                 account = new System.Net.NetworkCredential() { UserName = acc.Name, Password = acc.Password };

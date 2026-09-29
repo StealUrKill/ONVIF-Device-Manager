@@ -127,11 +127,11 @@ namespace odm.ui.views.SectionNVA {
 			buttonsList.ItemsSource = Buttons;
 		}
 		void CreateEmergencyButtons(EngineViewArgs args) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(args.nvtSession);
 			Buttons.Add(new NVAControlsButton(container.Resolve<EventAggregator>(), args.nvtSession, args.engine, null, curAccount));//, dataProcInfo));
 		}
 		void LoadButtons(EngineViewArgs args) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(args.nvtSession);
 
 			Buttons.Add(new NVALiveVideoButton(container.Resolve<EventAggregator>(), args.nvtSession, args.engine, args.selectedEngineControl, curAccount));//, dataProcInfo));
 

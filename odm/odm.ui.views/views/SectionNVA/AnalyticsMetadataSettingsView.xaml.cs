@@ -177,7 +177,7 @@ namespace odm.ui.activities {
 			//TODO: provide a way of cancelation
 			//VideoInfo.MediaUri = model.uri;
 			//VideoStartup(VideoInfo);
-			VideoStartup();
+			VideoStartup(session);
 
 			//subscription.Add(session.GetStreamUri(strSetup, profile.token)
 			//	.ObserveOnCurrentDispatcher()
@@ -190,10 +190,10 @@ namespace odm.ui.activities {
 
 		IPlayer playerEngine;
 		IPlaybackSession playbackSession;
-		void VideoStartup() {
+		void VideoStartup(INvtSession session) {
 			playerEngine = new HostedPlayer();
 
-			var account = AccountManager.Instance.CurrentAccount;
+			var account = AccountManager.AccountFor(session);
 			UserNameToken usToken = null;
 			if (!account.IsAnonymous) {
 				usToken = new UserNameToken(account.Name, account.Password);

@@ -104,7 +104,16 @@ namespace odm.ui.activities {
 			videoBuff = new VideoBuffer(res.width, res.height);
 			player.SetVideoBuffer(videoBuff);
 
-			var account = AccountManager.Instance.CurrentAccount;
+			// Use the credential that the session of this device used to connect.
+			// The activity container has the session. If not, use CurrentAccount.
+			odm.core.INvtSession session = null;
+			try {
+				if (activityContext != null)
+					session = activityContext.container.Resolve<odm.core.INvtSession>();
+			} catch (Exception err) {
+				dbg.Error(err);
+			}
+			var account = AccountManager.AccountFor(session);
 			UserNameToken utoken = null;
 			if (!account.IsAnonymous) {
 				utoken = new UserNameToken(account.Name, account.Password);

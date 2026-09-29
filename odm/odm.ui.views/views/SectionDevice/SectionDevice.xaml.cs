@@ -239,7 +239,7 @@ namespace odm.ui.views {
 		}
 		void LoadButtons(DeviceViewArgs args) {
 			try {
-				var curAccount = AccountManager.Instance.CurrentAccount;
+				var curAccount = AccountManager.AccountFor(args.nvtSession);
 				Buttons.Add(new IdentificationButton(eventAggregator, args.nvtSession, curAccount));
 				Buttons.Add(new DateTimeButton(eventAggregator, args.nvtSession, curAccount));
 				Buttons.Add(new MaintenanceButton(eventAggregator, args.nvtSession, curAccount, args.capabilities, args.deviceModel, args.manufacturer));

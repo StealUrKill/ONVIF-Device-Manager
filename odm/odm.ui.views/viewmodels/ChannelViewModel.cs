@@ -263,7 +263,7 @@ namespace odm.ui.viewModels {
 			CallDefaultProfile(videoSource.token);
 		}
 		void CreateEmergencyButtons(string profToken) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(session);
 			Name = "No profile available. Video source name: " + profToken;
 			//Snapshot = doGetImageSourceFromResource("odm-ui-views", "images/snapshot.png");
 			Snapshot = Resources.snapshot.ToBitmapSource();
@@ -271,7 +271,7 @@ namespace odm.ui.viewModels {
 			Buttons.Add(new ProfilesButton(container.Resolve<EventAggregator>(), session, videoSource.token, null, curAccount, dataProcInfo));
 		}
 		void CreateButtons(Profile profile) {
-			var curAccount = AccountManager.Instance.CurrentAccount;
+			var curAccount = AccountManager.AccountFor(session);
 
 			if (profile.videoEncoderConfiguration != null) {
 				Buttons.Add(new LiveVideoButton(container.Resolve<EventAggregator>(), session, videoSource.token, profile, curAccount, dataProcInfo));

@@ -151,9 +151,17 @@ namespace odm.ui.views
                 if (!string.IsNullOrEmpty(item.Name))
                     list.Add(item.ToAccount());
 
+            // Keep the current account if the user did not delete it here.
+            // It can be an account that is not in the stored list.
+            var current = AccountManager.Instance.CurrentAccount;
+            bool currentWasStored = AccountManager.Instance.GetAllCredentials().Contains(current);
+            bool currentRemoved = currentWasStored && !list.Contains(current);
+
             AccountManager.Instance.SetCredentials(list);
-            AccountManager.Instance.LoggedOutExplicitly = (list.Count == 0);
-            AccountManager.Instance.SetCurrentAccount(Account.Anonymous, remember: false);
+            if (currentRemoved)
+                AccountManager.Instance.SetCurrentAccount(Account.Anonymous, remember: false);
+            AccountManager.Instance.LoggedOutExplicitly =
+                list.Count == 0 && AccountManager.Instance.CurrentAccount.IsAnonymous;
             _eventAggregator.GetEvent<Refresh>().Publish(true);
 
             Close();
