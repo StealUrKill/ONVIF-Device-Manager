@@ -68,6 +68,20 @@ namespace odm.ui {
 		}
 
 		protected override void OnStartup(StartupEventArgs e) {
+			// Catch the exceptions of the UI thread. Unexpected camera data must not stop ODM.
+			DispatcherUnhandledException += (s, args) => {
+				log.WriteError("unhandled UI exception: " + args.Exception);
+				dbg.Error(args.Exception);
+				try {
+					MessageBox.Show(
+						"An unexpected error occurred:\n\n" + args.Exception.Message +
+						"\n\nODM will keep running; the current view may be incomplete.",
+						"ONVIF Device Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+				} catch {
+				}
+				args.Handled = true;
+			};
+
 			//some devices don't understand http header "Expect: 100-Continue"
 			ServicePointManager.Expect100Continue = false;
 			// Cameras use self-signed certificates. Trust a certificate on first use,
