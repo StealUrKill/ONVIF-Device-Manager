@@ -115,7 +115,7 @@
                     yield CreateProp("white balance", value, null)
                 if img.wideDynamicRange |> NotNull then
                     let level = img.wideDynamicRange.level
-                    let mode = img.whiteBalance.mode
+                    let mode = img.wideDynamicRange.mode
                     let value = sprintf "level=%g, mode=%A" level mode
                     yield CreateProp("wide dynamic range", value, null)
             })
@@ -133,7 +133,8 @@
         yield CreateProp("name", vsc.name, null)
         yield CreateProp("token", vsc.token, null)
         yield CreateProp("use count", vsc.useCount, null)
-        yield CreateProp("bounds", vsc.bounds.ToString(), null)
+        if vsc.bounds |> NotNull then
+            yield CreateProp("bounds", vsc.bounds.ToString(), null)
         let vs = 
             if videoSrcs |> NotNull then
                 videoSrcs |> Seq.tryFind(fun vs->vs.token = vsc.sourceToken)
