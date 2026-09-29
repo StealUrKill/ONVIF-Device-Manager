@@ -185,7 +185,7 @@ namespace odm.ui.controls {
 					felement.SetUpdateTrigger(
 						IntegerUpDown.ValueProperty,
 						(int v) => {
-							sitem.value = v.ToString();
+							sitem.value = XmlConvert.ToString(v);
 						}
 					);
 				} catch {
@@ -206,7 +206,8 @@ namespace odm.ui.controls {
 					felement.SetUpdateTrigger(
 						DoubleUpDown.ValueProperty,
 						(double v) => {
-							sitem.value = v.ToString();
+							// Use XmlConvert, not ToString. ToString can use a comma as the decimal mark.
+							sitem.value = XmlConvert.ToString(v);
 						}
 					);
 				} catch {
@@ -227,7 +228,7 @@ namespace odm.ui.controls {
 					felement.SetUpdateTrigger(
 						DoubleUpDown.ValueProperty,
 						(double v) => {
-							sitem.value = v.ToString();
+							sitem.value = XmlConvert.ToString(v);
 						}
 					);
 				} catch {
@@ -343,11 +344,15 @@ namespace odm.ui.controls {
 					CheckBox chBox = new CheckBox();
 					chBox.Margin = new Thickness(3);
 					chBox.CreateBinding(CheckBox.IsCheckedProperty, element, x => {
-						bool val = false;
-						bool.TryParse(element.Value, out val);
-						return val;
+						// xs:boolean accepts "true", "false", "1" and "0". bool.TryParse does not accept "1".
+						try {
+							return XmlConvert.ToBoolean(element.Value);
+						} catch {
+							return false;
+						}
 					}, (o, v) => {
-						o.Value = v.ToString();
+						// xs:boolean is in lowercase. bool.ToString() gives "True".
+						o.Value = XmlConvert.ToString(v);
 					});
 					felem = chBox;
 					break;
