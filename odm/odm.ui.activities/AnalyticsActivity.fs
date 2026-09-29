@@ -141,7 +141,25 @@
             }
             return! cont
         }
-        member private this.CreateDefaultConfig(name:string, description:ConfigDescription, schemaSet: XmlSchemaSet, existingConfigs: Config[]) = 
+        /// Find the description of a module or rule type. Try the full name, then the local name.
+        /// If there is no description, return an empty description with the same name.
+        static member private FindDescription(types: ConfigDescription[], cfgType: XmlQualifiedName) =
+            let types = types |> SuppressNull [||]
+            match types |> Seq.tryFind (fun x -> NotNull(x) && x.name = cfgType) with
+            | Some d -> d
+            | None ->
+                let byLocalName =
+                    types |> Seq.tryFind (fun x ->
+                        NotNull(x) && NotNull(x.name) && NotNull(cfgType) && x.name.Name = cfgType.Name)
+                match byLocalName with
+                | Some d -> d
+                | None ->
+                    // Keep the name. ConfigureAnalyticView uses it to find custom editors.
+                    let d = new ConfigDescription()
+                    d.name <- cfgType
+                    d
+
+        member private this.CreateDefaultConfig(name:string, description:ConfigDescription, schemaSet: XmlSchemaSet, existingConfigs: Config[]) =
             let cfg = new Config()
             cfg.xmlns <- new XmlSerializerNamespaces()
             cfg.xmlns.Add("tt", "http://www.onvif.org/ver10/schema")
@@ -158,8 +176,9 @@
                             ProtoSchemeGenerator.CreateProtoXsdType(sid.``type``.Name)
                         else
                             let simpleTypes = schemaSet.GlobalTypes.Values.OfType<XmlSchemaSimpleType>()
-                            let simpleType = simpleTypes |> Seq.find(fun x->x.QualifiedName =  sid.``type``)
-                            ProtoSchemeGenerator.CreateProtoSimpleType(simpleType)
+                            match simpleTypes |> Seq.tryFind(fun x->x.QualifiedName =  sid.``type``) with
+                            | Some simpleType -> ProtoSchemeGenerator.CreateProtoSimpleType(simpleType)
+                            | None -> ""  // The schema does not have this type. Start with an empty value.
                     yield item
             })
             let elementItems = Seq.toList(seq{
@@ -323,11 +342,7 @@
                 try
                     let vm = new ConfigureAnalyticView.Model(
                         config = moduleCfg,
-                        configDescription = (
-                            model.moduleTypes |> Seq.find(fun x->
-                                x.name = moduleCfg.``type``
-                            )
-                        ),
+                        configDescription = AnalyticsActivity.FindDescription(model.moduleTypes, moduleCfg.``type``),
                         schemes = model.moduleSchemes
                     )
                     let! res = ConfigureAnalyticView.Show(ctx, vm)
@@ -351,9 +366,7 @@
                 try
                     let vm = new ConfigureAnalyticView.Model(
                         config = ruleCfg,
-                        configDescription = (
-                            model.ruleTypes |> Seq.find(fun x-> x.name = ruleCfg.``type``)
-                        ),
+                        configDescription = AnalyticsActivity.FindDescription(model.ruleTypes, ruleCfg.``type``),
                         schemes = model.ruleSchemes
                     )
                     let! res = ConfigureAnalyticView.Show(ctx, vm)
