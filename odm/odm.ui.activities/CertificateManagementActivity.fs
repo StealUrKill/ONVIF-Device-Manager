@@ -79,13 +79,18 @@
                         return! load()
                     }
                     return this.ShowForm(model)
-                with err -> 
+                with err ->
                     do! show_error(err)
-                    return this.Main()
+                    if OnvifFault.IsNotSupported(err) then
+                        // The camera does not support certificate management.
+                        // Show an empty list, because a reload cannot succeed.
+                        return this.ShowForm(new CertificatesView.Model(certificates = [||]))
+                    else
+                        return this.Main()
             }
             return! cont
         }
-        
+
         member private this.ShowForm(model) = async{
             let! cont = async{
                 try

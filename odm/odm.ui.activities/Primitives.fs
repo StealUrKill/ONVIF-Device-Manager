@@ -87,3 +87,24 @@
                         return null
         }
     end
+
+    /// Return true if the camera does not support the operation (ActionNotSupported, NotImplemented).
+    /// A retry of such an operation cannot succeed.
+    type OnvifFault() = class
+        static let markers = [| "notsupported"; "not supported"; "notimplemented"; "not implemented"; "actionnotsupported" |]
+        static let rec subcodes (code:System.ServiceModel.FaultCode) = seq{
+            if code |> NotNull then
+                yield code.Name
+                yield! subcodes code.SubCode
+        }
+        static member IsNotSupported(err:exn) =
+            let rec check (e:exn) =
+                match e with
+                | null -> false
+                | :? System.ServiceModel.FaultException as fe ->
+                    let text =
+                        String.Join(" ", Seq.append (subcodes fe.Code) [ fe.Message ]).ToLowerInvariant()
+                    (markers |> Array.exists (fun m -> text.Contains(m))) || check e.InnerException
+                | _ -> check e.InnerException
+            check err
+    end
