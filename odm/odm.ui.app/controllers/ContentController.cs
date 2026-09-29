@@ -665,7 +665,12 @@ namespace odm.controllers {
 		}
 		IEnumerable<FSharpAsync<Unit>> LoadStreamInfoNVT(ChannelLinkEventArgs args, StreamInfoHelper parent) {
 			StreamInfoArgs strInfoArgs = new StreamInfoArgs(args.session);
-			strInfoArgs.encoderResolution = new Size(args.profile.videoEncoderConfiguration.resolution.width, args.profile.videoEncoderConfiguration.resolution.height);
+
+			// Some cameras give the encoder resolution only through Media2.
+			yield return EncoderResolution.Resolve(args.session, args.profile).Select(res => {
+				strInfoArgs.encoderResolution = res != null ? new Size(res.width, res.height) : Size.Empty;
+				return (Unit)null;
+			});
 
 			var strsetup = new StreamSetup() {
 				stream = StreamType.rtpUnicast,

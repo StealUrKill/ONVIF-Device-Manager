@@ -52,8 +52,11 @@ namespace odm.ui.activities {
 			encResolutions = new List<EncoderResolutionPair>();
 			var applyCmd = new DelegateCommand(
 				() => {
-					model.encoder = EncoderResolution.Encoder;
-					model.resolution = EncoderResolution.Resolution;
+					// This is null if no list entry agrees with the current camera settings.
+					if (EncoderResolution != null) {
+						model.encoder = EncoderResolution.Encoder;
+						model.resolution = EncoderResolution.Resolution;
+					}
 					Success(new Result.Apply(model));
 				},
 				() => true
@@ -64,9 +67,7 @@ namespace odm.ui.activities {
 				() => {
 					if (model != null) {
 						model.RevertChanges();
-						EncoderResolution = encResolutions.Find(
-							x => ((x.Encoder == model.encoder) && (x.Resolution.ToString() == model.resolution.ToString()))
-						);
+						EncoderResolution = encResolutions.Find(x => IsCurrent(x, model));
 					}
 				},
 				() => true
@@ -159,13 +160,22 @@ namespace odm.ui.activities {
 		}
 		public List<EncoderResolutionPair> encResolutions { get; set; }
 
+		static bool IsCurrent(EncoderResolutionPair pair, Model model) {
+			return pair.Encoder == model.encoder
+				&& pair.Resolution != null && model.resolution != null
+				&& pair.Resolution.ToString() == model.resolution.ToString();
+		}
+
 		static IEnumerable<Tuple<VideoEncoding, VideoResolution>> GetEncoderResolutions(Model model) {
 			if(model == null){
 				yield break;
 			}
-			yield return Tuple.Create(
-				model.encoder, model.resolution
-			);
+			// This is null if the camera gave no resolution. Do not show this entry.
+			if (model.resolution != null) {
+				yield return Tuple.Create(
+					model.encoder, model.resolution
+				);
+			}
 			var opts = model.encoderOptions;
 			if(opts == null){
 				yield break;
@@ -224,7 +234,7 @@ namespace odm.ui.activities {
 
 			encoderResValue.ItemsSource = encResolutions;
 
-			EncoderResolution = encResolutions.Find(x => { return x.Encoder == model.encoder && x.Resolution.ToString() == model.resolution.ToString(); });
+			EncoderResolution = encResolutions.Find(x => IsCurrent(x, model));
 
 			frameRateValue.CreateBinding(DoubleUpDown.IsEnabledProperty, model, x => { return !(x.minFrameRate == x.maxFrameRate); });
 			frameRateCaption.CreateBinding(Label.IsEnabledProperty, model, x => { return !(x.minFrameRate == x.maxFrameRate); });

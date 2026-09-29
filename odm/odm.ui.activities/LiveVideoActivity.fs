@@ -54,12 +54,17 @@ namespace odm.ui.activities
                     let videoSourceConfToken = if profile.videoSourceConfiguration |> NotNull then profile.videoSourceConfiguration.token else null
                     let videoAnalyticsConfToken = if profile.videoAnalyticsConfiguration |> NotNull then profile.videoAnalyticsConfiguration.token else null
 
+                    // Some cameras give the encoder resolution only through Media2.
+                    let! encoderResolution = EncoderResolution.Resolve(session, profile)
+                    if encoderResolution |> IsNull then
+                        failwithf "the camera did not report a resolution for video encoder configuration '%s'" vec.token
+
                     let model = new LiveVideoView.Model(
                         videoSourceToken = videoSourceToken,
                         profToken = profToken,
                         videoSourceConfToken = videoSourceConfToken,
                         videoAnalyticsConfToken = videoAnalyticsConfToken,
-                        encoderResolution = vec.resolution
+                        encoderResolution = encoderResolution
                     )
                     return this.ShowForm(model)
                 with err -> 

@@ -1297,6 +1297,41 @@ namespace odm.core
                                             let cfg = new VideoEncoderConfiguration()
                                             cfg.token    <- tokenAttr.Value
                                             cfg.encoding <- enc
+                                            // Some cameras send Media1 encoder data without resolution. Media2 has the correct values.
+                                            // Parse them for the callers that use Media2.
+                                            let tryInt (e:System.Xml.Linq.XElement) =
+                                                let mutable v = 0.0
+                                                if e |> NotNull && Double.TryParse(e.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, &v) then
+                                                    Some (int (Math.Round v))
+                                                else None
+                                            let resEl = el.Element(nsTt + "Resolution")
+                                            if resEl |> NotNull then
+                                                match tryInt (resEl.Element(nsTt + "Width")), tryInt (resEl.Element(nsTt + "Height")) with
+                                                | Some w, Some h -> cfg.resolution <- new VideoResolution(width = w, height = h)
+                                                | _ -> ()
+                                            let rcEl = el.Element(nsTt + "RateControl")
+                                            if rcEl |> NotNull then
+                                                let rc = new VideoRateControl()
+                                                tryInt (rcEl.Element(nsTt + "FrameRateLimit")) |> Option.iter (fun v -> rc.frameRateLimit <- v)
+                                                tryInt (rcEl.Element(nsTt + "BitrateLimit")) |> Option.iter (fun v -> rc.bitrateLimit <- v)
+                                                cfg.rateControl <- rc
+                                            let tryFloat32 (e:System.Xml.Linq.XElement) =
+                                                let mutable v = 0.0f
+                                                if e |> NotNull && Single.TryParse(e.Value.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, &v) then
+                                                    Some v
+                                                else None
+                                            tryFloat32 (el.Element(nsTt + "Quality")) |> Option.iter (fun v -> cfg.quality <- v)
+                                            // Media2 gives GovLength as an attribute.
+                                            let tryAttrInt (name:string) =
+                                                let a = el.Attribute(System.Xml.Linq.XName.Get(name))
+                                                let mutable v = 0
+                                                if a |> NotNull && Int32.TryParse(a.Value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, &v) then
+                                                    Some v
+                                                else None
+                                            match tryAttrInt "GovLength" with
+                                            | Some gov when enc = VideoEncoding.h265 -> cfg.h265 <- new H265Configuration(govLength = gov)
+                                            | Some gov when enc = VideoEncoding.h264 -> cfg.h264 <- new H264Configuration(govLength = gov)
+                                            | _ -> ()
                                             yield cfg
                                 |]
                         with err ->

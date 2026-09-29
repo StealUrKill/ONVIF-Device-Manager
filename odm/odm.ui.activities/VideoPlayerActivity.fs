@@ -39,12 +39,10 @@ namespace odm.ui.activities
                         else
                             return! session.GetProfile(model.profileToken)
                     }
-                    let encoderResolution = 
-                        let vec = profile.videoEncoderConfiguration
-                        if vec |> NotNull then
-                            vec.resolution
-                        else
-                            null
+                    // Some cameras give the encoder resolution only through Media2.
+                    let! encoderResolution = EncoderResolution.Resolve(session, profile)
+                    if encoderResolution |> IsNull then
+                        failwith "the camera did not report a video encoder resolution for this profile"
 
                     let! mediaUri = session.GetStreamUri(model.streamSetup, model.profileToken)
                     if VideoPlayerActivity.IsRtspsUri mediaUri.uri then
