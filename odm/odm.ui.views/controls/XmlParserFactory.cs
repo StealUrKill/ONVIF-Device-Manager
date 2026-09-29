@@ -35,7 +35,14 @@ namespace odm.ui.controls {
 		List<itemDescr> InitSimpleItems() {
 			List<itemDescr> simpleItemsList = new List<itemDescr>();
 
-			description.parameters.simpleItemDescription.ForEach(x => {
+			// Parameters and item lists are optional. A rule can have only element items.
+			var simpleDescriptions = description != null && description.parameters != null
+				? description.parameters.simpleItemDescription
+				: null;
+			if (simpleDescriptions == null)
+				return simpleItemsList;
+
+			simpleDescriptions.ForEach(x => {
 				XmlSchemaType xsdType = XmlSchemaType.GetBuiltInSimpleType(XmlTypeCode.String);
 				if (x.type.Namespace == XmlSchema.Namespace) {
 					xsdType = XmlSchemaType.GetBuiltInSimpleType(x.type);
@@ -99,7 +106,7 @@ namespace odm.ui.controls {
 						}
 					} else {
 						elem.IsEnabled = false;
-						if (config.parameters.simpleItem.Contains(sitem)) {
+						if (config.parameters != null && config.parameters.simpleItem != null && config.parameters.simpleItem.Contains(sitem)) {
 							int count = config.parameters.simpleItem.Count();
 							var arr = new ItemList.SimpleItem[count - 1];
 							int cnt = 0;
@@ -302,7 +309,9 @@ namespace odm.ui.controls {
 		FrameworkElement GetValueEditor(elementDescr element) {
 			FrameworkElement felem = null;
 
-			switch (element.QName.Name) { 
+			// QName is known only for the elements in the camera schema.
+			// Edit the other elements as text.
+			switch (element.QName != null ? element.QName.Name : null) {
 				case "int":
 					IntegerUpDown numUp = new IntegerUpDown();
 					numUp.Margin = new Thickness(3);
@@ -375,7 +384,9 @@ namespace odm.ui.controls {
 			//parse schema
 			xsdParse.Parse(schema);
 					
-			//parse top elements in XML data
+			// Parse the top elements in the XML data. Element items are optional.
+			if (config.parameters == null || config.parameters.elementItem == null)
+				return elementsList;
 			config.parameters.elementItem.ForEach(elemItem => {
 				//for each of top elements: (AntishakerCrop; MarkerCalibration; ...)
 				var telem = ParseXmlItem(elemItem);
