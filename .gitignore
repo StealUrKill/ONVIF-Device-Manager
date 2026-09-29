@@ -3,6 +3,8 @@
 **/obj/
 build/
 build_output.txt
+odm.setup/Debug/
+odm.setup/Release/
 
 # Visual Studio
 *.user
