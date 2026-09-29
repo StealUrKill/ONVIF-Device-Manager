@@ -829,7 +829,7 @@ namespace odm.core
                         PtzXAddr = resolve "http://www.onvif.org/ver20/ptz/wsdl"
                                      (fun c -> c.ptz.xAddr)
                                      "/onvif/ptz_service"
-                        ImagingXAddr = resolve "http://www.onvif.org/ver10/imaging/wsdl"
+                        ImagingXAddr = resolve "http://www.onvif.org/ver20/imaging/wsdl"
                                          (fun c -> c.imaging.xAddr)
                                          "/onvif/imaging_service"
                         EventsXAddr = resolve "http://www.onvif.org/ver10/events/wsdl"
@@ -839,7 +839,7 @@ namespace odm.core
                                            (fun c -> c.analytics.xAddr)
                         ReceiverXAddr = resolveNoLastResort "http://www.onvif.org/ver10/receiver/wsdl"
                                           (fun c -> c.extension.receiver.xAddr)
-                        AnalyticsDeviceXAddr = resolveNoLastResort "http://www.onvif.org/ver20/analyticsdevice/wsdl"
+                        AnalyticsDeviceXAddr = resolveNoLastResort "http://www.onvif.org/ver10/analyticsdevice/wsdl"
                                                  (fun c -> c.extension.analyticsDevice.xAddr)
                         RecordingXAddr = resolveNoLastResort "http://www.onvif.org/ver10/recording/wsdl"
                                            (fun c -> c.extension.recording.xAddr)
