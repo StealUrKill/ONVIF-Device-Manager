@@ -112,6 +112,23 @@ module internal SslStreamHelpers =
         body.Length > 0 &&
         Encoding.UTF8.GetString(body).IndexOf("Envelope", StringComparison.Ordinal) >= 0
 
+    /// WriteMessage of MtomMessageEncoder puts MIME headers before the body. Remove them and
+    /// return the Content-Type from these headers and the remaining body, or None.
+    let splitMimePreamble (data: byte[]) =
+        let prefix = "MIME-Version:"
+        if data.Length < prefix.Length
+           || not (Encoding.ASCII.GetString(data, 0, prefix.Length).Equals(prefix, StringComparison.OrdinalIgnoreCase)) then
+            None
+        else
+            let sep = findCrLfCrLf data
+            if sep < 0 then None
+            else
+                // MIME header values can continue on the next line. Join the lines first.
+                let headerText = Regex.Replace(Encoding.ASCII.GetString(data, 0, sep), "\r\n[ \t]+", " ")
+                match getHeaderValue headerText "Content-Type" with
+                | Some ct -> Some (ct, Array.sub data (sep + 4) (data.Length - sep - 4))
+                | None -> None
+
     let sslSend (uri: Uri) (bodyBytes: byte[]) (contentType: string) (timeoutMs: int) =
         let host = uri.Host
         let port = if uri.IsDefaultPort then 443 else uri.Port
@@ -177,10 +194,23 @@ type SslStreamRequestChannel(factory: ChannelManagerBase, encoder: MessageEncode
             if String.IsNullOrEmpty(action) then encoder.ContentType
             else sprintf "%s; action=\"%s\"" encoder.ContentType action
 
+        // MTOM (firmware upgrade, backup restore) has binary MIME parts.
+        let isTextEncoder =
+            not (encoder.MediaType.StartsWith("multipart/", StringComparison.OrdinalIgnoreCase))
+
         // Serialize
         let buf = encoder.WriteMessage(message, Int32.MaxValue, bufMgr, 0)
         let rawBodyBytes = Array.init buf.Count (fun i -> buf.Array.[buf.Offset + i])
         bufMgr.ReturnBuffer(buf.Array)
+
+        // MTOM: the MIME preamble has the multipart Content-Type with its boundary.
+        // Use it as the HTTP Content-Type.
+        let rawBodyBytes, contentType =
+            if isTextEncoder then rawBodyBytes, contentType
+            else
+                match SslStreamHelpers.splitMimePreamble rawBodyBytes with
+                | Some (ct, body) -> body, ct
+                | None -> rawBodyBytes, contentType
 
         // Strip <Action s:mustUnderstand="1"> from the outgoing SOAP header, but only
         // for non-WS-Addressing channels. gSOAP camera firmware (2.8.x) returns HTTP 500
@@ -190,6 +220,10 @@ type SslStreamRequestChannel(factory: ChannelManagerBase, encoder: MessageEncode
         let bodyBytes =
             if wsAddressing then
                 rawBodyBytes  // WS-Addressing channels need Action header for operation dispatch
+            elif not isTextEncoder then
+                // Do not convert binary data to a UTF-8 string. Incorrect bytes become U+FFFD
+                // and cause damage to the firmware or backup image.
+                rawBodyBytes
             else
                 let xml = Encoding.UTF8.GetString(rawBodyBytes)
                 // Match the Action open tag (which may span to >) then the content then the close tag.
