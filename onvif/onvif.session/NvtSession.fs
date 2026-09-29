@@ -1427,13 +1427,15 @@ namespace odm.core
                         return! dev.RestoreSystem(backupFiles)
                     }
 
+                    // Send the request as plain SOAP. Only the reply can be MTOM. Some cameras close
+                    // the connection on an MTOM request. The text client reads MTOM replies.
                     member this.GetSystemBackup() = async{
-                        let! dev = GetDeviceMtomClient()
+                        let! dev = GetDeviceClient()
                         return! dev.GetSystemBackup()
                     }
 
                     member this.GetSystemSupportInformation() = async{
-                        let! dev = GetDeviceMtomClient()
+                        let! dev = GetDeviceClient()
                         return! dev.GetSystemSupportInformation()
                     }
 
