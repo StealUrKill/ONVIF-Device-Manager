@@ -64,10 +64,16 @@ namespace onvifmp{
 				}
 				delete[] spropRecords;
 
-				avCodecContext->extradata = extraDataBuffer;
+				// Use av_mallocz with padding. avcodec_free_context releases this memory.
+				// Do not point extradata into this object.
+				avCodecContext->extradata = (uint8_t*)av_mallocz(extraDataSize + AV_INPUT_BUFFER_PADDING_SIZE);
+				if (!avCodecContext->extradata) {
+					Cleanup();
+					return false;
+				}
+				memcpy(avCodecContext->extradata, extraDataBuffer, extraDataSize);
 				avCodecContext->extradata_size = extraDataSize;
 			}
-			AddExtraData(startCode, sizeof(startCode));
 			avCodecContext->flags = 0;
 			// AV_CODEC_FLAG2_CHUNKS must be set before avcodec_open2 so the codec's
 			// init callback can enable its internal NAL-chunk parser (affects HEVC).
