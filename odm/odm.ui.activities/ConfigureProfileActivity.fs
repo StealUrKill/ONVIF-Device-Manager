@@ -74,24 +74,38 @@
                     else
                         return [||]
                 },
+                // Audio, analytics and metadata are optional. If a call fails, use an empty list
+                // so that the user can edit the video settings.
                 async{
                     if profile.audioSourceConfiguration |> NotNull then
-                        let! aecs = session.GetCompatibleAudioEncoderConfigurations(profile.token)
-                        return aecs |> SuppressNull [||]
+                        try
+                            let! aecs = session.GetCompatibleAudioEncoderConfigurations(profile.token)
+                            return aecs |> SuppressNull [||]
+                        with err ->
+                            dbg.Error(err)
+                            return [||]
                     else
                         return [||]
                 },
                 async{
                     let! isAnalyticsSupported = facade.IsAnalyticsSupported()
                     if isAnalyticsSupported then
-                        let! vacs = session.GetCompatibleVideoAnalyticsConfigurations(profile.token)
-                        return vacs |> SuppressNull [||]
+                        try
+                            let! vacs = session.GetCompatibleVideoAnalyticsConfigurations(profile.token)
+                            return vacs |> SuppressNull [||]
+                        with err ->
+                            dbg.Error(err)
+                            return [||]
                     else
                         return [||]
                 },
                 async{
-                    let! metcs = session.GetCompatibleMetadataConfigurations(profile.token)
-                    return metcs |> SuppressNull [||]
+                    try
+                        let! metcs = session.GetCompatibleMetadataConfigurations(profile.token)
+                        return metcs |> SuppressNull [||]
+                    with err ->
+                        dbg.Error(err)
+                        return [||]
                 },
                 async{
                     let! ptzcs = async{
