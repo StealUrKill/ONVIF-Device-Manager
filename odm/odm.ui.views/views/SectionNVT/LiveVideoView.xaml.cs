@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Collections.Specialized;
 using System.Reactive.Disposables;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Media;
 using Microsoft.FSharp.Control;
 using Microsoft.Practices.Unity;
 using odm.infra;
+using odm.core;
 using odm.player;
 using odm.ui.controls;
 using odm.ui.core;
@@ -31,21 +33,36 @@ namespace odm.ui.activities {
 
 		private CompositeDisposable disposables = new CompositeDisposable();
 		private Model model;
-        
+
+		// The profile that plays. The selector at the top can change it.
+		string currentProfToken;
+		VideoResolution currentResolution;
+		readonly SerialDisposable playerSubscription = new SerialDisposable();
+		readonly SerialDisposable uriSubscription = new SerialDisposable();
+		readonly SerialDisposable profilesSubscription = new SerialDisposable();
+
 		private void Init(Model model) {
 			OnCompleted += () => {
 				disposables.Dispose();
 			};
 			this.model = model;
+			currentProfToken = model.profToken;
+			currentResolution = model.encoderResolution;
+			disposables.Add(playerSubscription);
+			disposables.Add(uriSubscription);
+			disposables.Add(profilesSubscription);
 			InitializeComponent();
             InitAnnоtation(model.encoderResolution);
-			VideoStartup(model);
+			VideoStartup(model.profToken);
+			ShowStreamUri(model.profToken);
+			LoadProfiles();
 		}
 
         private void InitAnnоtation(VideoResolution resolution)
         {
-            Func<double, double> scaleX = (x) => (1 + x) * resolution.width / 2.0;
-            Func<double, double> scaleY = (y) => (1 - y) * resolution.height / 2.0;
+            // Use the current resolution, so that the overlay follows a profile change.
+            Func<double, double> scaleX = (x) => (1 + x) * currentResolution.width / 2.0;
+            Func<double, double> scaleY = (y) => (1 - y) * currentResolution.height / 2.0;
 
             { // objects
                 objects.Width = resolution.width;
@@ -60,7 +77,7 @@ namespace odm.ui.activities {
             { // alarms
                 alarms.Width = resolution.width;
                 alarms.Height = resolution.height;
-                
+
                 ((INotifyCollectionChanged)alarms.Items).CollectionChanged += (s, e) =>
                 {
                     if (e.NewItems != null && e.NewItems.Count > 0)
@@ -90,7 +107,18 @@ namespace odm.ui.activities {
             get { return alarmsHolder.Entities; }
         }
 
-        void VideoStartup(Model model)
+        StreamSetup CurrentStreamSetup()
+        {
+            return new StreamSetup() {
+                stream = StreamType.rtpUnicast,
+                transport = new Transport() {
+                    protocol = AppDefaults.visualSettings.Transport_Type,
+                    tunnel = null
+                }
+            };
+        }
+
+        void VideoStartup(string profToken)
         {
             var playerAct = activityContext.container.Resolve<IVideoPlayerActivity>();
 
@@ -112,47 +140,102 @@ namespace odm.ui.activities {
             }
 
             var playerModel = new VideoPlayerActivityModel(
-                profileToken: model.profToken,
+                profileToken: profToken,
                 showStreamUrl: false,//TODO when true, annotation is not positioned correctly
-					 streamSetup: new StreamSetup() {
-						 stream = StreamType.rtpUnicast,
-						 transport = new Transport() {
-							 protocol = AppDefaults.visualSettings.Transport_Type,
-							 tunnel = null
-						 }
-					 },
+                streamSetup: CurrentStreamSetup(),
                 metadataReceiver: metadataReceiver
             );
 
-            
-
-            disposables.Add(
-                activityContext.container.RunChildActivity(player, playerModel, (c, m) => playerAct.Run(c, m))
-            );
-
-            ShowStreamURI();
+            // Stop the previous stream before the new player starts.
+            playerSubscription.Disposable = Disposable.Empty;
+            playerSubscription.Disposable =
+                activityContext.container.RunChildActivity(player, playerModel, (c, m) => playerAct.Run(c, m));
         }
 
-        void ShowStreamURI()
+        // Show the stream URI of the profile for the transport in the app settings.
+        void ShowStreamUri(string profToken)
         {
-            var getStreamInfo = activityContext.container.Resolve<odm.ui.core.IStreamInfoHelper>();
-            disposables.Add(getStreamInfo.GetFunction()()
-                    .ObserveOnCurrentDispatcher()
-                    .Subscribe(unit =>
-                    {
-                        var infoArgs = getStreamInfo.GetInfoArgs();
-
-                        if (infoArgs != null && !string.IsNullOrEmpty(infoArgs.streamUri))
-                        {
-                            uriString.Text = infoArgs.streamUri;
-                            uriString.Visibility = System.Windows.Visibility.Visible;
-                        }
-                    }, err =>
-                    {
-                        Error(err);
-                    }));
+            uriString.Text = "";
+            var session = activityContext.container.Resolve<INvtSession>();
+            uriSubscription.Disposable = session.GetStreamUri(CurrentStreamSetup(), profToken)
+                .ObserveOnCurrentDispatcher()
+                .Subscribe(mediaUri => {
+                    uriString.Text = mediaUri != null && mediaUri.uri != null ? mediaUri.uri : "";
+                }, err => {
+                    dbg.Error(err);
+                    uriString.Text = "stream URI unavailable: " + err.Message;
+                });
         }
-        
+
+        /// <summary>One entry of the profile selector.</summary>
+        public class ProfileItem {
+            public string Token { get; set; }
+            public string Text { get; set; }
+            public VideoResolution Resolution { get; set; }
+        }
+
+        // List the profiles of this video source that have a video encoder.
+        void LoadProfiles()
+        {
+            var session = activityContext.container.Resolve<INvtSession>();
+            profilesSubscription.Disposable = session.GetProfiles()
+                .ObserveOnCurrentDispatcher()
+                .Subscribe(profiles => {
+                    var playable = (profiles ?? new Profile[0])
+                        .Where(p => p.videoEncoderConfiguration != null
+                            && (model.videoSourceToken == null || p.videoSourceConfiguration == null
+                                || p.videoSourceConfiguration.sourceToken == model.videoSourceToken))
+                        .ToArray();
+                    // Media2 gives the H265 encoding and the data that Media1 does not give.
+                    profilesSubscription.Disposable = session.GetVideoEncoderConfigurationsMedia2()
+                        .ObserveOnCurrentDispatcher()
+                        .Subscribe(
+                            media2 => FillProfiles(playable, media2),
+                            err => { dbg.Error(err); FillProfiles(playable, null); });
+                }, err => {
+                    dbg.Error(err);
+                });
+        }
+
+        static bool IsValid(VideoResolution r)
+        {
+            return r != null && r.width > 0 && r.height > 0;
+        }
+
+        void FillProfiles(Profile[] profiles, VideoEncoderConfiguration[] media2)
+        {
+            var items = profiles.Select(p => {
+                var vec = p.videoEncoderConfiguration;
+                var m2 = media2 == null ? null : media2.FirstOrDefault(c => c != null && c.token == vec.token);
+                var encoding = m2 != null ? m2.encoding : vec.encoding;
+                var res = IsValid(vec.resolution) ? vec.resolution : (m2 != null && IsValid(m2.resolution) ? m2.resolution : null);
+                var name = string.IsNullOrEmpty(p.name) ? p.token : p.name;
+                var details = encoding.ToString().ToUpperInvariant() + (res != null ? " " + res.width + "x" + res.height : "");
+                return new ProfileItem { Token = p.token, Text = name + "  (" + details + ")", Resolution = res };
+            }).ToList();
+
+            profileSelector.SelectionChanged -= ProfileSelector_SelectionChanged;
+            profileSelector.ItemsSource = items;
+            profileSelector.SelectedItem = items.FirstOrDefault(i => i.Token == currentProfToken);
+            profileSelector.IsEnabled = items.Count > 1;
+            profileSelector.SelectionChanged += ProfileSelector_SelectionChanged;
+        }
+
+        void ProfileSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var item = profileSelector.SelectedItem as ProfileItem;
+            if (item == null || item.Token == currentProfToken)
+                return;
+            currentProfToken = item.Token;
+            if (item.Resolution != null) {
+                currentResolution = item.Resolution;
+                objects.Width = alarms.Width = item.Resolution.width;
+                objects.Height = alarms.Height = item.Resolution.height;
+            }
+            VideoStartup(item.Token);
+            ShowStreamUri(item.Token);
+        }
+
 
 		public void Dispose() {
 			Cancel();
