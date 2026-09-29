@@ -115,6 +115,10 @@ namespace onvifmp{
 		auto videoRendererFactory = VideoRenderer::Create(videoBuffer);
 		return ([=](VirtualSink* sink)->shared_ptr<IFrameProcessor>{
 			auto videoDecoder = videoDecoderFactory(sink);
+			if(videoDecoder == nullptr){
+				// The codec is not available or did not open.
+				return nullptr;
+			}
 			videoDecoder->AddVideoRenderer(videoRendererFactory);
 			return videoDecoder;
 		});
