@@ -699,8 +699,17 @@
             let! caps = session.GetCapabilities()
             let baseUri = new Uri(caps.media.xAddr)
             let uri = new Uri(baseUri, mediaUri.uri)
-            let! stream = this.DownloadStream(uri, null(*"image/jpeg"*))
-            return stream
+            // Some cameras send HTTP 200 with an empty body. Try again after a short time.
+            let rec download attempts = async{
+                let! stream = this.DownloadStream(uri, null(*"image/jpeg"*))
+                if stream.Length = 0L && attempts > 1 then
+                    stream.Dispose()
+                    do! Async.Sleep(1000)
+                    return! download (attempts - 1)
+                else
+                    return stream
+            }
+            return! download 3
         }
 
         member this.DownloadSchemes(uris:seq<Uri>) = async{
