@@ -74,26 +74,35 @@ namespace odm.ui.core
 
         private List<Account> Load()
         {
+            string tempPath = _storePath + ".tmp";
+
+            // A .tmp file without a store shows a crash before the swap.
+            // The .tmp file is complete, so use it as the store.
+            if (!File.Exists(_storePath) && File.Exists(tempPath))
+            {
+                try
+                {
+                    File.Move(tempPath, _storePath);
+                }
+                catch (Exception err)
+                {
+                    dbg.Error(err);
+                }
+            }
+
             // Try encrypted store first
             if (File.Exists(_storePath))
             {
                 try
                 {
-                    byte[] cipherBytes = File.ReadAllBytes(_storePath);
-                    byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
-                    string xml = Encoding.UTF8.GetString(plainBytes);
-
-                    var serializer = new XmlSerializer(typeof(CredentialList));
-                    using (var reader = new StringReader(xml))
-                    {
-                        var list = (CredentialList)serializer.Deserialize(reader);
-                        return list.Items ?? new List<Account>();
-                    }
+                    return ReadStore(_storePath);
                 }
                 catch (Exception err)
                 {
                     dbg.Error(err);
-                    // Fall through to migration attempt
+                    // ODM cannot read the store (damaged file or lost DPAPI key). Move it aside
+                    // so that Save cannot overwrite it. Then try the migration.
+                    SetAside(_storePath);
                 }
             }
 
@@ -115,10 +124,10 @@ namespace odm.ui.core
 
                     // Persist to new encrypted store before touching the old file
                     var credList = new CredentialList { Items = migrated };
-                    SaveInternal(credList);
 
                     // Only delete old file after successful write
-                    File.Delete(_legacyPath);
+                    if (SaveInternal(credList))
+                        File.Delete(_legacyPath);
 
                     return migrated;
                 }
@@ -137,7 +146,34 @@ namespace odm.ui.core
             SaveInternal(credList);
         }
 
-        private void SaveInternal(CredentialList credList)
+        private static List<Account> ReadStore(string path)
+        {
+            byte[] cipherBytes = File.ReadAllBytes(path);
+            byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
+            string xml = Encoding.UTF8.GetString(plainBytes);
+
+            var serializer = new XmlSerializer(typeof(CredentialList));
+            using (var reader = new StringReader(xml))
+            {
+                var list = (CredentialList)serializer.Deserialize(reader);
+                return list.Items ?? new List<Account>();
+            }
+        }
+
+        private static void SetAside(string path)
+        {
+            try
+            {
+                File.Move(path, path + ".unreadable-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+            }
+            catch (Exception err)
+            {
+                dbg.Error(err);
+            }
+        }
+
+        /// <returns>True if the store is on the disk.</returns>
+        private bool SaveInternal(CredentialList credList)
         {
             try
             {
@@ -151,16 +187,20 @@ namespace odm.ui.core
                 byte[] plainBytes = Encoding.UTF8.GetBytes(sb.ToString());
                 byte[] cipherBytes = ProtectedData.Protect(plainBytes, null, DataProtectionScope.CurrentUser);
 
-                // Write atomically via temp file to avoid corruption on crash (R4 mitigation)
+                // Write a temp file, then replace the store with File.Replace (atomic on NTFS).
+                // If a crash occurs before the swap, Load() uses the complete .tmp file.
                 string tempPath = _storePath + ".tmp";
                 File.WriteAllBytes(tempPath, cipherBytes);
                 if (File.Exists(_storePath))
-                    File.Delete(_storePath);
-                File.Move(tempPath, _storePath);
+                    File.Replace(tempPath, _storePath, null);
+                else
+                    File.Move(tempPath, _storePath);
+                return true;
             }
             catch (Exception err)
             {
                 dbg.Error(err);
+                return false;
             }
         }
     }

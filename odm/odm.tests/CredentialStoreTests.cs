@@ -196,5 +196,65 @@ namespace odm.tests
             Assert.AreEqual("updated", all[0].Name);
             Assert.AreEqual("newpwd", all[0].Password);
         }
+
+        // Recovery tests: a crash before the swap, and a store that cannot be read.
+
+        List<Account> InvokeLoad()
+        {
+            // Load() can read the legacy file. Use the temp folder for it,
+            // so that the tests do not read or delete the real account.def.xml.
+            var legacyField = typeof(CredentialStore).GetField("_legacyPath",
+                BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(legacyField, "_legacyPath field not found");
+            var originalLegacy = legacyField.GetValue(_store);
+            legacyField.SetValue(_store, Path.Combine(_tempDir, "account.def.xml"));
+            try
+            {
+                var loadMethod = typeof(CredentialStore).GetMethod("Load",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                return (List<Account>)loadMethod.Invoke(_store, null);
+            }
+            finally
+            {
+                legacyField.SetValue(_store, originalLegacy);
+            }
+        }
+
+        [TestMethod]
+        public void Load_LeftoverTmpWithoutStore_IsRecovered()
+        {
+            _store.Add(new Account { Name = "survivor", Password = "pw" });
+            // Make the state of a crash after the temp write and before the swap.
+            File.Move(_tempStorePath, _tempStorePath + ".tmp");
+
+            var loaded = InvokeLoad();
+
+            Assert.AreEqual(1, loaded.Count);
+            Assert.AreEqual("survivor", loaded[0].Name);
+            Assert.IsTrue(File.Exists(_tempStorePath), "tmp should be promoted to the store");
+        }
+
+        [TestMethod]
+        public void Load_UnreadableStore_IsSetAsideNotOverwritten()
+        {
+            File.WriteAllBytes(_tempStorePath, new byte[] { 1, 2, 3, 4 });
+
+            var loaded = InvokeLoad();
+
+            Assert.AreEqual(0, loaded.Count);
+            Assert.IsFalse(File.Exists(_tempStorePath), "unreadable store should be moved aside");
+            Assert.AreEqual(1, Directory.GetFiles(_tempDir, "test_credentials.dat.unreadable-*").Length);
+        }
+
+        [TestMethod]
+        public void Save_ExistingStore_IsReplacedAndNoTmpLeft()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            _store.Add(new Account { Name = "b", Password = "2" });
+
+            Assert.IsFalse(File.Exists(_tempStorePath + ".tmp"));
+            _credentialsField.SetValue(_store, new List<Account>());
+            Assert.AreEqual(2, InvokeLoad().Count);
+        }
     }
 }
