@@ -641,6 +641,15 @@ namespace onvif.services {
 			AsyncCallback callback, object asyncState);
 		System.ServiceModel.Channels.Message EndGetVideoEncoderConfigurations(
 			IAsyncResult result);
+
+		// Untyped request and reply for the other Media2 operations. The caller makes the body
+		// with LINQ to XML, so that ODM can keep the elements that it does not know.
+		[OperationContract(AsyncPattern = true, Action = "*", ReplyAction = "*")]
+		IAsyncResult BeginInvokeRaw(
+			System.ServiceModel.Channels.Message request,
+			AsyncCallback callback, object asyncState);
+		System.ServiceModel.Channels.Message EndInvokeRaw(
+			IAsyncResult result);
 	}
 
 	[MessageContract(WrapperName = "GetVideoEncoderConfigurations",

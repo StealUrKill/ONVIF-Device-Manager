@@ -30,6 +30,104 @@ namespace odm.ui.activities
 //    open odm.ui.dialogs
 
 
+    /// Media2 support for the video streaming page. Media2 can show H265 and complete encoder data.
+    /// ODM converts the Media2 options to the Media1 options that the view uses.
+    type Media2VideoSettings() = class
+        static member private IntRangeOf(lo:int, hi:int) = new IntRange(min = lo, max = hi)
+
+        static member private FrameRateRange(o:Media2EncoderOptions) =
+            if o.FrameRates.Length = 0 then null
+            else Media2VideoSettings.IntRangeOf(int (Math.Floor(Array.min o.FrameRates)), int (Math.Ceiling(Array.max o.FrameRates)))
+
+        static member private GovRange(o:Media2EncoderOptions) =
+            match o.GovLengthRange with
+            | Some (lo, hi) -> Media2VideoSettings.IntRangeOf(lo, hi)
+            | None -> null
+
+        /// Media2 has no encoding interval. A fixed range of 1 to 1 disables the control.
+        static member private NoEncodingInterval() = Media2VideoSettings.IntRangeOf(1, 1)
+
+        static member ToMedia1Options(opts:Media2EncoderOptions[]) =
+            let options = new VideoEncoderConfigurationOptions()
+            let qualities = opts |> Array.choose (fun o -> o.QualityRange)
+            if qualities.Length > 0 then
+                options.qualityRange <- Media2VideoSettings.IntRangeOf(
+                    qualities |> Array.map (fun (lo, _) -> int (Math.Floor(float lo))) |> Array.min,
+                    qualities |> Array.map (fun (_, hi) -> int (Math.Ceiling(float hi))) |> Array.max)
+            for o in opts do
+                match o.Encoding with
+                | Some VideoEncoding.h264 ->
+                    options.h264 <- new H264Options(
+                        resolutionsAvailable = o.Resolutions,
+                        govLengthRange = Media2VideoSettings.GovRange(o),
+                        frameRateRange = Media2VideoSettings.FrameRateRange(o),
+                        encodingIntervalRange = Media2VideoSettings.NoEncodingInterval())
+                | Some VideoEncoding.h265 ->
+                    options.h265 <- new H265Options(
+                        resolutionsAvailable = o.Resolutions,
+                        govLengthRange = Media2VideoSettings.GovRange(o),
+                        frameRateRange = Media2VideoSettings.FrameRateRange(o),
+                        encodingIntervalRange = Media2VideoSettings.NoEncodingInterval())
+                | Some VideoEncoding.jpeg ->
+                    options.jpeg <- new JpegOptions(
+                        resolutionsAvailable = o.Resolutions,
+                        frameRateRange = Media2VideoSettings.FrameRateRange(o),
+                        encodingIntervalRange = Media2VideoSettings.NoEncodingInterval())
+                | _ -> ()
+            options
+
+        static member BitrateRange(opts:Media2EncoderOptions[]) =
+            let ranges = opts |> Array.choose (fun o -> o.BitrateRange)
+            if ranges.Length = 0 then None
+            else Some (ranges |> Array.map fst |> Array.min, ranges |> Array.map snd |> Array.max)
+
+        static member GovLengthOf(cfg:VideoEncoderConfiguration) =
+            if cfg.encoding = VideoEncoding.h265 && cfg.h265 |> NotNull then cfg.h265.govLength
+            elif cfg.encoding = VideoEncoding.h264 && cfg.h264 |> NotNull then cfg.h264.govLength
+            else -1
+
+        /// Make the Media2 change for the model. Return None if the camera does not support the settings.
+        /// Values stay in the camera ranges. ODM uses the nearest supported frame rate.
+        static member BuildChange(model:VideoSettingsView.Model, current:VideoEncoderConfiguration, opts:Media2EncoderOptions[]) =
+            match opts |> Array.tryFind (fun o -> o.Encoding = Some model.encoder) with
+            | None -> None
+            | Some o when not (o.Resolutions |> Array.exists (fun r -> r = model.resolution)) -> None
+            | Some o ->
+                let frameRate =
+                    if o.FrameRates.Length = 0 then Some model.frameRate
+                    else Some (o.FrameRates |> Array.minBy (fun r -> abs (r - model.frameRate)))
+                let bitrate =
+                    let v = int model.bitrate
+                    match o.BitrateRange with
+                    | Some (lo, hi) -> Some (v |> Math.Coerce lo hi)
+                    | None -> if v > 0 then Some v else None
+                let quality =
+                    match o.QualityRange with
+                    | Some (lo, hi) -> Some (model.quality |> Math.Coerce lo hi)
+                    | None -> Some model.quality
+                let govLength =
+                    if model.encoder = VideoEncoding.jpeg || model.govLength <= 0 then None
+                    else
+                        match o.GovLengthRange with
+                        | Some (lo, hi) -> Some (model.govLength |> Math.Coerce lo hi)
+                        | None -> Some model.govLength
+                // H.264 and H.265 have different profiles. If the encoding changes, select a supported profile.
+                // If not, keep the current profile of the camera.
+                let profile =
+                    if model.encoder = current.encoding || o.ProfilesSupported.Length = 0 then None
+                    elif o.ProfilesSupported |> Array.exists ((=) "Main") then Some "Main"
+                    else Some o.ProfilesSupported.[0]
+                Some {
+                    NewEncoding = model.encoder
+                    NewResolution = model.resolution
+                    NewFrameRateLimit = frameRate
+                    NewBitrateLimit = bitrate
+                    NewGovLength = govLength
+                    NewQuality = quality
+                    NewProfile = profile
+                }
+    end
+
     type VideoSettingsActivity(ctx:IUnityContainer, profToken:string) = class
         do if profToken |> IsNull then raise( new ArgumentNullException("profToken") )
         let session = ctx.Resolve<INvtSession>()
@@ -51,7 +149,15 @@ namespace odm.ui.activities
             //TODO: show modal dialog to chose VEC, in case if the profile doesn't have one
             
             let vec  = profile.videoEncoderConfiguration
-            let! options = session.GetVideoEncoderConfigurationOptions(vec.token, profile.token)
+            if vec |> IsNull then
+                failwith "the profile has no video encoder configuration"
+            let! media1Options = async{
+                try
+                    let! o = session.GetVideoEncoderConfigurationOptions(vec.token, profile.token)
+                    return Choice1Of2 o
+                with err ->
+                    return Choice2Of2 err
+            }
 
             // Fix: infer effective H265 encoding using the same multi-case logic as
             // ProfileDescription.GetVecDetails (see comments there for full rationale).
@@ -72,26 +178,61 @@ namespace odm.ui.activities
                     try return! session.GetVideoEncoderConfigurationsMedia2()
                     with _ -> return [||]
                 }
-            let effectiveEncoding =
-                let m2match = media2Cfgs |> Array.tryFind (fun c -> NotNull(c) && c.token = vec.token)
+            let m2match = media2Cfgs |> Array.tryFind (fun c -> NotNull(c) && c.token = vec.token && c.resolution |> NotNull)
+            let! m2opts = async{
                 match m2match with
-                | Some m2cfg when m2cfg.encoding <> VideoEncoding.h264 -> m2cfg.encoding
+                | Some _ ->
+                    try return! session.GetVideoEncoderConfigurationOptionsMedia2(vec.token, profile.token)
+                    with err ->
+                        dbg.Error(err)
+                        return [||]
+                | None -> return [||]
+            }
+            // Use Media2 if it is available, because Media2 can show H265 and complete encoder data.
+            // If not, use Media1.
+            let m2cfg = if m2opts.Length > 0 then m2match else None
+
+            let options =
+                match m2cfg, media1Options with
+                | Some _, _ -> Media2VideoSettings.ToMedia1Options(m2opts)
+                | None, Choice1Of2 o -> o
+                | None, Choice2Of2 err -> raise err
+
+            // Some cameras send a Media1 encoder configuration without encoding or resolution.
+            // In this condition, use the values from Media2.
+            let isStubVec = EncoderResolution.IsMedia1Stub(vec)
+            let m2stub = if isStubVec then m2match else None
+
+            let effectiveEncoding =
+                match m2cfg, m2match with
+                | Some c, _ -> c.encoding
+                | None, Some c when c.encoding <> VideoEncoding.h264 || isStubVec -> c.encoding
                 | _ -> media1Encoding
 
-            let resolution = vec.resolution
-            let framerate = 
-                if vec.rateControl |> NotNull then
-                    vec.rateControl.frameRateLimit
+            let resolution =
+                match m2cfg, m2stub with
+                | Some c, _ -> c.resolution
+                | None, Some c when c.resolution |> NotNull -> c.resolution
+                | _ -> vec.resolution
+            let rateControl =
+                match m2cfg, m2stub with
+                | Some c, _ when c.rateControl |> NotNull -> c.rateControl
+                | None, Some c when vec.rateControl |> IsNull && c.rateControl |> NotNull -> c.rateControl
+                | _ -> vec.rateControl
+            let framerate =
+                if rateControl |> NotNull then
+                    rateControl.frameRateLimit
                 else
                     -1
-            let encodingInterval = 
-                if vec.rateControl |> NotNull then
+            let encodingInterval =
+                if m2cfg.IsSome then 1  // Media2 has no encoding interval
+                elif vec.rateControl |> NotNull then
                     vec.rateControl.encodingInterval
                 else
                     -1
-            let bitrate = 
-                if vec.rateControl |> NotNull then
-                    vec.rateControl.bitrateLimit
+            let bitrate =
+                if rateControl |> NotNull then
+                    rateControl.bitrateLimit
                 else
                     -1
 
@@ -146,7 +287,9 @@ namespace odm.ui.activities
                     yield options.h265.govLengthRange
             })
             let govLength =
-                if effectiveEncoding = VideoEncoding.h264 && NotNull(vec.h264) then
+                if m2cfg.IsSome then
+                    Media2VideoSettings.GovLengthOf(m2cfg.Value)
+                elif effectiveEncoding = VideoEncoding.h264 && NotNull(vec.h264) then
                     vec.h264.govLength
                 elif effectiveEncoding = VideoEncoding.mpeg4 && NotNull(vec.mpeg4) then
                     vec.mpeg4.govLength
@@ -156,7 +299,11 @@ namespace odm.ui.activities
                     -1
 
             let bitrateRanges = Seq.toList(seq{
-                if NotNull(options.extension) && NotNull(options.extension.any) then
+                if m2cfg.IsSome then
+                    match Media2VideoSettings.BitrateRange(m2opts) with
+                    | Some (lo, hi) -> yield new IntRange(min = lo, max = hi)
+                    | None -> ()
+                elif NotNull(options.extension) && NotNull(options.extension.any) then
                     let tt = @"http://www.onvif.org/ver10/schema"
                     for x in options.extension.any |> Seq.filter (fun x->x.NamespaceURI = tt) do
                         if x.Name = @"JPEG" then
@@ -169,7 +316,11 @@ namespace odm.ui.activities
                             yield x.Deserialize<H265Options2>().bitrateRange
             })
             
-            let quality = vec.quality
+            let quality =
+                match m2cfg, m2stub with
+                | Some c, _ -> c.quality
+                | None, Some c -> c.quality
+                | _ -> vec.quality
             let qualityRange = options.qualityRange |> SuppressNull (new IntRange(min = -1, max= -1))
             
             let (minFrameRate, maxFrameRate) = 
@@ -233,12 +384,16 @@ namespace odm.ui.activities
             return model
         }
 
-        let apply_changes(model:VideoSettingsView.Model) = async{
-            
+        let apply_changes_media1(model:VideoSettingsView.Model) = async{
+
             //let! profiles = session.GetProfiles()
             //let profile = profiles |> Seq.find (fun p-> p.token = profToken)
             let! profile = session.GetProfile(profToken)
             let vec = profile.videoEncoderConfiguration
+            // This Media1 configuration has no encoding or resolution. Do not write it back,
+            // because the write can set JPEG (the default value) or an incomplete configuration.
+            if EncoderResolution.IsMedia1Stub(vec) then
+                failwith "This camera reports its video encoder settings only through ONVIF Media2, and the Media2 service did not respond. Use the camera's web interface to change encoder settings."
 //
 //            do! session.RemoveVideoEncoderConfiguration(profile.token)
 //            profile.VideoEncoderConfiguration <- null
@@ -327,7 +482,48 @@ namespace odm.ui.activities
 
             return isVecConfigured
         }
-        
+
+        /// Apply the changes through Media2. Return None if Media2 is not available,
+        /// so that the caller can use Media1.
+        let apply_changes_media2(model:VideoSettingsView.Model) = async{
+            let! profile = session.GetProfile(profToken)
+            let vec = profile.videoEncoderConfiguration
+            if vec |> IsNull then
+                return None
+            else
+                let! cfgs = async{
+                    try return! session.GetVideoEncoderConfigurationsMedia2()
+                    with _ -> return [||]
+                }
+                match cfgs |> Array.tryFind (fun c -> NotNull(c) && c.token = vec.token && c.resolution |> NotNull) with
+                | None -> return None
+                | Some current ->
+                    let! opts = async{
+                        try return! session.GetVideoEncoderConfigurationOptionsMedia2(vec.token, profile.token)
+                        with err ->
+                            dbg.Error(err)
+                            return [||]
+                    }
+                    if opts.Length = 0 then
+                        return None
+                    else
+                        match Media2VideoSettings.BuildChange(model, current, opts) with
+                        | None ->
+                            // The camera does not support this encoding or resolution.
+                            return Some false
+                        | Some change ->
+                            do! session.UpdateVideoEncoderConfigurationMedia2(vec.token, change)
+                            model.AcceptChanges()
+                            return Some true
+        }
+
+        let apply_changes(model:VideoSettingsView.Model) = async{
+            let! viaMedia2 = apply_changes_media2(model)
+            match viaMedia2 with
+            | Some configured -> return configured
+            | None -> return! apply_changes_media1(model)
+        }
+
         member private this.Main() = async{
             let! cont = async{
                 try

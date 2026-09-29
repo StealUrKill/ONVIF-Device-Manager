@@ -68,6 +68,33 @@ namespace odm.core
         inherit ActionEnginePort
     end
 
+    /// The options for one encoding from Media2 GetVideoEncoderConfigurationOptions.
+    type Media2EncoderOptions = {
+        /// None if ODM does not know the encoding.
+        Encoding: VideoEncoding option
+        EncodingName: string
+        Resolutions: VideoResolution[]
+        QualityRange: (float32 * float32) option
+        BitrateRange: (int * int) option
+        /// The frame rates that the camera accepts. Media2 gives a list, not a range.
+        FrameRates: float[]
+        GovLengthRange: (int * int) option
+        ProfilesSupported: string[]
+    }
+
+    /// The values to write with UpdateVideoEncoderConfigurationMedia2.
+    /// ODM sends all other values of the camera configuration without change.
+    type Media2EncoderChange = {
+        NewEncoding: VideoEncoding
+        NewResolution: VideoResolution
+        NewFrameRateLimit: float option
+        NewBitrateLimit: int option
+        NewGovLength: int option
+        NewQuality: float32 option
+        /// The H.264 or H.265 profile, for example "Main". Set it when the encoding changes.
+        NewProfile: string option
+    }
+
     [<AllowNullLiteral>]
     type INvtSession = interface
         inherit IDeviceAsync
@@ -86,6 +113,9 @@ namespace odm.core
         abstract deviceUri:Uri
         abstract GetAllCapabilities: unit -> Async<Capabilities>
         abstract GetVideoEncoderConfigurationsMedia2: unit -> Async<VideoEncoderConfiguration[]>
+        abstract GetVideoEncoderConfigurationOptionsMedia2: configToken:string * profileToken:string -> Async<Media2EncoderOptions[]>
+        /// Read one Media2 video encoder configuration, change it and write it back.
+        abstract UpdateVideoEncoderConfigurationMedia2: configToken:string * change:Media2EncoderChange -> Async<unit>
     end
 
     type private ServiceEndpointMap = {
@@ -1126,7 +1156,30 @@ namespace odm.core
                 })
                 fun()->comp
 
-            let MediaGetVideoSources = 
+            let nsMedia2 = System.Xml.Linq.XNamespace.Get("http://www.onvif.org/ver20/media/wsdl")
+            let nsSchema = System.Xml.Linq.XNamespace.Get("http://www.onvif.org/ver10/schema")
+
+            /// Send a Media2 request with a LINQ to XML body and return the reply body.
+            /// The message inspector of the channel adds the WS-Security header.
+            let media2Invoke (operation:string) (body:System.Xml.Linq.XElement) = async{
+                let! med2 = GetMedia2Client()
+                if med2 |> IsNull then
+                    return raise (NotSupportedException("the device does not support ONVIF Media2"))
+                else
+                    let action = "http://www.onvif.org/ver20/media/wsdl/" + operation
+                    let request = Message.CreateMessage(MessageVersion.Soap12, action, body.CreateReader())
+                    let! reply = Async.FromBeginEnd(request, med2.BeginInvokeRaw, med2.EndInvokeRaw)
+                    use reply = reply
+                    if reply.IsFault then
+                        let fault = MessageFault.CreateFault(reply, 65536)
+                        return raise (FaultException(fault, action))
+                    else
+                        // Read all of the body before WCF disposes of the message.
+                        let xml = reply.GetReaderAtBodyContents().ReadOuterXml()
+                        return System.Xml.Linq.XElement.Parse(xml)
+            }
+
+            let MediaGetVideoSources =
                 let comp = Async.Memoize(async{
                     let! media = GetMediaClient()
                     if media |> NotNull then 
@@ -1265,22 +1318,12 @@ namespace odm.core
                             if med2 |> IsNull then
                                 return [||]
                             else
-                                let request = new Media2GetVideoEncoderConfigurationsRequest()
-                                let! response = Async.FromBeginEnd(request, med2.BeginGetVideoEncoderConfigurations, med2.EndGetVideoEncoderConfigurations)
-                                // response.Configurations is XmlElement[] — parse token and Encoding manually
-                                // because WCF cannot deserialize VideoEncoderConfiguration[] across the
-                                // ver20/media/wsdl (wrapper) / ver10/schema (type) namespace boundary.
-                                // response is a raw WCF Message — read body with LINQ to XML.
-                                // Use ReadOuterXml() to consume the full element as a string before
-                                // WCF closes the reader; XDocument.Load(reader) alone leaves the reader
-                                // short of EndOfFile and WCF throws on Message disposal.
-                                use response = response
-                                let bodyReader = response.GetReaderAtBodyContents()
-                                let bodyXml = bodyReader.ReadOuterXml()
-                                let doc = System.Xml.Linq.XDocument.Parse(bodyXml)
-                                let nsTr2 = System.Xml.Linq.XNamespace.Get("http://www.onvif.org/ver20/media/wsdl")
-                                let nsTt  = System.Xml.Linq.XNamespace.Get("http://www.onvif.org/ver10/schema")
-                                let cfgEls = doc.Root.Elements(nsTr2 + "Configurations") |> Seq.toArray
+                                // WCF cannot deserialize this type across the two namespaces, so parse it manually. Use
+                                // media2Invoke, because some cameras send no data to the typed operation on a new session.
+                                let! body = media2Invoke "GetVideoEncoderConfigurations" (System.Xml.Linq.XElement(nsMedia2 + "GetVideoEncoderConfigurations"))
+                                let nsTr2 = nsMedia2
+                                let nsTt  = nsSchema
+                                let cfgEls = body.Elements(nsTr2 + "Configurations") |> Seq.toArray
                                 return [|
                                     for el in cfgEls do
                                         let tokenAttr = el.Attribute(System.Xml.Linq.XName.Get("token"))
@@ -1337,6 +1380,146 @@ namespace odm.core
                         with err ->
                             dbg.Error(err)
                             return [||]
+                    }
+
+                    member this.GetVideoEncoderConfigurationOptionsMedia2(configToken, profileToken) = async{
+                        let body =
+                            System.Xml.Linq.XElement(nsMedia2 + "GetVideoEncoderConfigurationOptions",
+                                (if String.IsNullOrEmpty(configToken) then null else System.Xml.Linq.XElement(nsMedia2 + "ConfigurationToken", configToken)),
+                                (if String.IsNullOrEmpty(profileToken) then null else System.Xml.Linq.XElement(nsMedia2 + "ProfileToken", profileToken)))
+                        let! resp = media2Invoke "GetVideoEncoderConfigurationOptions" body
+                        let inv = CultureInfo.InvariantCulture
+                        let attr (e:System.Xml.Linq.XElement) (name:string) =
+                            let a = e.Attribute(System.Xml.Linq.XName.Get(name))
+                            if a |> IsNull then "" else a.Value.Trim()
+                        let words (s:string) =
+                            s.Split([|' '; '\t'; '\r'; '\n'|], StringSplitOptions.RemoveEmptyEntries)
+                        let tryParseInt (s:string) =
+                            let mutable v = 0
+                            if Int32.TryParse(s.Trim(), NumberStyles.Integer, inv, &v) then Some v else None
+                        let tryParseFloat (s:string) =
+                            let mutable v = 0.0
+                            if Double.TryParse(s.Trim(), NumberStyles.Float, inv, &v) then Some v else None
+                        let range (parse:string->'T) (parent:System.Xml.Linq.XElement) (name:string) =
+                            let e = parent.Element(nsSchema + name)
+                            if e |> IsNull then None
+                            else
+                                let mn = e.Element(nsSchema + "Min")
+                                let mx = e.Element(nsSchema + "Max")
+                                if mn |> IsNull || mx |> IsNull then None
+                                else
+                                    try Some (parse (mn.Value.Trim()), parse (mx.Value.Trim())) with _ -> None
+                        return [|
+                            for o in resp.Elements(nsMedia2 + "Options") do
+                                let encEl = o.Element(nsSchema + "Encoding")
+                                let encName = if encEl |> IsNull then "" else encEl.Value.Trim()
+                                let encoding =
+                                    match encName.ToUpperInvariant() with
+                                    | "H264" -> Some VideoEncoding.h264
+                                    | "H265" -> Some VideoEncoding.h265
+                                    | "JPEG" -> Some VideoEncoding.jpeg
+                                    | "MPV4-ES" | "MPEG4" -> Some VideoEncoding.mpeg4
+                                    | _ -> None
+                                let govRange =
+                                    match words (attr o "GovLengthRange") with
+                                    | [| mn; mx |] ->
+                                        (try Some (Int32.Parse(mn, inv), Int32.Parse(mx, inv)) with _ -> None)
+                                    | _ -> None
+                                yield {
+                                    Encoding = encoding
+                                    EncodingName = encName
+                                    Resolutions = [|
+                                        for r in o.Elements(nsSchema + "ResolutionsAvailable") do
+                                            let w = r.Element(nsSchema + "Width")
+                                            let h = r.Element(nsSchema + "Height")
+                                            if w |> NotNull && h |> NotNull then
+                                                match tryParseInt w.Value, tryParseInt h.Value with
+                                                | Some wv, Some hv -> yield new VideoResolution(width = wv, height = hv)
+                                                | _ -> ()
+                                    |]
+                                    QualityRange = range (fun s -> Single.Parse(s, NumberStyles.Float, inv)) o "QualityRange"
+                                    BitrateRange = range (fun s -> Int32.Parse(s, inv)) o "BitrateRange"
+                                    FrameRates = [|
+                                        for s in words (attr o "FrameRatesSupported") do
+                                            match tryParseFloat s with
+                                            | Some v -> yield v
+                                            | None -> ()
+                                    |]
+                                    GovLengthRange = govRange
+                                    ProfilesSupported = words (attr o "ProfilesSupported")
+                                }
+                        |]
+                    }
+
+                    member this.UpdateVideoEncoderConfigurationMedia2(configToken, change) = async{
+                        let inv = CultureInfo.InvariantCulture
+                        // Read the current configuration of the camera.
+                        let getBody =
+                            System.Xml.Linq.XElement(nsMedia2 + "GetVideoEncoderConfigurations",
+                                System.Xml.Linq.XElement(nsMedia2 + "ConfigurationToken", configToken))
+                        let! resp = media2Invoke "GetVideoEncoderConfigurations" getBody
+                        let current =
+                            resp.Elements(nsMedia2 + "Configurations")
+                            |> Seq.tryFind (fun e ->
+                                let t = e.Attribute(System.Xml.Linq.XName.Get("token"))
+                                t |> NotNull && t.Value = configToken)
+                        let cfg =
+                            match current with
+                            | Some e -> System.Xml.Linq.XElement(e)
+                            | None -> failwithf "video encoder configuration '%s' not found via Media2" configToken
+                        cfg.Name <- nsMedia2 + "Configuration"
+
+                        // Change only the values that the user changed. Keep the schema element order
+                        // (Name, UseCount, Encoding, Resolution, RateControl, Multicast, Quality).
+                        let order = [ "Name"; "UseCount"; "Encoding"; "Resolution"; "RateControl"; "Multicast"; "Quality" ]
+                        let ensure (name:string) =
+                            match cfg.Element(nsSchema + name) with
+                            | null ->
+                                let e = System.Xml.Linq.XElement(nsSchema + name)
+                                let idx = order |> List.findIndex ((=) name)
+                                let prev =
+                                    order |> Seq.take idx |> Seq.toList |> List.rev
+                                    |> List.tryPick (fun n ->
+                                        match cfg.Element(nsSchema + n) with
+                                        | null -> None
+                                        | x -> Some x)
+                                match prev with
+                                | Some p -> p.AddAfterSelf(e)
+                                | None -> cfg.AddFirst(e)
+                                e
+                            | e -> e
+                        let setChild (parent:System.Xml.Linq.XElement) (name:string) (value:string) =
+                            match parent.Element(nsSchema + name) with
+                            | null -> parent.Add(System.Xml.Linq.XElement(nsSchema + name, value))
+                            | e -> e.Value <- value
+
+                        let encodingName =
+                            match change.NewEncoding with
+                            | VideoEncoding.h265 -> "H265"
+                            | VideoEncoding.jpeg -> "JPEG"
+                            | VideoEncoding.mpeg4 -> "MPV4-ES"
+                            | _ -> "H264"
+                        (ensure "Encoding").Value <- encodingName
+                        let res = ensure "Resolution"
+                        setChild res "Width" (change.NewResolution.width.ToString(inv))
+                        setChild res "Height" (change.NewResolution.height.ToString(inv))
+                        if change.NewFrameRateLimit.IsSome || change.NewBitrateLimit.IsSome then
+                            let rc = ensure "RateControl"
+                            change.NewFrameRateLimit |> Option.iter (fun v -> setChild rc "FrameRateLimit" (v.ToString("0.######", inv)))
+                            change.NewBitrateLimit |> Option.iter (fun v -> setChild rc "BitrateLimit" (v.ToString(inv)))
+                        change.NewQuality |> Option.iter (fun v -> (ensure "Quality").Value <- v.ToString("0.######", inv))
+                        change.NewGovLength |> Option.iter (fun v -> cfg.SetAttributeValue(System.Xml.Linq.XName.Get("GovLength"), v.ToString(inv)))
+                        match change.NewProfile with
+                        | Some v -> cfg.SetAttributeValue(System.Xml.Linq.XName.Get("Profile"), v)
+                        | None ->
+                            // Profile is optional. Do not send back an empty or incorrect value.
+                            let p = cfg.Attribute(System.Xml.Linq.XName.Get("Profile"))
+                            if p |> NotNull && (String.IsNullOrWhiteSpace(p.Value) || p.Value |> Seq.exists (fun c -> c = '�' || Char.IsControl(c))) then
+                                p.Remove()
+
+                        // Write the configuration back.
+                        let! _ = media2Invoke "SetVideoEncoderConfiguration" (System.Xml.Linq.XElement(nsMedia2 + "SetVideoEncoderConfiguration", cfg))
+                        return ()
                     }
 
                 end
