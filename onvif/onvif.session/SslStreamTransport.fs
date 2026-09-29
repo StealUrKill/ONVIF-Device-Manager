@@ -107,6 +107,11 @@ module internal SslStreamHelpers =
 
         { StatusCode = statusCode; ContentType = contentType; Body = body }
 
+    /// Return true if the body is a SOAP envelope, for example a SOAP 1.2 fault on HTTP 400 or 500.
+    let looksLikeSoap (body: byte[]) =
+        body.Length > 0 &&
+        Encoding.UTF8.GetString(body).IndexOf("Envelope", StringComparison.Ordinal) >= 0
+
     let sslSend (uri: Uri) (bodyBytes: byte[]) (contentType: string) (timeoutMs: int) =
         let host = uri.Host
         let port = if uri.IsDefaultPort then 443 else uri.Port
@@ -199,17 +204,23 @@ type SslStreamRequestChannel(factory: ChannelManagerBase, encoder: MessageEncode
 
         // Send via raw SslStream
         let resp = SslStreamHelpers.sslSend via bodyBytes contentType timeoutMs
+        let httpError () =
+            sprintf "HTTP %d received from camera at %O" resp.StatusCode via
         if resp.StatusCode >= 400 then
             System.Diagnostics.Debug.WriteLine(sprintf "SslStreamTransport: HTTP %d from %O" resp.StatusCode via)
-
-            raise (CommunicationException(sprintf "HTTP %d received from camera at %O" resp.StatusCode via))
-
+            // SOAP 1.2 faults can come with HTTP 400 or 500. Decode them as a reply, so that WCF gives
+            // FaultException for the callers (for example ActionNotSupported). Only a body that is not SOAP fails.
+            if not (SslStreamHelpers.looksLikeSoap resp.Body) then
+                raise (CommunicationException(httpError ()))
 
         // Deserialize response
         let respBuf = bufMgr.TakeBuffer(resp.Body.Length)
         Buffer.BlockCopy(resp.Body, 0, respBuf, 0, resp.Body.Length)
         let msg =
-            encoder.ReadMessage(ArraySegment<byte>(respBuf, 0, resp.Body.Length), bufMgr, resp.ContentType)
+            try
+                encoder.ReadMessage(ArraySegment<byte>(respBuf, 0, resp.Body.Length), bufMgr, resp.ContentType)
+            with ex when resp.StatusCode >= 400 ->
+                raise (CommunicationException(httpError (), ex))
         // Mark all mustUnderstand response headers as understood before returning to WCF.
         // gSOAP cameras include Action mustUnderstand="1" in their response envelope;
         // WCF's ServiceChannel.HandleReply throws a FaultException for any mustUnderstand
