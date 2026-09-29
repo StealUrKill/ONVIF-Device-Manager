@@ -246,17 +246,19 @@ namespace odm.ui.activities
             //let! vecs = session.GetCompatibleVideoEncoderConfigurations(profile.token)
 
             let! options = session.GetVideoEncoderConfigurationOptions(vec.token, null)
-            let qualityMin = float32(options.qualityRange.min)
-            let qualityMax = float32(options.qualityRange.max)
             //let quality = Math.Min(qualityMax, Math.Max(model.quality, qualityMin))
-            let quality = model.quality |> Math.Coerce qualityMin qualityMax
+            let quality =
+                if options.qualityRange |> NotNull then
+                    model.quality |> Math.Coerce (float32 options.qualityRange.min) (float32 options.qualityRange.max)
+                else
+                    model.quality
 
-            // Detect Media2-only H265: the model reports h265 (via Media2 override) but
-            // Media1 reports h264. Sending encoding=h265 to the Media1 endpoint causes a
-            // SOAP fault. Preserve the Media1 encoding so we can still apply rate/quality
-            // settings; H265-specific config (govLength) will be skipped below.
+            // Media1 shows H264, but load() found H265 through Media2 and the user kept it. Keep the
+            // Media1 encoding and do not set the H265 GOV length. If the user selected H265, send H265.
             let isMedia2OnlyH265 =
-                model.encoder = VideoEncoding.h265 && vec.encoding = VideoEncoding.h264
+                model.encoder = VideoEncoding.h265 &&
+                model.origin.encoder = VideoEncoding.h265 &&
+                vec.encoding = VideoEncoding.h264
 
             vec.encoding <- if isMedia2OnlyH265 then vec.encoding else model.encoder
             vec.quality <- quality
@@ -269,33 +271,35 @@ namespace odm.ui.activities
                 else
                     (fun(v)->v)
 
-            let inline validateConfig(opts:^TOpt) = 
-                if options |> NotNull then
+            let coerceRange (range:IntRange) (v:int) =
+                if range |> NotNull then v |> Math.Coerce range.min range.max else v
+
+            let inline validateConfig(opts:^TOpt) =
+                if opts |> NotNull then
                     let resolutions = (^TOpt: (member resolutionsAvailable:VideoResolution[])(opts))
-                    if resolutions |> Array.exists (fun x->x=model.resolution) then
+                    if resolutions |> NotNull && resolutions |> Array.exists (fun x->x=model.resolution) then
                         if vec.rateControl |> IsNull then
                             vec.rateControl <- new VideoRateControl()
                         let frameRateRange = (^TOpt: (member frameRateRange:IntRange)(opts))
-                        let frameRateMin = frameRateRange.min
-                        let frameRateMax = frameRateRange.max
-                        let frameRate = int(model.frameRate) |> Math.Coerce frameRateMin frameRateMax 
+                        let frameRate = int(model.frameRate) |> coerceRange frameRateRange
                         vec.rateControl.frameRateLimit <- frameRate
                         vec.rateControl.bitrateLimit <- int(model.bitrate)
 
                         let encodingIntervalRange = (^TOpt: (member encodingIntervalRange:IntRange)(opts))
-                        let encodingIntervalMin = encodingIntervalRange.min
-                        let encodingIntervalMax = encodingIntervalRange.max
-                        let encodingInterval = model.encodingInterval |> Math.Coerce encodingIntervalMin encodingIntervalMax 
+                        let encodingInterval = model.encodingInterval |> coerceRange encodingIntervalRange
                         vec.rateControl.encodingInterval <- encodingInterval
-                        if model.encoder = VideoEncoding.h264 then
-                            if vec.h264 |> IsNull then vec.h264 <- new H264Configuration()
-                            vec.h264.govLength <- model.govLength |> CoerceGovLength(options.h264)
-                        elif model.encoder = VideoEncoding.mpeg4 then
-                            if vec.mpeg4 |> IsNull then vec.mpeg4 <- new Mpeg4Configuration()
-                            vec.mpeg4.govLength <- model.govLength |> CoerceGovLength(options.mpeg4)
-                        elif model.encoder = VideoEncoding.h265 then
-                            if vec.h265 |> IsNull then vec.h265 <- new H265Configuration()
-                            vec.h265.govLength <- model.govLength |> CoerceGovLength(options.h265)
+                        // Set the GOV length for the encoding that is sent (vec.encoding).
+                        // Media1 cannot set the H265 GOV length for H265 that is only in Media2.
+                        if not isMedia2OnlyH265 then
+                            if vec.encoding = VideoEncoding.h264 && options.h264 |> NotNull then
+                                if vec.h264 |> IsNull then vec.h264 <- new H264Configuration()
+                                vec.h264.govLength <- model.govLength |> CoerceGovLength(options.h264)
+                            elif vec.encoding = VideoEncoding.mpeg4 && options.mpeg4 |> NotNull then
+                                if vec.mpeg4 |> IsNull then vec.mpeg4 <- new Mpeg4Configuration()
+                                vec.mpeg4.govLength <- model.govLength |> CoerceGovLength(options.mpeg4)
+                            elif vec.encoding = VideoEncoding.h265 && options.h265 |> NotNull then
+                                if vec.h265 |> IsNull then vec.h265 <- new H265Configuration()
+                                vec.h265.govLength <- model.govLength |> CoerceGovLength(options.h265)
                         true
                     else
                         false
