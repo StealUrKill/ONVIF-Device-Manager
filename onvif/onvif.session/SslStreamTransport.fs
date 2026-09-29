@@ -383,7 +383,9 @@ type SslStreamTransportBindingElement() =
                         let bv = context.Binding.MessageVersion
                         if bv = MessageVersion.None then MessageVersion.Soap12WSAddressing10
                         else bv
-                    TextMessageEncodingBindingElement(msgVer, System.Text.Encoding.UTF8)
-                        .CreateMessageEncoderFactory()
+                    // Accept replies that have incorrect UTF-8 (see Utf8SanitizingEncoder.fs).
+                    new Utf8SanitizingMessageEncoderFactory(
+                        TextMessageEncodingBindingElement(msgVer, System.Text.Encoding.UTF8)
+                            .CreateMessageEncoderFactory()) :> MessageEncoderFactory
         let wsAddressing = encoderFactory.MessageVersion.Addressing <> AddressingVersion.None
         new SslStreamChannelFactory(context.Binding, encoderFactory, wsAddressing) :> obj :?> IChannelFactory<'TChannel>

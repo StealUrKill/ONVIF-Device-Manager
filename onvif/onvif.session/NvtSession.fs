@@ -460,7 +460,8 @@ namespace odm.core
                     else
                         let encoding = new TextMessageEncodingBindingElement(msgVer, Encoding.UTF8)
                         encoding.ReaderQuotas.MaxStringContentLength <- Int32.MaxValue //100 * 1024 * 1024
-                        yield encoding :> BindingElement
+                        // Accept replies that have incorrect UTF-8 (see Utf8SanitizingEncoder.fs).
+                        yield new Utf8SanitizingTextEncodingBindingElement(encoding) :> BindingElement
 
                     if useTls then
                         // SslStreamTransportBindingElement replaces HttpsTransportBindingElement.
