@@ -12491,6 +12491,66 @@ namespace odm.ui.controls {
 	
 
 
+		private const string s_play = @"Play";
+		private string m_play=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='play']/@value")]
+		public string play {
+			get { 
+				if( m_play == null){
+					return s_play;
+				}
+				return m_play; 
+			}
+			set { 
+				if( value != m_play){
+					m_play = value;
+					NotifyPropertyChanged("play");
+				}
+			}  
+		}
+	
+
+
+		private const string s_stop = @"Stop";
+		private string m_stop=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='stop']/@value")]
+		public string stop {
+			get { 
+				if( m_stop == null){
+					return s_stop;
+				}
+				return m_stop; 
+			}
+			set { 
+				if( value != m_stop){
+					m_stop = value;
+					NotifyPropertyChanged("stop");
+				}
+			}  
+		}
+	
+
+
+		private const string s_playFrom = @"Start time";
+		private string m_playFrom=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='playFrom']/@value")]
+		public string playFrom {
+			get { 
+				if( m_playFrom == null){
+					return s_playFrom;
+				}
+				return m_playFrom; 
+			}
+			set { 
+				if( value != m_playFrom){
+					m_playFrom = value;
+					NotifyPropertyChanged("playFrom");
+				}
+			}  
+		}
+	
+
+
 		private const string s_filterType = @"Filter type";
 		private string m_filterType=null;
 		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterType']/@value")]

@@ -46,6 +46,15 @@
 					<Button DockPanel.Dock="Right" Margin="3,0,0,0" Command="{Binding CopyCommand}" Content="{Binding Strings.copy}"/>
 					<TextBox IsReadOnly="True" Text="{Binding ReplayUri, Mode=OneWay}" VerticalContentAlignment="Center"/>
 				</DockPanel>
+				<StackPanel Orientation="Horizontal" Margin="3,9,3,3">
+					<Label Content="{Binding Strings.playFrom}" VerticalAlignment="Center"/>
+					<DatePicker Margin="3,0" Width="120" SelectedDate="{Binding PlayDate}" VerticalAlignment="Center"/>
+					<TextBox Margin="3,0" Width="70" Text="{Binding PlayTime}" VerticalContentAlignment="Center" ToolTip="HH:mm:ss"/>
+					<Button Margin="3,0" Command="{Binding PlayCommand}" Content="{Binding Strings.play}"/>
+					<Button Margin="3,0" Command="{Binding StopCommand}" Content="{Binding Strings.stop}"/>
+				</StackPanel>
+				<TextBlock Margin="3" Text="{Binding PlayError}" Foreground="OrangeRed" TextWrapping="Wrap"/>
+				<ContentControl Margin="3" Width="640" Height="360" HorizontalAlignment="Left" Content="{Binding PlayerContent}"/>
 			</StackPanel>
 		</Grid>
 	</l:ContentColumn>

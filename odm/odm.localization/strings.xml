@@ -726,6 +726,9 @@
         <string name="getReplayUri" value="Get replay URI" />
         <string name="copy" value="Copy" />
         <string name="recordingSummary" value="All recordings" />
+        <string name="play" value="Play" />
+        <string name="stop" value="Stop" />
+        <string name="playFrom" value="Start time" />
         <string name="filterType" value="Filter type" />
         <string name="filterAddresses" value="IPv4 addresses" />
         <string name="filterAddress" value="Address" />
