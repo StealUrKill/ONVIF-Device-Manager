@@ -11,7 +11,9 @@
 	mc:Ignorable="d" 
     x:Name="ctrl"
 	d:DesignHeight="1200" d:DesignWidth="600">
-    <DockPanel Grid.IsSharedSizeScope="True">
+    <!-- The page fills the window, but the video keeps a minimum height. Then the page scrolls. -->
+    <ScrollViewer x:Name="scroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <DockPanel Grid.IsSharedSizeScope="True" MinHeight="{Binding ViewportHeight, ElementName=scroller}">
       <StackPanel Margin="2" DockPanel.Dock="Bottom">
 			<Grid x:Name="imagingSettings" HorizontalAlignment="Left">
 				<Grid.ColumnDefinitions>
@@ -107,8 +109,9 @@
 			</StackPanel>
 		</GroupBox>
 
-		<Border x:Name="player" Margin="0" Background="Black"/>
+		<Border x:Name="player" Margin="0" MinHeight="300" Background="Black"/>
 
 
 	</DockPanel>
+    </ScrollViewer>
 </UserControl>
