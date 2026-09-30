@@ -309,7 +309,7 @@ RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
   : Medium(env),
     fVerbosityLevel(verbosityLevel), fCSeq(1),
     fTunnelOverHTTPPortNum(tunnelOverHTTPPortNum), fUserAgentHeaderStr(NULL), fUserAgentHeaderStrLen(0),
-    fRequireHeaderStr(NULL), fSubsessionURLPrefix(NULL),
+    fRequireHeaderStr(NULL),
     fInputSocketNum(-1), fOutputSocketNum(-1), fServerAddress(0), fBaseURL(NULL), fTCPStreamIdCount(0),
     fLastSessionId(NULL), fSessionTimeoutParameter(0), fSessionCookieCounter(0), fHTTPTunnelingConnectionIsPending(False) {
   setBaseURL(rtspURL);
@@ -341,7 +341,6 @@ RTSPClient::~RTSPClient() {
   delete[] fResponseBuffer;
   delete[] fUserAgentHeaderStr;
   delete[] fRequireHeaderStr;
-  delete[] fSubsessionURLPrefix;
 }
 
 Boolean RTSPClient::isRTSPClient() const {
@@ -1262,18 +1261,6 @@ void RTSPClient::constructSubsessionURL(MediaSubsession const& subsession,
 
   suffix = subsession.controlPath();
   if (suffix == NULL) suffix = "";
-
-  // ODM: a path after a query is not valid. Some cameras give a session URL with a query
-  // (for example ".../Recording?replaymode=onvifreplay"). Then join the track to the part before the query.
-  char const* query = strchr(prefix, '?');
-  if (query != NULL && !isAbsoluteURL(suffix)) {
-    delete[] fSubsessionURLPrefix;
-    unsigned len = query - prefix;
-    fSubsessionURLPrefix = new char[len + 1];
-    strncpy(fSubsessionURLPrefix, prefix, len);
-    fSubsessionURLPrefix[len] = '\0';
-    prefix = fSubsessionURLPrefix;
-  }
 
   if (isAbsoluteURL(suffix)) {
     prefix = separator = "";

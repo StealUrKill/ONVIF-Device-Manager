@@ -294,7 +294,6 @@ private:
   char* fUserAgentHeaderStr;
   unsigned fUserAgentHeaderStrLen;
   char* fRequireHeaderStr; // ODM
-  char* fSubsessionURLPrefix; // ODM: the session URL without its query
   int fInputSocketNum, fOutputSocketNum;
   netAddressBits fServerAddress;
   char* fBaseURL;
