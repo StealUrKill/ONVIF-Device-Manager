@@ -557,7 +557,8 @@ namespace onvif.utils
             clips.ToArray()
 
         /// Finds the clips of a recording in a period with the search service (FindEvents).
-        let findClips (session:INvtSession) (recordingToken:string) (videoTrack:string) (from:System.DateTime) (until:System.DateTime) = async{
+        /// One FindEvents search. Returns the Result elements of all pages.
+        let private searchEvents (session:INvtSession) (recordingToken:string) (from:System.DateTime) (until:System.DateTime) (startState:bool) = async{
             let! resp =
                 session.InvokeServiceRaw(OnvifNs.Search, "FindEvents",
                     XElement(tse + "FindEvents",
@@ -566,7 +567,7 @@ namespace onvif.utils
                         XElement(tse + "Scope", XElement(tt + "IncludedRecordings", recordingToken)),
                         XElement(tse + "SearchFilter"),
                         // The start state gives the clip that is already active at "from".
-                        XElement(tse + "IncludeStartState", "true"),
+                        XElement(tse + "IncludeStartState", (if startState then "true" else "false")),
                         XElement(tse + "KeepAliveTime", "PT60S")))
             let token = text (child resp "SearchToken")
             let results = new System.Collections.Generic.List<XElement>()
@@ -590,7 +591,30 @@ namespace onvif.utils
                 session.InvokeServiceRaw(OnvifNs.Search, "EndSearch",
                     XElement(tse + "EndSearch", XElement(tse + "SearchToken", token)))
                 |> Async.Ignore |> Async.Catch |> Async.Ignore |> Async.Start
-            let events = results |> Seq.choose parseEvent
+            return results.ToArray()
+        }
+
+        /// Finds the clips of a recording in a period with the search service (FindEvents).
+        /// Some cameras end a search after a fixed number of results (for example 512) and report it as
+        /// complete. So search again from the time of the last result, until a search gives no new events.
+        let findClips (session:INvtSession) (recordingToken:string) (videoTrack:string) (from:System.DateTime) (until:System.DateTime) = async{
+            let events = new System.Collections.Generic.List<RecordingEvent>()
+            let seen = new System.Collections.Generic.HashSet<RecordingEvent>()
+            let mutable start = from
+            let mutable rounds = 0
+            let mutable finished = false
+            while not finished && rounds < 100 do
+                let! results = searchEvents session recordingToken start until (rounds = 0)
+                rounds <- rounds + 1
+                let parsed = results |> Array.choose parseEvent
+                // The next search starts at the last time, so it gives some events again.
+                let fresh = parsed |> Array.filter (fun e -> seen.Add(e))
+                events.AddRange(fresh)
+                let latest = if parsed.Length = 0 then start else parsed |> Array.map (fun e -> e.Time) |> Array.max
+                if fresh.Length = 0 || latest <= start then
+                    finished <- true
+                else
+                    start <- latest
             return buildClips events videoTrack until
         }
 
