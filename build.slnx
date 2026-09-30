@@ -7,6 +7,9 @@
       <BuildDependency Project="odm/odm.ui.app/odm.ui.app.csproj" />
       <BuildDependency Project="odm/odm.player/odm.player.net/odm.player.net.vcxproj" />
     </Project>
+    <Project Path="installer/portable/odm.portable.csproj">
+      <BuildDependency Project="installer/odm.installer.wixproj" />
+    </Project>
   </Folder>
   <Folder Name="/libs/">
     <Project Path="libs/bccrypto-net-1.7-src-ext/crypto.csproj" />

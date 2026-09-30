@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- One exe that holds build\ as a zip. It extracts the zip to a cache and starts odm.exe from there. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>odm-portable</AssemblyName>
+    <RootNamespace>odm.portable</RootNamespace>
+    <ApplicationIcon>$(OdmRepoRoot)odm\odm.ui.app\odm.ico</ApplicationIcon>
+    <Deterministic>true</Deterministic>
+    <Product>ONVIF Device Manager</Product>
+    <AssemblyTitle>ONVIF Device Manager (portable)</AssemblyTitle>
+    <Company>Synesis</Company>
+    <Version>$(OdmVersion)</Version>
+    <AssemblyVersion>$(OdmAssemblyVersion)</AssemblyVersion>
+    <FileVersion>$(OdmAssemblyVersion)</FileVersion>
+    <InformationalVersion>$(OdmDisplayVersion)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <OdmPortableName>odm-$(OdmDisplayVersion)-x64-portable.exe</OdmPortableName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <Import Project="..\odm.stage.targets" />
+
+  <Target Name="OdmPackStage" BeforeTargets="BeforeBuild" DependsOnTargets="OdmStage">
+    <PropertyGroup>
+      <OdmPortableZip>$(IntermediateOutputPath)odm.zip</OdmPortableZip>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <ZipDirectory SourceDirectory="$(OdmStageDir)" DestinationFile="$(OdmPortableZip)" Overwrite="true" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(OdmPortableZip)" LogicalName="odm.zip" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="OdmCopyPortable" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)" DestinationFiles="$(OdmRepoRoot)out\$(OdmPortableName)" />
+    <Message Importance="high" Text="odm.portable -> $(OdmRepoRoot)out\$(OdmPortableName)" />
+  </Target>
+</Project>
