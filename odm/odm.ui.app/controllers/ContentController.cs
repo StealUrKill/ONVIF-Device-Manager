@@ -60,6 +60,8 @@ namespace odm.controllers {
 			eventAggregator.GetEvent<MaintenanceClick>().Subscribe(MaintenanceClick, false);
 			eventAggregator.GetEvent<SystemLogClick>().Subscribe(SystemLogClick, false);
 			eventAggregator.GetEvent<DigitalIOClick>().Subscribe(DigitalIOClick, false);
+			eventAggregator.GetEvent<RecordingsClick>().Subscribe(RecordingsClick, false);
+			eventAggregator.GetEvent<IPAddressFilterClick>().Subscribe(IPAddressFilterClick, false);
 			eventAggregator.GetEvent<ActionsClick>().Subscribe(ActionsClick, false);
 			eventAggregator.GetEvent<ActionTriggersClick>().Subscribe(ActionTriggersClick, false);
 			eventAggregator.GetEvent<NetworkClick>().Subscribe(NetworkClick, false);
@@ -77,6 +79,9 @@ namespace odm.controllers {
 			eventAggregator.GetEvent<PTZClick>().Subscribe(PTZClick, false);
 			eventAggregator.GetEvent<LiveVideoClick>().Subscribe(LiveVideoClick, false);
 			eventAggregator.GetEvent<ImagingClick>().Subscribe(ImagingClick, false);
+			eventAggregator.GetEvent<OsdClick>().Subscribe(OsdClick, false);
+			eventAggregator.GetEvent<PrivacyMasksClick>().Subscribe(PrivacyMasksClick, false);
+			eventAggregator.GetEvent<VideoSourceClick>().Subscribe(VideoSourceClick, false);
 			eventAggregator.GetEvent<VideoStreamingClick>().Subscribe(VideoStreamingClick, false);
 			eventAggregator.GetEvent<MetadataClick>().Subscribe(MetadataClick, false);
 			eventAggregator.GetEvent<UITestClick>().Subscribe(UITestClick, false);
@@ -1010,6 +1015,43 @@ namespace odm.controllers {
 				viewModel.Init(evarg.session, evarg.currentAccount);
 			}
 			ShowView(view, "digitalio_view", RegionNames.reg_property);
+		}
+		void RecordingsClick(DeviceLinkEventArgs evarg) {
+			ReleaseViewModels(RegionNames.reg_property);
+			var view = container.Resolve<RecordingsView>();
+			var viewModel = view.DataContext as RecordingsViewModel;
+			if (viewModel != null) {
+				viewModel.Init(evarg.session, evarg.currentAccount);
+			}
+			ShowView(view, "recordings_view", RegionNames.reg_property);
+		}
+		void IPAddressFilterClick(DeviceLinkEventArgs evarg) {
+			ReleaseViewModels(RegionNames.reg_property);
+			var view = container.Resolve<IPAddressFilterView>();
+			var viewModel = view.DataContext as IPAddressFilterViewModel;
+			if (viewModel != null) {
+				viewModel.Init(evarg.session, evarg.currentAccount);
+			}
+			ShowView(view, "ipaddressfilter_view", RegionNames.reg_property);
+		}
+		// The channel pages of the ONVIF features have the same steps. Only the view and the name change.
+		void ShowChannelFeature<TView>(ChannelLinkEventArgs evarg, string viewName) where TView : BasePropertyControl {
+			ReleaseViewModels(RegionNames.reg_property);
+			var view = container.Resolve<TView>();
+			var viewModel = view.DataContext as ViewModelChannelBase;
+			if (viewModel != null) {
+				viewModel.Init(evarg.session, evarg.token, evarg.profile.token, evarg.currentAccount, evarg.videoInfo);
+			}
+			ShowView(view, viewName, RegionNames.reg_property);
+		}
+		void OsdClick(ChannelLinkEventArgs evarg) {
+			ShowChannelFeature<OsdView>(evarg, "osd_view");
+		}
+		void PrivacyMasksClick(ChannelLinkEventArgs evarg) {
+			ShowChannelFeature<PrivacyMasksView>(evarg, "privacymasks_view");
+		}
+		void VideoSourceClick(ChannelLinkEventArgs evarg) {
+			ShowChannelFeature<VideoSourceView>(evarg, "videosource_view");
 		}
 		void ActionsClick(DeviceLinkEventArgs evarg) {
 			ReleaseViewModels(RegionNames.reg_property);

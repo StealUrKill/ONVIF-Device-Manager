@@ -149,6 +149,8 @@ namespace odm.ui.views {
     public class MaintenanceClick : CompositePresentationEvent<MaintenanceLinkEventArgs> { }
     public class SystemLogClick : CompositePresentationEvent<SysLogLinkEventArgs> { }
     public class DigitalIOClick : CompositePresentationEvent<DeviceLinkEventArgs> { }
+    public class RecordingsClick : CompositePresentationEvent<DeviceLinkEventArgs> { }
+    public class IPAddressFilterClick : CompositePresentationEvent<DeviceLinkEventArgs> { }
     public class ActionsClick : CompositePresentationEvent<DeviceLinkEventArgs> { }
     public class ActionTriggersClick : CompositePresentationEvent<DeviceLinkEventArgs> { }
     public class DeviceEventsClick : CompositePresentationEvent<DeviceEventsEventArgs> { }
@@ -210,6 +212,9 @@ namespace odm.ui.views {
     public class MetadataClick : CompositePresentationEvent<MetadataEventArgs> { }
     public class EventsClick : CompositePresentationEvent<ChannelLinkEventArgs> { }
     public class ImagingClick : CompositePresentationEvent<ChannelLinkEventArgs> { }
+    public class OsdClick : CompositePresentationEvent<ChannelLinkEventArgs> { }
+    public class PrivacyMasksClick : CompositePresentationEvent<ChannelLinkEventArgs> { }
+    public class VideoSourceClick : CompositePresentationEvent<ChannelLinkEventArgs> { }
 
     public class VideoChangedEvent : CompositePresentationEvent<ChannelLinkEventArgs> { }
 	#endregion Channels

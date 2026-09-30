@@ -525,6 +525,51 @@ namespace odm.ui.links {
 
         public LinkButtonsStrings Titles { get { return LinkButtonsStrings.instance; } }
     }
+    public class RecordingsButton : DeviceButtonBase {
+        public RecordingsButton(IEventAggregator eventAggregator, INvtSession session, Account currentAccount)
+            : base(eventAggregator, session, currentAccount) {
+            this.CreateBinding(LinkNameProperty, LinkButtonsStrings.instance, x => x.recordings);
+        }
+        public override void ButtonClick() {
+            eventAggregator.GetEvent<RecordingsClick>().Publish(GetEventArg());
+        }
+    }
+    public class IPAddressFilterButton : DeviceButtonBase {
+        public IPAddressFilterButton(IEventAggregator eventAggregator, INvtSession session, Account currentAccount)
+            : base(eventAggregator, session, currentAccount) {
+            this.CreateBinding(LinkNameProperty, LinkButtonsStrings.instance, x => x.ipAddressFilter);
+        }
+        public override void ButtonClick() {
+            eventAggregator.GetEvent<IPAddressFilterClick>().Publish(GetEventArg());
+        }
+    }
+    public class OsdButton : ChannelButtonBase {
+        public OsdButton(IEventAggregator eventAggregator, INvtSession session, String channelToken, Profile profile, Account currentAccount, IVideoInfo videoInfo)
+            : base(eventAggregator, session, currentAccount, channelToken, profile, videoInfo) {
+            this.CreateBinding(LinkNameProperty, LinkButtonsStrings.instance, x => x.osd);
+        }
+        public override void ButtonClick() {
+            eventAggregator.GetEvent<OsdClick>().Publish(GetEventArg());
+        }
+    }
+    public class PrivacyMasksButton : ChannelButtonBase {
+        public PrivacyMasksButton(IEventAggregator eventAggregator, INvtSession session, String channelToken, Profile profile, Account currentAccount, IVideoInfo videoInfo)
+            : base(eventAggregator, session, currentAccount, channelToken, profile, videoInfo) {
+            this.CreateBinding(LinkNameProperty, LinkButtonsStrings.instance, x => x.privacyMasks);
+        }
+        public override void ButtonClick() {
+            eventAggregator.GetEvent<PrivacyMasksClick>().Publish(GetEventArg());
+        }
+    }
+    public class VideoSourceButton : ChannelButtonBase {
+        public VideoSourceButton(IEventAggregator eventAggregator, INvtSession session, String channelToken, Profile profile, Account currentAccount, IVideoInfo videoInfo)
+            : base(eventAggregator, session, currentAccount, channelToken, profile, videoInfo) {
+            this.CreateBinding(LinkNameProperty, LinkButtonsStrings.instance, x => x.videoSource);
+        }
+        public override void ButtonClick() {
+            eventAggregator.GetEvent<VideoSourceClick>().Publish(GetEventArg());
+        }
+    }
     public class ActionsButton : DeviceButtonBase {
         public ActionsButton(IEventAggregator eventAggregator, INvtSession session, Account currentAccount)
             : base(eventAggregator, session, currentAccount) {

@@ -1,0 +1,104 @@
+<l:BasePropertyControl x:Class="odm.ui.controls.OsdView"
+             xmlns:l="clr-namespace:odm.ui.controls"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<l:BasePropertyControl.Resources>
+		<BooleanToVisibilityConverter x:Key="BoolToVis"/>
+	</l:BasePropertyControl.Resources>
+
+	<l:ContentColumn Title="{Binding Titles.osd}" Background="{DynamicResource ResourceKey=PropertyBrush}">
+		<Grid>
+			<DockPanel Margin="6" Visibility="{Binding StateError}" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+				<Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,6,0,0" Command="{Binding ErrorBtnClick}" Content="{Binding ButtonsStrings.continue1}"/>
+				<TextBox Text="{Binding ErrorMessage, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" DockPanel.Dock="Top"/>
+			</DockPanel>
+			<DockPanel Margin="6" Visibility="{Binding StateLoading}" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<Label Content="{Binding AppStrings.loading}" DockPanel.Dock="Top"/>
+				<ProgressBar IsIndeterminate="True" Width="250" Height="16" DockPanel.Dock="Top"/>
+			</DockPanel>
+			<Grid Visibility="{Binding StateCommon}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Grid.Column="0" Orientation="Vertical" Margin="3">
+					<Label Content="{Binding Strings.osdItems}"/>
+					<ListBox MinHeight="160" MinWidth="200" MaxWidth="260" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding Caption}" TextTrimming="CharacterEllipsis"/>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
+					<StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+						<Button Margin="0,0,3,0" Command="{Binding AddCommand}" Content="{Binding Strings.add}"/>
+						<Button Margin="0,0,3,0" Command="{Binding DeleteCommand}" Content="{Binding Strings.delete}"/>
+						<Button Command="{Binding RefreshCommand}" Content="{Binding Strings.refresh}"/>
+					</StackPanel>
+					<TextBlock Margin="0,6,0,0" Text="{Binding Limits}"/>
+				</StackPanel>
+
+				<StackPanel Grid.Column="1" Orientation="Vertical" Margin="12,3,3,3" Visibility="{Binding HasSelected, Converter={StaticResource BoolToVis}}">
+				<StackPanel Orientation="Vertical" DataContext="{Binding Selected}">
+					<TextBlock Text="{Binding DataContext.Strings.osdNotText, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"
+					           Visibility="{Binding IsNotText, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}" TextWrapping="Wrap" Margin="3"/>
+					<Grid IsEnabled="{Binding IsText}">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="220"/>
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+							<RowDefinition Height="Auto"/>
+						</Grid.RowDefinitions>
+						<Label Grid.Row="0" Content="{Binding DataContext.Strings.osdTextType, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<ComboBox Grid.Row="0" Grid.Column="1" Margin="2" SelectedItem="{Binding TextType}"
+						          ItemsSource="{Binding DataContext.TextTypes, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+
+						<Label Grid.Row="1" Content="{Binding DataContext.Strings.osdText, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<TextBox Grid.Row="1" Grid.Column="1" Margin="2" Text="{Binding PlainText, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsPlain}"/>
+
+						<Label Grid.Row="2" Content="{Binding DataContext.Strings.osdDateFormat, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<ComboBox Grid.Row="2" Grid.Column="1" Margin="2" IsEditable="True" Text="{Binding DateFormat}" IsEnabled="{Binding HasDate}"
+						          ItemsSource="{Binding DataContext.DateFormats, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+
+						<Label Grid.Row="3" Content="{Binding DataContext.Strings.osdTimeFormat, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<ComboBox Grid.Row="3" Grid.Column="1" Margin="2" IsEditable="True" Text="{Binding TimeFormat}" IsEnabled="{Binding HasTime}"
+						          ItemsSource="{Binding DataContext.TimeFormats, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+
+						<Label Grid.Row="4" Content="{Binding DataContext.Strings.osdFontSize, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<DockPanel Grid.Row="4" Grid.Column="1" Margin="2">
+							<TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Margin="6,0,0,0"
+							           Text="{Binding DataContext.FontSizeRange, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+							<TextBox Text="{Binding FontSize}"/>
+						</DockPanel>
+
+						<Label Grid.Row="5" Content="{Binding DataContext.Strings.osdPosition, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<ComboBox Grid.Row="5" Grid.Column="1" Margin="2" SelectedItem="{Binding PositionType}"
+						          ItemsSource="{Binding DataContext.PositionOptions, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+
+						<Label Grid.Row="6" Content="{Binding DataContext.Strings.osdX, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<TextBox Grid.Row="6" Grid.Column="1" Margin="2" Text="{Binding X}" IsEnabled="{Binding IsCustomPosition}"/>
+
+						<Label Grid.Row="7" Content="{Binding DataContext.Strings.osdY, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+						<TextBox Grid.Row="7" Grid.Column="1" Margin="2" Text="{Binding Y}" IsEnabled="{Binding IsCustomPosition}"/>
+
+						<Button Grid.Row="8" Grid.Column="1" Margin="2,6,2,2" HorizontalAlignment="Right"
+						        Command="{Binding DataContext.SaveCommand, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"
+						        Content="{Binding DataContext.Strings.save, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/>
+					</Grid>
+				</StackPanel>
+				</StackPanel>
+			</Grid>
+		</Grid>
+	</l:ContentColumn>
+</l:BasePropertyControl>

@@ -289,6 +289,12 @@
     <Compile Include="viewmodels\DeviceExplorerViewModel.cs" />
     <Compile Include="viewmodels\DeviceListViewModel.cs" />
     <Compile Include="viewmodels\DigitalIOViewModel.cs" />
+    <Compile Include="viewmodels\FeatureViewModelBase.cs" />
+    <Compile Include="viewmodels\OsdViewModel.cs" />
+    <Compile Include="viewmodels\PrivacyMasksViewModel.cs" />
+    <Compile Include="viewmodels\VideoSourceViewModel.cs" />
+    <Compile Include="viewmodels\RecordingsViewModel.cs" />
+    <Compile Include="viewmodels\IPAddressFilterViewModel.cs" />
     <Compile Include="viewmodels\ProfilesViewModel.cs" />
     <Compile Include="viewmodels\SystemLogViewModel.cs" />
     <Compile Include="viewmodels\ViewModelBase.cs" />
@@ -542,6 +548,21 @@
     </Compile>
     <Compile Include="views\SectionDevice\SectionDevice.xaml.cs">
       <DependentUpon>SectionDevice.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\SectionNVT\OsdView.xaml.cs">
+      <DependentUpon>OsdView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\SectionNVT\PrivacyMasksView.xaml.cs">
+      <DependentUpon>PrivacyMasksView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\SectionNVT\VideoSourceView.xaml.cs">
+      <DependentUpon>VideoSourceView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\SectionDevice\RecordingsView.xaml.cs">
+      <DependentUpon>RecordingsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="views\SectionDevice\IPAddressFilterView.xaml.cs">
+      <DependentUpon>IPAddressFilterView.xaml</DependentUpon>
     </Compile>
     <Compile Include="views\SectionDevice\DigitalIOView.xaml.cs">
       <DependentUpon>DigitalIOView.xaml</DependentUpon>
@@ -921,6 +942,26 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="views\SectionDevice\SectionDevice.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="views\SectionNVT\OsdView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="views\SectionNVT\PrivacyMasksView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="views\SectionNVT\VideoSourceView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="views\SectionDevice\RecordingsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="views\SectionDevice\IPAddressFilterView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

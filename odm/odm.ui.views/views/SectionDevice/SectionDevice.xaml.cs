@@ -267,7 +267,11 @@ namespace odm.ui.views {
 							Buttons.Add(new DigitalIOButton(eventAggregator, args.nvtSession, curAccount));
 						}
 					}
+					if (devCaps.network != null && devCaps.network.ipFilter) {
+						Buttons.Add(new IPAddressFilterButton(eventAggregator, args.nvtSession, curAccount));
+					}
 				}
+				LoadRecordingsButton(args, curAccount);
 
 				if (caps.actionEngine != null) {
 					Buttons.Add(new ActionsButton(eventAggregator, args.nvtSession, curAccount));
@@ -289,6 +293,20 @@ namespace odm.ui.views {
 			}
 
 			buttonsList.ItemsSource = Buttons;
+		}
+
+		// The recordings page needs the recording service. GetServices tells if the camera has it.
+		void LoadRecordingsButton(DeviceViewArgs args, Account curAccount) {
+			disposables.Add(args.nvtSession.GetServiceAddress(OnvifNs.Recording)
+				.ObserveOnCurrentDispatcher()
+				.Subscribe(address => {
+					if (String.IsNullOrEmpty(address))
+						return;
+					var index = Buttons.FindIndex(b => b is WebPageButton);
+					if (index < 0) index = Buttons.Count;
+					Buttons.Insert(index, new RecordingsButton(eventAggregator, args.nvtSession, curAccount));
+					buttonsList.Items.Refresh();
+				}, err => dbg.Error(err)));
 		}
 
 		public void Dispose() {

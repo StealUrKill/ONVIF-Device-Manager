@@ -193,6 +193,26 @@ namespace odm.ui.views.SectionNVT {
 			Buttons.Add(new ProfilesButton(container.Resolve<EventAggregator>(), args.nvtSession, vsToken, args.selectedProfile, curAccount, dataProcInfo));
 
 			//Buttons.Add(new UITestButton(container.Resolve<EventAggregator>(), args.nvtSession, videoSource.token, profile, curAccount, dataProcInfo));
+			LoadMedia2Buttons(args, vsToken, curAccount);
+		}
+
+		// The OSD, mask and video source pages use Media2. GetServices tells if the camera has it.
+		void LoadMedia2Buttons(SourceViewArgs args, string vsToken, Account curAccount) {
+			disposables.Add(args.nvtSession.GetServiceAddress(OnvifNs.Media2)
+				.ObserveOnCurrentDispatcher()
+				.Subscribe(address => {
+					if (String.IsNullOrEmpty(address))
+						return;
+					var events = container.Resolve<EventAggregator>();
+					var index = Buttons.FindIndex(b => b is ProfilesButton);
+					if (index < 0) index = Buttons.Count;
+					Buttons.InsertRange(index, new ButtonBase[] {
+						new OsdButton(events, args.nvtSession, vsToken, args.selectedProfile, curAccount, dataProcInfo),
+						new PrivacyMasksButton(events, args.nvtSession, vsToken, args.selectedProfile, curAccount, dataProcInfo),
+						new VideoSourceButton(events, args.nvtSession, vsToken, args.selectedProfile, curAccount, dataProcInfo)
+					});
+					buttonsList.Items.Refresh();
+				}, err => dbg.Error(err)));
 		}
 
 		public void Dispose() {
