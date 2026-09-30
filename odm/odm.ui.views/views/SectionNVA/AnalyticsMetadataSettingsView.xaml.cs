@@ -284,7 +284,7 @@ namespace odm.ui.activities {
 		}
 
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 	}
 
 

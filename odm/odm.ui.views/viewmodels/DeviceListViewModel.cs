@@ -23,7 +23,7 @@ namespace odm.ui.viewModels {
 			this.displayCollection = displayCollection;
 		}
 		ObservableCollection<DeviceDescriptionHolder> displayCollection;
-		public void Clear() {
+		public new void Clear() {
 			if (displayCollection != null) {
 				displayCollection.Clear();
 			}
@@ -104,14 +104,14 @@ namespace odm.ui.viewModels {
 				FilterDisplayList();
 			}
 		}
-		public void Remove(DeviceDescriptionHolder dholder) {
+		public new void Remove(DeviceDescriptionHolder dholder) {
 			if (displayCollection != null) {
 				if(displayCollection.Contains(dholder))
 					displayCollection.Remove(dholder);
 			}
 			base.Remove(dholder);
 		}
-		public void Add(DeviceDescriptionHolder dholder) {
+		public new void Add(DeviceDescriptionHolder dholder) {
 			base.Add(dholder);
 			AddToDisplay(dholder);
 		}

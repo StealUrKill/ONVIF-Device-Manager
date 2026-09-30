@@ -219,7 +219,7 @@
             return (configs |> Seq.toArray, receivers |> Seq.toArray, -1)
         }
         override this.Show((configs, receivers, selectedIndex)) = async{
-            let rec view = {
+            let view = {
                 new ItemSelectorActivity<AnalyticsEngineInput*Receiver, AnalyticsEngineInput[] *Receiver[] >(ctx) with
                     override this.BuildItem((config, receiver)) = 
                         let receiverName = 
@@ -267,7 +267,7 @@
                             (unwrap_opt co, unwrap_opt ro)
                         )
                         let items = m.items |> Seq.filter (fun (e,i)-> i<>m.selection) |> Seq.map (fun (e,i)->e)
-                        return view.Main(async{
+                        return this.Main(async{
                             return items
                         })
                     }

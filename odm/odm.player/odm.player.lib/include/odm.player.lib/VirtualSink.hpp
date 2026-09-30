@@ -69,7 +69,7 @@ namespace onvifmp{
 				//has been stopped
 				return False;
 			}
-			typedef struct proxy{
+			struct proxy{
 				static void AfterGettingFrame(void* clientData, unsigned frameSize, unsigned truncatedBytesCount, struct timeval presentationTime, unsigned durationInMicroseconds){
 					auto sink = static_cast<VirtualSink*>(clientData);
 					sink->AfterGettingFrame(frameSize, truncatedBytesCount, presentationTime, durationInMicroseconds);

@@ -135,7 +135,7 @@ namespace odm.ui.activities {
 			disposables.Dispose();
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
+		public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 	}
 	public class ExtendedControl {
 		public ExtendedControl(AnalyticsEngineControl cntrl, AnalyticsState state) {

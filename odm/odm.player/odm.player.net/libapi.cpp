@@ -138,13 +138,16 @@ namespace odm{
 					onvifmpVideoBuffer->height = videoBuffer->height;
 					onvifmpVideoBuffer->stride[0] = videoBuffer->stride;
 					videoBufferLock = videoBuffer->Lock();
-					onvifmpVideoBuffer->scan0[0] = static_cast<uint8_t*>(videoBufferLock->value->scan0Ptr.ToPointer());
+					// Copy the initonly IntPtr fields before ToPointer (C4395).
+					IntPtr scan0Ptr = videoBufferLock->value->scan0Ptr;
+					IntPtr signalPtr = videoBufferLock->value->signalPtr;
+					onvifmpVideoBuffer->scan0[0] = static_cast<uint8_t*>(scan0Ptr.ToPointer());
 					//h->
 					for(int i = 1; i<4; ++i){
 						onvifmpVideoBuffer->stride[i] = 0;
 						onvifmpVideoBuffer->scan0[i] = nullptr;
 					}
-					onvifmpVideoBuffer->signal = static_cast<uint8_t*>(videoBufferLock->value->signalPtr.ToPointer());
+					onvifmpVideoBuffer->signal = static_cast<uint8_t*>(signalPtr.ToPointer());
 					//onvifmpVideoBuffer.width = videoBuffer
 					onvifmpInstance->SetVideoOutput(onvifmpVideoBuffer);
 				}
