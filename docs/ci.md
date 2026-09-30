@@ -33,23 +33,23 @@ This command builds:
 `version.json` is the only source of the version:
 
 ```json
-{"version":"3.0.3"}
+{"version":"3.2.0"}
 ```
 
 `Directory.Build.props` reads it. These MSBuild properties change the result:
 
 | Property | Default | Effect |
 |----------|---------|--------|
-| `OdmRelease` | `false` | When `false`, the version gets `-dev` (`3.0.3-dev`) and the MSI name gets ` (dev)` |
-| `OdmBuildNumber` | `0` | The 4th part of the file version (`3.0.3.<n>`). CI sets it to `github.run_number` |
+| `OdmRelease` | `false` | When `false`, the version gets `-dev` (`3.2.0-dev`) and the MSI name gets ` (dev)` |
+| `OdmBuildNumber` | `0` | The 4th part of the file version (`3.2.0.<n>`). CI sets it to `github.run_number` |
 | `OdmSkipStage` | `false` | When `true`, the MSI and the portable exe use `build\` as it is (used after code signing) |
 
-The window title shows `v3.0.3-dev` or `v3.0.3`. The informational version also has the git hash (`3.0.3-dev+a91ee72`).
+The window title shows `v3.2.0-dev` or `v3.2.0`. The informational version also has the git hash (`3.2.0-dev+a91ee72`).
 
 To make a release:
 
 1. Change `version.json` and commit.
-2. Push a tag with the same version, for example `v3.0.4`. CI stops if the tag and `version.json` are different.
+2. Push a tag with the same version, for example `v3.2.1`. CI stops if the tag and `version.json` are different.
 
 ---
 

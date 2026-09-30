@@ -15,7 +15,7 @@ schtasks /Create /TN "ODM-dev" /TR "C:\akhil\git\ONVIF-Device-Manager\build\ODM.
 
 ### Step 1 — Check the version
 
-`version.json` is the only version source. Local builds show `-dev` and the git hash (for example `3.0.3-dev+a91ee72` in the file properties).
+`version.json` is the only version source. Local builds show `-dev` and the git hash (for example `3.2.0-dev+a91ee72` in the file properties).
 Commit your changes before building, so the git hash identifies the build.
 
 ### Step 2 — Kill the running process
@@ -47,7 +47,7 @@ powershell -Command "schtasks /Run /TN 'ODM-dev'"
 
 ### Step 6 — Verify
 
-Check the window title shows the version with `-dev` (e.g. `v3.0.3-dev`). The file properties of `build\odm.exe` show the git hash.
+Check the window title shows the version with `-dev` (e.g. `v3.2.0-dev`). The file properties of `build\odm.exe` show the git hash.
 
 ---
 

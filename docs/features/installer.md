@@ -21,10 +21,10 @@ CI uploads them as the `odm-installer` and `odm-portable` artifacts. See [ci.md]
 
 | Field | Dev build | Release build (`OdmRelease=true`) |
 |-------|-----------|-----------------------------------|
-| `AssemblyVersion` / `AssemblyFileVersion` | `3.0.3.<OdmBuildNumber>` | `3.0.3.<OdmBuildNumber>` |
-| `AssemblyInformationalVersion` | `3.0.3-dev+<git hash>` | `3.0.3+<git hash>` |
-| Window title | `v3.0.3-dev` | `v3.0.3` |
-| MSI `ProductVersion` | `3.0.3` | `3.0.3` |
+| `AssemblyVersion` / `AssemblyFileVersion` | `3.2.0.<OdmBuildNumber>` | `3.2.0.<OdmBuildNumber>` |
+| `AssemblyInformationalVersion` | `3.2.0-dev+<git hash>` | `3.2.0+<git hash>` |
+| Window title | `v3.2.0-dev` | `v3.2.0` |
+| MSI `ProductVersion` | `3.2.0` | `3.2.0` |
 | MSI `ProductName` | `ONVIF Device Manager (dev)` | `ONVIF Device Manager` |
 | MSI `ProductCode` | New GUID for each build (WiX) | New GUID for each build (WiX) |
 
