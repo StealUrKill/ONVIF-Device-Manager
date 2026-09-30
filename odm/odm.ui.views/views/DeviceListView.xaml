@@ -166,7 +166,7 @@
 						Content="{Binding BtnStrings.cancel}"/>
 			</Grid>
 			<l:DeviceListControl 
-				MaxWidth="350"
+				MaxWidth="380"
 				x:Name="deviceList"
 				selectedDevice="{Binding SelectedDevice, Mode=TwoWay}" 
 				devices="{Binding DisplayDevices}"/>

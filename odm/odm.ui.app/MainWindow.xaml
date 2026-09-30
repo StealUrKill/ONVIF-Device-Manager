@@ -30,7 +30,7 @@
 	</ui:MainWindow.ToolBar>-->
 	<Window.Resources>
 		<Style x:Key="devlistStyle" TargetType="ContentControl">
-			<Setter Property="MinWidth" Value="200"/>
+			<Setter Property="MinWidth" Value="230"/>
 			<Style.Triggers>
 				<DataTrigger Binding="{Binding Path=IsChecked, ElementName=expander}" Value="true">
 					<Setter Property="Visibility" Value="Collapsed" />

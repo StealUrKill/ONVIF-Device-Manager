@@ -16,7 +16,7 @@
 
 						<ListBox.ItemTemplate>
 							<DataTemplate>
-								<DockPanel MaxWidth="220" MinWidth="200">
+								<DockPanel MaxWidth="250" MinWidth="230">
 									<!--<StackPanel Margin="6">
 										<Rectangle Margin="0,0,0,6" Width="30" Height="30" Stroke="{StaticResource BorderBrush}"/>
 									</StackPanel>-->

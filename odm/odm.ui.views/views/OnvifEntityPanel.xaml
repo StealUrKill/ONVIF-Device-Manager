@@ -6,7 +6,8 @@
              xmlns:c="clr-namespace:odm.ui.controls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <c:ContentColumn x:Name="parent" VerticalAlignment="Stretch">
+    <!-- The content sets the width. The minimum is 30 more than the usual content width. -->
+    <c:ContentColumn x:Name="parent" VerticalAlignment="Stretch" MinWidth="282">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
             <DockPanel>
                 <ContentControl DockPanel.Dock="Top" Name="devicePanel" VerticalAlignment="Top"/>
