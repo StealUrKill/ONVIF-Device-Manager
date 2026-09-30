@@ -55,6 +55,8 @@ namespace utils {
 				}
 				return rule;
 			}
+			public abstract override bool Equals(object obj);
+			public abstract override int GetHashCode();
 			public virtual bool Equals(DstRule other) {
 				return Equals((object)other);
 			}
