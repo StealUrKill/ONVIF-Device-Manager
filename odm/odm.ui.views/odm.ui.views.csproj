@@ -568,6 +568,7 @@
       <DependentUpon>DigitalIOView.xaml</DependentUpon>
     </Compile>
     <Compile Include="core\events.cs" />
+    <Compile Include="core\ReplayDownloader.cs" />
     <Compile Include="views\SectionDevice\IdentificationView.xaml.cs">
       <DependentUpon>IdentificationView.xaml</DependentUpon>
     </Compile>
