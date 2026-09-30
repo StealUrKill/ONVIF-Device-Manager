@@ -88,7 +88,7 @@ namespace odm.ui {
 			Version = version,
 			CustomAnalytics_IsEnabled = true,
 			EventsCollect_IsEnabled = false,
-			WndSize = new Rect(50, 50, 640, 480),
+			WndSize = new Rect(50, 50, 1024, 768),
 			WndState = WindowState.Normal,
 			ui_video_rendering_fps = 30,
 			Base_Subscription_Port = 8085,
@@ -183,7 +183,7 @@ namespace odm.ui {
 			EngineerTool_IsEnabled = false;
 			EventsCollect_IsEnabled = false;
 			CustomAnalytics_IsEnabled = true;
-			wndSize = new Rect(50, 50, 640, 480);
+			wndSize = new Rect(50, 50, 1024, 768);
 			WndState = WindowState.Normal;
 			ui_video_rendering_fps = 30;
 			Event_Subscription_Type = EventType.TRY_PULL;

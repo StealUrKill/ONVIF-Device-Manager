@@ -97,7 +97,7 @@ namespace odm.ui.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1024")]
         public string MainWindowWidth {
             get {
                 return ((string)(this["MainWindowWidth"]));
@@ -109,7 +109,7 @@ namespace odm.ui.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("600")]
+        [global::System.Configuration.DefaultSettingValueAttribute("768")]
         public string MainWindowHeight {
             get {
                 return ((string)(this["MainWindowHeight"]));

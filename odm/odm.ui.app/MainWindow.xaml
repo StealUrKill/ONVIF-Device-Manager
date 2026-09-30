@@ -11,6 +11,7 @@
 	Title="{Binding Title}" 
 	Width="{Binding Source={x:Static Member=prop:Settings.Default}, Path=MainWindowWidth, Mode=TwoWay}"
 	Height="{Binding Source={x:Static Member=prop:Settings.Default}, Path=MainWindowHeight, Mode=TwoWay}"
+	MinWidth="1024" MinHeight="768"
 	WindowState="{Binding Source={x:Static Member=prop:Settings.Default}, Path=MainWindowState, Mode=TwoWay}"
 	Icon="{StaticResource ResourceKey='images.odm_icon'}" 
 	TextOptions.TextRenderingMode="ClearType"

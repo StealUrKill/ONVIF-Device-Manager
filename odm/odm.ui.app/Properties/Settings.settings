@@ -21,10 +21,10 @@
       <Value Profile="(Default)">220</Value>
     </Setting>
     <Setting Name="MainWindowWidth" Type="System.String" Scope="User">
-      <Value Profile="(Default)">800</Value>
+      <Value Profile="(Default)">1024</Value>
     </Setting>
     <Setting Name="MainWindowHeight" Type="System.String" Scope="User">
-      <Value Profile="(Default)">600</Value>
+      <Value Profile="(Default)">768</Value>
     </Setting>
     <Setting Name="RecordingPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
