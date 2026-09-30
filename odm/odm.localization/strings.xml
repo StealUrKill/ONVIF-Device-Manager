@@ -297,6 +297,9 @@
         <string name="menuAllCredentials" value="Try all saved credentials" />
         <string name="menuNoCredentials" value="No saved credentials" />
         <string name="menuCredentialsHint" value="Use one account only, so that failed logins do not lock the device" />
+        <string name="sortBy" value="Sort by:" />
+        <string name="sortByIp" value="IP address" />
+        <string name="sortByName" value="Name" />
         <string name="Filter" value="Filter: " />
         <string name="search" value="name, location or address"/>
     </module>

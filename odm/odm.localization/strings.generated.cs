@@ -5343,6 +5343,66 @@ namespace odm.ui {
 	
 
 
+		private const string s_sortBy = @"Sort by:";
+		private string m_sortBy=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='sortBy']/@value")]
+		public string sortBy {
+			get { 
+				if( m_sortBy == null){
+					return s_sortBy;
+				}
+				return m_sortBy; 
+			}
+			set { 
+				if( value != m_sortBy){
+					m_sortBy = value;
+					NotifyPropertyChanged("sortBy");
+				}
+			}  
+		}
+	
+
+
+		private const string s_sortByIp = @"IP address";
+		private string m_sortByIp=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='sortByIp']/@value")]
+		public string sortByIp {
+			get { 
+				if( m_sortByIp == null){
+					return s_sortByIp;
+				}
+				return m_sortByIp; 
+			}
+			set { 
+				if( value != m_sortByIp){
+					m_sortByIp = value;
+					NotifyPropertyChanged("sortByIp");
+				}
+			}  
+		}
+	
+
+
+		private const string s_sortByName = @"Name";
+		private string m_sortByName=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='sortByName']/@value")]
+		public string sortByName {
+			get { 
+				if( m_sortByName == null){
+					return s_sortByName;
+				}
+				return m_sortByName; 
+			}
+			set { 
+				if( value != m_sortByName){
+					m_sortByName = value;
+					NotifyPropertyChanged("sortByName");
+				}
+			}  
+		}
+	
+
+
 		private const string s_Filter = @"Filter: ";
 		private string m_Filter=null;
 		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='Filter']/@value")]

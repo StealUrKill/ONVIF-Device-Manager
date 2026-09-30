@@ -24,6 +24,7 @@ namespace odm.ui.viewModels {
 		}
 		ObservableCollection<DeviceDescriptionHolder> displayCollection;
 		public new void Clear() {
+			this.ForEach(dev => Watch(dev, false));
 			if (displayCollection != null) {
 				displayCollection.Clear();
 			}
@@ -47,7 +48,7 @@ namespace odm.ui.viewModels {
 					displayCollection.Remove(dev);
 			});
 
-			var ordered = displayCollection.OrderBy(dev => dev.IsManual);
+			var ordered = Sorted(displayCollection).ToList();
 
 			int index = 0;
 			ordered.ForEach(dev => {
@@ -104,7 +105,66 @@ namespace odm.ui.viewModels {
 				FilterDisplayList();
 			}
 		}
+		public const string SortByIp = "Ip";
+		public const string SortByName = "Name";
+		string sortMode = SortByIp;
+		public string SortMode {
+			get { return sortMode; }
+			set {
+				sortMode = value == SortByName ? SortByName : SortByIp;
+				FilterDisplayList();
+			}
+		}
+
+		IEnumerable<DeviceDescriptionHolder> Sorted(IEnumerable<DeviceDescriptionHolder> devices) {
+			if (sortMode == SortByName) {
+				// Devices without a name come last.
+				return devices
+					.OrderBy(dev => string.IsNullOrEmpty(dev.Name) ? 1 : 0)
+					.ThenBy(dev => dev.Name ?? "", StringComparer.CurrentCultureIgnoreCase)
+					.ThenBy(dev => IpKey(dev), StringComparer.Ordinal);
+			}
+			return devices
+				.OrderBy(dev => IpKey(dev), StringComparer.Ordinal)
+				.ThenBy(dev => dev.Name ?? "", StringComparer.CurrentCultureIgnoreCase);
+		}
+
+		// Sorts IPv4 addresses by number, so that .9 comes before .10. Other hosts come after them.
+		static string IpKey(DeviceDescriptionHolder dev) {
+			var host = DeviceListViewModel.PrimaryHost(dev) ?? "";
+			System.Net.IPAddress ip;
+			if (System.Net.IPAddress.TryParse(host.Trim('[', ']'), out ip) && ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+				return "0" + string.Concat(ip.GetAddressBytes().Select(b => b.ToString("D3")).ToArray());
+			return "1" + host.ToLowerInvariant();
+		}
+
+		// The name and the address can come after the device is in the list. Then sort and filter again.
+		static readonly System.ComponentModel.DependencyPropertyDescriptor nameDescriptor =
+			System.ComponentModel.DependencyPropertyDescriptor.FromProperty(DeviceDescriptionHolder.NameProperty, typeof(DeviceDescriptionHolder));
+		static readonly System.ComponentModel.DependencyPropertyDescriptor addressDescriptor =
+			System.ComponentModel.DependencyPropertyDescriptor.FromProperty(DeviceDescriptionHolder.AddressProperty, typeof(DeviceDescriptionHolder));
+		bool updatePending;
+		void OnDeviceChanged(object sender, EventArgs e) {
+			if (updatePending)
+				return;
+			updatePending = true;
+			System.Windows.Threading.Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() => {
+				updatePending = false;
+				FilterDisplayList();
+			}));
+		}
+		void Watch(DeviceDescriptionHolder dholder, bool watch) {
+			if (watch) {
+				nameDescriptor.AddValueChanged(dholder, OnDeviceChanged);
+				addressDescriptor.AddValueChanged(dholder, OnDeviceChanged);
+			} else {
+				nameDescriptor.RemoveValueChanged(dholder, OnDeviceChanged);
+				addressDescriptor.RemoveValueChanged(dholder, OnDeviceChanged);
+			}
+		}
+
 		public new void Remove(DeviceDescriptionHolder dholder) {
+			Watch(dholder, false);
 			if (displayCollection != null) {
 				if(displayCollection.Contains(dholder))
 					displayCollection.Remove(dholder);
@@ -112,6 +172,7 @@ namespace odm.ui.viewModels {
 			base.Remove(dholder);
 		}
 		public new void Add(DeviceDescriptionHolder dholder) {
+			Watch(dholder, true);
 			base.Add(dholder);
 			AddToDisplay(dholder);
 		}
@@ -137,6 +198,7 @@ namespace odm.ui.viewModels {
 			Devices = new DevicesObservableCollection();
 			DisplayDevices = new ObservableCollection<DeviceDescriptionHolder>();
 			Devices.AddBindedCollection(DisplayDevices);
+			Devices.SortMode = AppDefaults.visualSettings.DeviceListSort;
 			
 			subscriptions = new CompositeDisposable();
 			discoverSubscription = new SerialDisposable();
@@ -653,6 +715,17 @@ namespace odm.ui.viewModels {
 		#endregion
 
 
+
+		/// <summary>Sorts the list and keeps the choice for the next start.</summary>
+		public void SetSortMode(string mode) {
+			Devices.SortMode = mode;
+			var vs = AppDefaults.visualSettings;
+			if (vs.DeviceListSort == Devices.SortMode)
+				return;
+			vs.DeviceListSort = Devices.SortMode;
+			AppDefaults.UpdateVisualSettings(vs);
+		}
+		public string SortMode { get { return Devices.SortMode; } }
 
 		public string Filter {get { return (string)GetValue(FilterProperty); }set { SetValue(FilterProperty, value); }}
 		public static readonly DependencyProperty FilterProperty =

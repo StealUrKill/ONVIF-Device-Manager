@@ -154,6 +154,16 @@
 					<ColumnDefinition/>
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<!-- The order of the list. DeviceListView fills the choices. -->
+				<DockPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="4,1,2,3">
+					<TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0,0,6,0"
+						Foreground="{DynamicResource ButtonForeground}" Text="{Binding Strings.sortBy}"/>
+					<ComboBox x:Name="sortCombo" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+				</DockPanel>
 				<!--<Button Name="pls" HorizontalAlignment="Stretch" Height="0"/>-->
 				<TextBox Margin="4,1,0,0" VerticalAlignment="Center"/>
 				<l:FilterTextBox Margin="4,1,0,0" x:Name="valueFilter" 

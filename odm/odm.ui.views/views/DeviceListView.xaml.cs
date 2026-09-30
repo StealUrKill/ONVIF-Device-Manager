@@ -28,6 +28,13 @@ namespace odm.ui.controls {
 				valueFilter.Text = "";
 			});
 
+			sortCombo.ItemsSource = new[] {
+				new System.Collections.Generic.KeyValuePair<string, string>(DevicesObservableCollection.SortByIp, Strings.sortByIp),
+				new System.Collections.Generic.KeyValuePair<string, string>(DevicesObservableCollection.SortByName, Strings.sortByName)
+			};
+			sortCombo.SelectedValue = viewModel.SortMode;
+			sortCombo.SelectionChanged += (s, e) => viewModel.SetSortMode(sortCombo.SelectedValue as string);
+
 			// The menu is made each time it opens, because the list of saved accounts can change.
 			deviceList.ContextMenu = new ContextMenu();
 			deviceList.ContextMenuOpening += OnDeviceMenuOpening;

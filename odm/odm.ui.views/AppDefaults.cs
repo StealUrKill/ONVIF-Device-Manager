@@ -215,6 +215,8 @@ namespace odm.ui {
 		public string ScanRanges { get; set; }
 		/// <summary>Scan ScanRanges at start and on Refresh.</summary>
 		public bool ScanOnRefresh { get; set; }
+		/// <summary>The order of the device list: DevicesObservableCollection.SortByIp or SortByName. No value means SortByIp.</summary>
+		public string DeviceListSort { get; set; }
 		public bool OpenInExternalWebBrowser { get; set; }
         public bool EnableGraphicAnnotation { get; set; }
 		public bool UseOnlyCommonFilterView { get; set; }
