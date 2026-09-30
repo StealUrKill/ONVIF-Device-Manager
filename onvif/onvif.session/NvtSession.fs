@@ -116,6 +116,10 @@ namespace odm.core
         abstract GetVideoEncoderConfigurationOptionsMedia2: configToken:string * profileToken:string -> Async<Media2EncoderOptions[]>
         /// Read one Media2 video encoder configuration, change it and write it back.
         abstract UpdateVideoEncoderConfigurationMedia2: configToken:string * change:Media2EncoderChange -> Async<unit>
+        /// The address of a service from GetServices, or null if the device does not have the service.
+        abstract GetServiceAddress: serviceNamespace:string -> Async<string>
+        /// Send one operation to a service and return the reply body. Use it when ODM has no typed proxy.
+        abstract InvokeServiceRaw: serviceNamespace:string * operation:string * body:System.Xml.Linq.XElement -> Async<System.Xml.Linq.XElement>
     end
 
     type private ServiceEndpointMap = {
@@ -1179,6 +1183,53 @@ namespace odm.core
                         return System.Xml.Linq.XElement.Parse(xml)
             }
 
+            let GetServiceXAddr (ns:string) = async{
+                try
+                    let! svcs = GetServices()
+                    let svc = if svcs |> IsNull then None else svcs |> Seq.tryFind (fun (s:Service) -> s.Namespace = ns)
+                    return
+                        match svc with
+                        | Some s when not (String.IsNullOrEmpty(s.XAddr)) -> s.XAddr
+                        | _ -> null
+                with err ->
+                    dbg.Error(err)
+                    return null
+            }
+
+            // IMedia2.InvokeRaw accepts any action, so one raw client can serve each service namespace.
+            let rawClients = new System.Collections.Concurrent.ConcurrentDictionary<string, Async<IMedia2>>()
+            let GetRawClient (ns:string) =
+                rawClients.GetOrAdd(ns, fun ns -> Async.Memoize(async{
+                    let! xaddr = GetServiceXAddr ns
+                    if xaddr |> IsNull then
+                        return null
+                    else
+                        do! Async.SwitchToThreadPool()
+                        let! url = FixUrl(new Uri(xaddr, UriKind.RelativeOrAbsolute))
+                        let useTls = url.Scheme = Uri.UriSchemeHttps
+                        let! factory = getMedia2Factory(useTls)
+                        let proxy = factory.CreateChannel(new EndpointAddress(url))
+                        do! SetupUserNameToken(proxy :?> IClientChannel)
+                        return proxy
+                }))
+
+            let serviceInvoke (ns:string) (operation:string) (body:System.Xml.Linq.XElement) = async{
+                let! client = GetRawClient ns
+                if client |> IsNull then
+                    return raise (NotSupportedException(sprintf "the device does not support the service %s" ns))
+                else
+                    let action = ns + "/" + operation
+                    let request = Message.CreateMessage(MessageVersion.Soap12, action, body.CreateReader())
+                    let! reply = Async.FromBeginEnd(request, client.BeginInvokeRaw, client.EndInvokeRaw)
+                    use reply = reply
+                    if reply.IsFault then
+                        let fault = MessageFault.CreateFault(reply, 65536)
+                        return raise (FaultException(fault, action))
+                    else
+                        let xml = reply.GetReaderAtBodyContents().ReadOuterXml()
+                        return System.Xml.Linq.XElement.Parse(xml)
+            }
+
             let MediaGetVideoSources =
                 let comp = Async.Memoize(async{
                     let! media = GetMediaClient()
@@ -1291,6 +1342,16 @@ namespace odm.core
 
                     member this.GetAllCapabilities() =
                         GetAllCapabilities()
+
+                    member this.GetServiceAddress(serviceNamespace) =
+                        GetServiceXAddr serviceNamespace
+
+                    member this.InvokeServiceRaw(serviceNamespace, operation, body) =
+                        // Media2 has its own client, which also knows the Media2 address when GetServices lists it late.
+                        if serviceNamespace = nsMedia2.NamespaceName then
+                            media2Invoke operation body
+                        else
+                            serviceInvoke serviceNamespace operation body
 
                     member this.GetVideoEncoderConfigurationsMedia2(): Async<VideoEncoderConfiguration[]> = async{
                         try
