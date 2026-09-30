@@ -125,6 +125,7 @@
     <Compile Include="NetMaskHelper.fs" />
     <Compile Include="ScopeHelper.fs" />
     <Compile Include="OdmSession.fs" />
+    <Compile Include="OnvifFeatures.fs" />
     <Compile Include="ProtoSchemeGenerator.fs" />
     <Compile Include="XmlSchemaProcessor.fs" />
     <None Include="packages.config" />

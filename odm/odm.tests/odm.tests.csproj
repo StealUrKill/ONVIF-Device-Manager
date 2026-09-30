@@ -64,6 +64,12 @@
       <HintPath>$(OdmViewsBin)onvif.discovery.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="onvif.utils">
+      <HintPath>$(OdmViewsBin)onvif.utils.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
