@@ -2,73 +2,94 @@
 
 Workflow file: `.github/workflows/odm.yml`
 
-Triggers: push and pull request to `development` branch.  
+Triggers: push and pull request to the `development` branch, and `v*` tags.
 Runner: `windows-2022`.
+
+---
+
+## One build command
+
+CI and local builds use the same command:
+
+```
+msbuild build.slnx /restore /p:Configuration=Release /p:Platform=x64
+```
+
+This command builds:
+
+| Output | What it is |
+|--------|------------|
+| `odm\odm.ui.app\bin\Release\x64\` | The application build output |
+| `build\` | The files that ODM needs to run (the stage folder) |
+| `out\odm-<version>-x64.msi` | The MSI installer (WiX v5, `installer\odm.installer.wixproj`) |
+| `out\odm-<version>-x64-portable.exe` | The portable exe (`installer\portable\odm.portable.csproj`) |
+
+`installer\odm.stage.targets` fills `build\`. It replaces `package.bat`. The MSI and the portable exe both use `build\`.
+
+---
+
+## Version
+
+`version.json` is the only source of the version:
+
+```json
+{"version":"3.0.3"}
+```
+
+`Directory.Build.props` reads it. These MSBuild properties change the result:
+
+| Property | Default | Effect |
+|----------|---------|--------|
+| `OdmRelease` | `false` | When `false`, the version gets `-dev` (`3.0.3-dev`) and the MSI name gets ` (dev)` |
+| `OdmBuildNumber` | `0` | The 4th part of the file version (`3.0.3.<n>`). CI sets it to `github.run_number` |
+| `OdmSkipStage` | `false` | When `true`, the MSI and the portable exe use `build\` as it is (used after code signing) |
+
+The window title shows `v3.0.3-dev` or `v3.0.3`. The informational version also has the git hash (`3.0.3-dev+a91ee72`).
+
+To make a release:
+
+1. Change `version.json` and commit.
+2. Push a tag with the same version, for example `v3.0.4`. CI stops if the tag and `version.json` are different.
 
 ---
 
 ## Build Order
 
-Steps run in this sequence — order matters because later steps depend on earlier outputs:
-
 | Step | What it does |
 |------|-------------|
-| Checkout | Full history (`fetch-depth: 0`) — needed for `git rev-parse --short HEAD` in version patching |
-| Setup VS Dev Environment | Installs Visual Studio 2022 build tools via `seanmiddleditch/gha-setup-vsdevenv@v4` |
-| Install .NET Framework targeting packs | Copies .NET 4.0 and 4.5 reference assemblies via NuGet — required because `windows-2022` runners don't include them |
-| Set build version | Patches all AssemblyInfo files and the vdproj — see below |
-| Build application | `msbuild odm.sln /p:Configuration=Release /p:Platform=x64 /m` — full solution, parallel |
-| Restore tests | `dotnet restore odm/odm.tests/odm.tests.csproj` |
-| Build tests | `msbuild odm.tests.csproj /p:Configuration=Debug /p:Platform="Any CPU"` |
-| Run tests | `vstest.console.exe` — runs offline tests only; integration tests skip via `Assert.Inconclusive` |
-| Collect artifacts | `package.bat` — stages `build/` directory |
-| Verify required DLLs | PowerShell check that all required binaries are present in `build/` |
-| Upload zip artifact | `actions/upload-artifact@v4` — uploads `build/` as `odm-build-zip` |
-| Strip PDB files | Removes `*.pdb` from MSI source dirs (not from zip) |
-| DisableOutOfProcBuild | Runs `DisableOutOfProcBuild.exe` — required for vdproj builds |
-| Build installer | `devenv odm.sln /Build "Release|x64" /Project odm.setup` |
-| Upload installer | `actions/upload-artifact@v4` — uploads MSI as `odm-installer` |
+| Checkout | Full history (`fetch-depth: 0`) for the git hash in the version |
+| Setup VS Dev Environment | Visual Studio 2022 build tools via `seanmiddleditch/gha-setup-vsdevenv@v4` |
+| Install .NET Framework targeting packs | Copies .NET 4.0 and 4.5 reference assemblies via NuGet |
+| Check tag against version.json | Tags only. The tag must be `v` + the version in `version.json` |
+| Build | `msbuild build.slnx /restore ...` with `OdmBuildNumber`, and `OdmRelease=true` on tags |
+| Restore / Build / Run tests | `odm.tests` with `vstest.console.exe`. Integration tests skip via `Assert.Inconclusive` |
+| Verify required DLLs present | Checks `build\` and that `out\` has one MSI and one portable exe |
+| Azure Login, Sign application exe files | Tags only. Signs the exe files in `build\` |
+| Package signed files | Tags only. Makes the MSI and the portable exe again with `OdmSkipStage=true` |
+| Sign packages | Tags only. Signs the MSI and the portable exe in `out\` |
+| Upload installer / portable exe | Artifacts `odm-installer` and `odm-portable` |
+| Create GitHub release | Tags only. Attaches the MSI and the portable exe |
 
 ---
 
-## Version Patching
+## Artifacts
 
-The "Set build version" step is the single source of truth for all version numbers in a given CI build. No version commits are made to source control by CI.
+### `odm-installer` (`out/odm-<version>-x64.msi`)
 
-**Variables computed:**
+- Per-machine install to `C:\Program Files\Synesis\ONVIF Device Manager`, with desktop and Start menu shortcuts.
+- The UpgradeCode is the same as the old vdproj installer. A new MSI replaces an older per-machine install (MajorUpgrade).
+- The MSI needs .NET Framework 4.8.
 
-```
-$run     = github.run_number          (e.g. 42)
-$hash    = git rev-parse --short HEAD  (e.g. b7ee223)
-$ver4    = "3.0.$run.0"               (e.g. 3.0.42.0)
-$verMsi  = "3.0.$run"                  (e.g. 3.0.42)
-$verInfo = "3.0.$run+$hash"           (e.g. 3.0.42+b7ee223)
-```
+Old per-user installs: the old vdproj MSI installed per-user by default. A per-machine MSI cannot remove a per-user install. Remove such an install one time in "Installed apps" before you install the new MSI.
 
-**Files patched (regex replacement, in-memory, then written):**
+### `odm-portable` (`out/odm-<version>-x64-portable.exe`)
 
-- `odm/~cfg/AssemblyInfo.global.cs`, `onvif/~cfg/AssemblyInfo.global.cs`, `utils/~cfg/AssemblyInfo.global.cs`
-  - `AssemblyVersion` → `$ver4`
-  - `AssemblyFileVersion` → `$ver4`
-  - `AssemblyInformationalVersion` → `$verInfo`
+- One exe. It holds `build\` as an embedded zip.
+- On start, it extracts the files to `%TEMP%\ONVIF Device Manager\portable\<version>` and starts `odm.exe` from there. The next start uses the same folder. A new build of the same version replaces the files.
+- It starts `odm.exe` with `--data-dir <folder of the portable exe>`. Config and data (`config\`, credentials, trusted certificates) go next to the portable exe.
+- If disk cleanup removes files from the cache, the next start extracts them again.
 
-- `odm/~cfg/AssemblyInfo.global.fs`, `onvif/~cfg/AssemblyInfo.global.fs`, `utils/~cfg/AssemblyInfo.global.fs`
-  - `AssemblyVersion` → `$ver4`
-  - `AssemblyFileVersion` → `$ver4`
-
-- `odm.setup/odm.setup.vdproj`
-  - `ProductVersion` → `$verMsi`
-  - `ProductCode` → fresh `[guid]::NewGuid()` (rotated per build)
-
----
-
-## Artifact Structure
-
-### `odm-build-zip` (zip of `build/`)
-
-All runtime files including PDBs. Intended for local test deploys and debugging.
-
-Required files (verified by CI, build fails if missing):
+Required files in `build\` (CI stops if one is missing):
 - `build/odm.exe`
 - `build/odm.player.net.dll`
 - `build/odm.player.host.exe`
@@ -78,23 +99,6 @@ Required files (verified by CI, build fails if missing):
 - `build/avutil-59.dll`
 - `build/swscale-8.dll`
 - `build/swresample-5.dll`
-
-### `odm-installer` (`odm.setup/Release/odm.setup.msi`)
-
-PDB-stripped MSI. Triggers a major upgrade on any machine with a prior ODM install (`2.x` or any earlier `3.0.x` build).
-
----
-
-## Why the Installer Is Built Separately
-
-Visual Studio Deployment Projects (`.vdproj`) cannot be built by MSBuild in out-of-process mode. Attempting `msbuild /Project odm.setup` without `DisableOutOfProcBuild` either fails or produces a zero-byte MSI silently.
-
-The workflow works around this by:
-1. Building all other projects with parallel MSBuild (`/m`)
-2. Calling `DisableOutOfProcBuild.exe` (ships with Visual Studio)
-3. Building the installer with `devenv /Build /Project odm.setup` (in-process)
-
-Building the full solution in step 1 (rather than just `odm.ui.app`) ensures native C++/CLI projects (`live555.vcxproj`, `odm.player.lib.vcxproj`, `odm.player.net.vcxproj`) are always compiled — this was the root cause of issue #1 where selective project builds could silently skip them.
 
 ---
 
@@ -116,6 +120,6 @@ Copies are installed to the standard reference assembly path (`C:\Program Files 
 | Issue | What was fixed |
 |-------|---------------|
 | #1 | Full solution build ensures native player projects are never skipped |
-| #12 | Unified CI versioning — all AssemblyInfo + vdproj patched in one step |
-| #13 | Per-CI-build ProductCode GUID rotation enables clean major upgrades |
-| #15 | `build/` as single staging area for both zip and MSI inputs |
+| #12 | Unified versioning — `version.json` is the only version source |
+| #13 | WiX makes a new ProductCode for each build, so each MSI is a major upgrade |
+| #15 | `build/` as single staging area for the MSI and the portable exe |
