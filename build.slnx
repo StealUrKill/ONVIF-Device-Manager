@@ -1,0 +1,86 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/libs/">
+    <Project Path="libs/bccrypto-net-1.7-src-ext/crypto.csproj" />
+    <Project Path="libs/live555-2013.02.11/live555.vcxproj" />
+    <Project Path="libs/WPFToolkit.Extended-v1.5.0/WPFToolkit.Extended.csproj" />
+  </Folder>
+  <Folder Name="/odm.player/">
+    <Project Path="odm/odm.player/odm.player.host/odm.player.host.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="odm/odm.player/odm.player.lib/odm.player.lib.vcxproj" />
+    <Project Path="odm/odm.player/odm.player.media/odm.player.media.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="odm/odm.player/odm.player.net/odm.player.net.vcxproj" />
+  </Folder>
+  <Folder Name="/odm.plugins/">
+    <Project Path="odm/odm.plugins/synesis/synesis.csproj">
+      <Platform Project="Net40" />
+    </Project>
+  </Folder>
+  <Folder Name="/onvif/">
+    <Project Path="onvif/onvif.discovery/onvif.discovery.fsproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="onvif/onvif.services/onvif.services.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="onvif/onvif.session/onvif.session.fsproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="onvif/onvif.utils/onvif.utils.fsproj">
+      <Platform Project="Net40" />
+    </Project>
+  </Folder>
+  <Folder Name="/utils/">
+    <Project Path="utils/utils.async/utils.async.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.bindings/utils.bindings.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.bootstrapping/utils.bootstrapping.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.common/utils.common.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.diagnostics/utils.diagnostics.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.fsharp/utils.fsharp.fsproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.linq/utils.linq.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.wpf/utils.wpf.csproj">
+      <Platform Project="Net40" />
+    </Project>
+    <Project Path="utils/utils.xml/utils.xml.csproj">
+      <Platform Project="Net40" />
+    </Project>
+  </Folder>
+  <Project Path="odm/odm.extensibility/odm.extensibility.csproj">
+    <Platform Project="Net40" />
+  </Project>
+  <Project Path="odm/odm.infra/odm.infra.fsproj" />
+  <Project Path="odm/odm.localization/odm.localization.csproj">
+    <Platform Project="Net40" />
+  </Project>
+  <Project Path="odm/odm.onvif.extensions/odm.onvif.extensions.fsproj" />
+  <Project Path="odm/odm.ui.activities/odm.ui.activities.fsproj" />
+  <Project Path="odm/odm.ui.app/odm.ui.app.csproj">
+    <BuildDependency Project="odm/odm.player/odm.player.host/odm.player.host.csproj" />
+    <Platform Project="x64" />
+  </Project>
+  <Project Path="odm/odm.ui.models/odm.ui.models.csproj" />
+  <Project Path="odm/odm.ui.views/odm.ui.views.csproj" />
+  <Properties Name="ExtensibilityGlobals" Scope="PostLoad">
+    <Property Name="EnterpriseLibraryConfigurationToolBinariesPath" Value="packages\Unity.2.1.505.0\lib\NET35" />
+  </Properties>
+</Solution>
