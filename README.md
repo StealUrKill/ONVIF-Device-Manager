@@ -57,7 +57,7 @@ More in [docs/ci.md](docs/ci.md), [docs/features/installer.md](docs/features/ins
 
 1. Change the number in `version.json`.
 2. Commit and push to `development`, and wait for the workflow to pass.
-3. Push a tag that matches the number, for example `v3.2.1`.
+3. Push a tag that matches the number, for example `v3.3.1`.
 
 The workflow builds the tag and publishes the release with the MSI and the portable exe. The **Get the latest release** link then shows the new version.
 
