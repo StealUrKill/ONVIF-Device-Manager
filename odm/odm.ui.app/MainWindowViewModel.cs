@@ -19,11 +19,21 @@ using utils;
 namespace odm.ui {
 	public class MainWindowViewModel : DependencyObject {
 		public MainWindowViewModel() {
-			var ver = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
+			var version = DisplayVersion();
 			this.CreateBinding(TitleProperty, odm.ui.controls.CommonApplicationStrings.instance, x => {
-				return
-					String.Format("{0} v{1}.{2}.{3}.{4}", x.applicationName, ver.Major, ver.Minor, ver.Build, ver.Revision);
+				return String.Format("{0} v{1}", x.applicationName, version);
 			});
+		}
+
+		// The version from version.json, for example "3.1.0" or "3.1.0-dev" (no git hash).
+		static string DisplayVersion() {
+			var entry = System.Reflection.Assembly.GetEntryAssembly();
+			var info = (System.Reflection.AssemblyInformationalVersionAttribute)Attribute.GetCustomAttribute(
+				entry, typeof(System.Reflection.AssemblyInformationalVersionAttribute));
+			if (info != null && !String.IsNullOrEmpty(info.InformationalVersion))
+				return info.InformationalVersion.Split('+')[0];
+			var ver = entry.GetName().Version;
+			return String.Format("{0}.{1}.{2}", ver.Major, ver.Minor, ver.Build);
 		}
 		public string Title {
 			get { return (string)GetValue(TitleProperty); }
