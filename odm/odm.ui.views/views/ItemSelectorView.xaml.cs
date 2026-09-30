@@ -110,8 +110,13 @@ namespace odm.ui.activities {
 			panel.Margin = new Thickness(2);
 			panel.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
 			panel.Orientation = Orientation.Horizontal;
-			panel.Children.Add(new TextBlock() { Foreground = Brushes.Black, FontWeight = FontWeights.Normal, Text = name + ":", Margin = new Thickness(0, 0, 10, 0) });
-			panel.Children.Add(new TextBlock() { Text = detail, Foreground = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100)), FontWeight = FontWeights.Normal });
+			// Resource references, so that the colors follow the theme.
+			var nameText = new TextBlock() { FontWeight = FontWeights.Normal, Text = name + ":", Margin = new Thickness(0, 0, 10, 0) };
+			nameText.SetResourceReference(TextBlock.ForegroundProperty, "DetailNameForeground");
+			var valueText = new TextBlock() { Text = detail, FontWeight = FontWeights.Normal };
+			valueText.SetResourceReference(TextBlock.ForegroundProperty, "DetailValueForeground");
+			panel.Children.Add(nameText);
+			panel.Children.Add(valueText);
 			return panel;
 		}
 

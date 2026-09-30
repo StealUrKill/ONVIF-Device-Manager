@@ -33,7 +33,7 @@
 			</Grid>
 		</DockPanel>
 		
-		<Rectangle Fill="White" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"/>
-		<TextBox Grid.Row="1" Name="uriString"  Margin="2,4,2,0" HorizontalAlignment="Stretch" Background="White" Foreground="Black" IsReadOnly="True"/>
+		<Rectangle Fill="{DynamicResource SurfaceBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"/>
+		<TextBox Grid.Row="1" Name="uriString"  Margin="2,4,2,0" HorizontalAlignment="Stretch" Background="{DynamicResource TextBoxBackground}" Foreground="{DynamicResource Foreground}" IsReadOnly="True"/>
 	</Grid>
 </UserControl>

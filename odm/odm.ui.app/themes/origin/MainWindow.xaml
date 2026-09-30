@@ -9,11 +9,11 @@
 		<Setter Property="ResizeMode" Value="CanResize"/>
 
 		<!--<Setter Property="Background" Value="#FF556688"/>-->
-		<Setter Property="Background" Value="#FF778899"/>
+		<Setter Property="Background" Value="{DynamicResource WindowBackground}"/>
 		<!--<Setter Property="Background" Value="#FF4D6082"/>-->
 		<!--<Setter Property="Background" Value="#FFB4C0CE"/>-->
 		<!--<Setter Property="Background" Value="#FF889988"/>-->
-		<Setter Property="Foreground" Value="Gray"/>
+		<Setter Property="Foreground" Value="{DynamicResource WindowForeground}"/>
 
 		<Setter Property="Template">
 			<Setter.Value>

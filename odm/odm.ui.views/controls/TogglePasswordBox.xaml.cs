@@ -34,6 +34,10 @@ namespace odm.ui.controls
                 _updating = false;
             };
 
+            IsKeyboardFocusWithinChanged += (s, e) => UpdatePlaceholder();
+            passwordBox.PasswordChanged += (s, e) => UpdatePlaceholder();
+            textBox.TextChanged += (s, e) => UpdatePlaceholder();
+
             toggleBtn.Checked += (s, e) =>
             {
                 textBox.Text = passwordBox.Password;
@@ -81,6 +85,25 @@ namespace odm.ui.controls
             ctrl.passwordBox.Password = val;
             ctrl.textBox.Text = val;
             ctrl._updating = false;
+        }
+
+        // ------------------------------------------------------------------
+        // Placeholder: the hint text while the password is empty
+        // ------------------------------------------------------------------
+
+        public static readonly DependencyProperty PlaceholderProperty =
+            DependencyProperty.Register("Placeholder", typeof(string), typeof(TogglePasswordBox), new PropertyMetadata(string.Empty));
+
+        public string Placeholder
+        {
+            get { return (string)GetValue(PlaceholderProperty); }
+            set { SetValue(PlaceholderProperty, value); }
+        }
+
+        void UpdatePlaceholder()
+        {
+            bool empty = string.IsNullOrEmpty(passwordBox.Password) && string.IsNullOrEmpty(textBox.Text);
+            placeholder.Visibility = empty && !IsKeyboardFocusWithin ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public void SelectAll()

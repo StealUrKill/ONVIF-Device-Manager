@@ -27,13 +27,7 @@
         <VisualBrush x:Key="NameWatermarkBrush" TileMode="None" Stretch="None"
                      AlignmentX="Left" AlignmentY="Center" Viewbox="-5,7,0,0" ViewboxUnits="Absolute">
             <VisualBrush.Visual>
-                <TextBlock Text="{Binding loginCaption, Source={StaticResource Strings}}" Foreground="Gray"/>
-            </VisualBrush.Visual>
-        </VisualBrush>
-        <VisualBrush x:Key="PasswordWatermarkBrush" TileMode="None" Stretch="None"
-                     AlignmentX="Left" AlignmentY="Center" Viewbox="-5,7,0,0" ViewboxUnits="Absolute">
-            <VisualBrush.Visual>
-                <TextBlock Text="{Binding passwordCaption, Source={StaticResource Strings}}" Foreground="Gray"/>
+                <TextBlock Text="{Binding loginCaption, Source={StaticResource Strings}}" Foreground="{DynamicResource PlaceholderForeground}"/>
             </VisualBrush.Visual>
         </VisualBrush>
     </UserControl.Resources>
@@ -47,7 +41,7 @@
 
         <!-- Col 0: login panel (anonymous) or logged-in panel — mutually exclusive -->
         <StackPanel x:Name="panelEdit" Grid.Column="0" Orientation="Horizontal">
-            <Border Background="White" BorderThickness="0" CornerRadius="2" Margin="3" VerticalAlignment="Center">
+            <Border Background="{DynamicResource TextBoxBackground}" BorderThickness="0" CornerRadius="2" Margin="3" VerticalAlignment="Center">
                 <TextBox x:Name="username" MinWidth="100" MaxWidth="300"
                          KeyboardNavigation.TabIndex="0">
                     <TextBox.Style>
@@ -75,8 +69,9 @@
 
             <!-- TogglePasswordBox: Focusable=False on the UserControl means tab goes
                  directly to PasswordBox (tab stop 1) then the eye toggle (tab stop 2) -->
-            <Border Background="White" BorderThickness="0" CornerRadius="2" Margin="3" VerticalAlignment="Center">
+            <Border Background="{DynamicResource TextBoxBackground}" BorderThickness="0" CornerRadius="2" Margin="3" VerticalAlignment="Center">
                 <l:TogglePasswordBox x:Name="password"
+                                     Placeholder="{Binding passwordCaption, Source={StaticResource Strings}}"
                                      Height="{Binding Path=ActualHeight, ElementName=username}"
                                      MinWidth="100" MaxWidth="300"/>
             </Border>

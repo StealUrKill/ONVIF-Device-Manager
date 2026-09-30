@@ -9,6 +9,7 @@
 		<Setter Property="BorderBrush" Value="{DynamicResource ResourceKey=BorderBrush}"/>
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="Padding" Value="2"/>
+		<Setter Property="CaretBrush" Value="{DynamicResource ResourceKey=Foreground}"/>
 
 		<Setter Property="KeyboardNavigation.TabNavigation" Value="None"/>
 		<Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -49,5 +50,13 @@
 
 
 
+
+	<!-- The theme colors for the password boxes. The template stays the one of WPF. -->
+	<Style TargetType="{x:Type PasswordBox}">
+		<Setter Property="Background" Value="{DynamicResource ResourceKey=TextBoxBackground}"/>
+		<Setter Property="Foreground" Value="{DynamicResource ResourceKey=Foreground}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ResourceKey=InputBorder}"/>
+		<Setter Property="CaretBrush" Value="{DynamicResource ResourceKey=Foreground}"/>
+	</Style>
 
 </ResourceDictionary>

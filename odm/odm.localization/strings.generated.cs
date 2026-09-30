@@ -2683,6 +2683,86 @@ namespace odm.ui {
 		
 
 
+		private const string s_themeCaption = @"Theme";
+		private string m_themeCaption=null;
+		[XPath(@"/localized-strings/module[@name='LocalAppSettings' and @namespace='odm.ui']/descendant::string[@name='themeCaption']/@value")]
+		public string themeCaption {
+			get { 
+				if( m_themeCaption == null){
+					return s_themeCaption;
+				}
+				return m_themeCaption; 
+			}
+			set { 
+				if( value != m_themeCaption){
+					m_themeCaption = value;
+					NotifyPropertyChanged("themeCaption");
+				}
+			}  
+		}
+	
+
+
+		private const string s_themeLight = @"Light";
+		private string m_themeLight=null;
+		[XPath(@"/localized-strings/module[@name='LocalAppSettings' and @namespace='odm.ui']/descendant::string[@name='themeLight']/@value")]
+		public string themeLight {
+			get { 
+				if( m_themeLight == null){
+					return s_themeLight;
+				}
+				return m_themeLight; 
+			}
+			set { 
+				if( value != m_themeLight){
+					m_themeLight = value;
+					NotifyPropertyChanged("themeLight");
+				}
+			}  
+		}
+	
+
+
+		private const string s_themeDark = @"Dark";
+		private string m_themeDark=null;
+		[XPath(@"/localized-strings/module[@name='LocalAppSettings' and @namespace='odm.ui']/descendant::string[@name='themeDark']/@value")]
+		public string themeDark {
+			get { 
+				if( m_themeDark == null){
+					return s_themeDark;
+				}
+				return m_themeDark; 
+			}
+			set { 
+				if( value != m_themeDark){
+					m_themeDark = value;
+					NotifyPropertyChanged("themeDark");
+				}
+			}  
+		}
+	
+
+
+		private const string s_themeSystem = @"Use the Windows setting";
+		private string m_themeSystem=null;
+		[XPath(@"/localized-strings/module[@name='LocalAppSettings' and @namespace='odm.ui']/descendant::string[@name='themeSystem']/@value")]
+		public string themeSystem {
+			get { 
+				if( m_themeSystem == null){
+					return s_themeSystem;
+				}
+				return m_themeSystem; 
+			}
+			set { 
+				if( value != m_themeSystem){
+					m_themeSystem = value;
+					NotifyPropertyChanged("themeSystem");
+				}
+			}  
+		}
+	
+
+
 		private const string s_webbrowser = @"Open web in external browser";
 		private string m_webbrowser=null;
 		[XPath(@"/localized-strings/module[@name='LocalAppSettings' and @namespace='odm.ui']/descendant::string[@name='webbrowser']/@value")]

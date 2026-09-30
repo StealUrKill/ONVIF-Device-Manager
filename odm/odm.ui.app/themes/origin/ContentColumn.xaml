@@ -3,6 +3,8 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:l="clr-namespace:odm.ui.controls;assembly=odm.ui.views">
 	<Style TargetType="{x:Type l:ContentColumn}">
+		<!-- The content inherits this color. Light: the same gray as the window. -->
+		<Setter Property="Foreground" Value="{DynamicResource SurfaceForeground}"/>
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="{x:Type l:ContentColumn}">
@@ -34,7 +36,7 @@
 							</Grid>
 						</Border>
 						<Border
-							Grid.Row="1" Margin="0" Background="White" 
+							Grid.Row="1" Margin="0" Background="{DynamicResource SurfaceBackground}" 
 							CornerRadius="0,0,6,6" BorderThickness="1"
 							BorderBrush="{DynamicResource BackgroundHighlight}">
 							<Grid>

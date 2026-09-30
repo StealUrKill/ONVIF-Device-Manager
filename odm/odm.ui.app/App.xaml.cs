@@ -98,6 +98,7 @@ namespace odm.ui {
 			};
 
             LoadCurrentLanguage();
+			ThemeManager.Apply(AppDefaults.visualSettings.Theme);
 
 			base.OnStartup(e);
 			OdmBootstrapper bootstrapper = new OdmBootstrapper();

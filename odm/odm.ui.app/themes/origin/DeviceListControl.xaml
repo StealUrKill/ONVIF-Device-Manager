@@ -49,7 +49,7 @@
                                             <TextBlock Grid.Column="0" Grid.Row="2" Text="Location" FontWeight="Bold"/>
 
 											<Border CornerRadius="4"
-													Background="White" 
+													Background="{DynamicResource TagBackground}" 
 													Visibility="{Binding IsManual, Converter={StaticResource BoolToVisConverter}}"
 													Grid.Row="3" Grid.Column="0">
 												<!-- No fixed height: at a display scale above 100 % a fixed height cuts the text. -->
@@ -58,7 +58,7 @@
 													   VerticalContentAlignment="Center"
 													   MinHeight="16" Padding="4,0"
 													   FontSize="12"
-														Foreground="DarkRed" 
+														Foreground="{DynamicResource TagForeground}" 
 														FontWeight="Bold" />
 											</Border>
 											
@@ -70,10 +70,10 @@
 												
 												<Button
 													Command="{Binding deleteDevice}"
-													Margin="1" DockPanel.Dock="Right" Content="Delete" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="Gray"/>
+													Margin="1" DockPanel.Dock="Right" Content="Delete" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="{DynamicResource SmallButtonBackground}"/>
 												<Button
 													Command="{Binding editDeviceUri}"
-													Margin="1" DockPanel.Dock="Right"  Content="Edit" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="Gray"/>
+													Margin="1" DockPanel.Dock="Right"  Content="Edit" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="{DynamicResource SmallButtonBackground}"/>
 											</DockPanel>
 										</Grid>
 									</Grid>

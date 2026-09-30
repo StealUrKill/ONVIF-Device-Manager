@@ -32,7 +32,7 @@
 			<Trigger Property="IsEnabled" Value="False">
 				<Setter Property="Foreground" Value="{DynamicResource ResourceKey=ForegroundDisabled}"/>
 				<Setter Property="BorderBrush" Value="{DynamicResource ResourceKey=BackgroundDisabled}"/>
-				<Setter Property="Background" Value="White"/>
+				<Setter Property="Background" Value="{DynamicResource ResourceKey=ButtonBackgroundDisabled}"/>
 			</Trigger>
 			<MultiTrigger>
 				<MultiTrigger.Conditions>

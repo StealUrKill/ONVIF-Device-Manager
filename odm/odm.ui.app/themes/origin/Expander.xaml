@@ -93,7 +93,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
-                    <Border x:Name="border" Padding="{TemplateBinding Padding}" Background="WhiteSmoke" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
+                    <Border x:Name="border" Padding="{TemplateBinding Padding}" Background="{DynamicResource ExpanderHeaderBackground}" BorderBrush="Gray" BorderThickness="1" CornerRadius="4">
                         <Grid Background="Transparent" SnapsToDevicePixels="False">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="19"/>
@@ -110,21 +110,21 @@
                             <Setter Property="Stroke" TargetName="arrow" Value="DarkGray"/>
                             <Setter Property="Stroke" TargetName="circle" Value="DarkGray"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="Gray"/>
-                            <Setter Property="Background" TargetName="border" Value="WhiteSmoke"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ExpanderHeaderBackground}"/>
                             <Setter Property="TextBlock.Foreground" TargetName="content" Value="DarkGray"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="true">
-                            <Setter Property="Stroke" TargetName="arrow" Value="Black"/>
-                            <Setter Property="Stroke" TargetName="circle" Value="Black"/>
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource ExpanderHeaderHoverForeground}"/>
+                            <Setter Property="Stroke" TargetName="circle" Value="{DynamicResource ExpanderHeaderHoverForeground}"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="DarkGray"/>
-                            <Setter Property="Background" TargetName="border" Value="LightGray"/>
-                            <Setter Property="TextBlock.Foreground" TargetName="content" Value="Black"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ExpanderHeaderHoverBackground}"/>
+                            <Setter Property="TextBlock.Foreground" TargetName="content" Value="{DynamicResource ExpanderHeaderHoverForeground}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="true">
                             <Setter Property="Stroke" TargetName="arrow" Value="DarkGray"/>
                             <Setter Property="Stroke" TargetName="circle" Value="DarkGray"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="Gray"/>
-                            <Setter Property="Background" TargetName="border" Value="LightGray"/>
+                            <Setter Property="Background" TargetName="border" Value="{DynamicResource ExpanderHeaderHoverBackground}"/>
                             <Setter Property="TextBlock.Foreground" TargetName="content" Value="DarkGray"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

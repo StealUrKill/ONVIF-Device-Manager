@@ -96,6 +96,12 @@
                     <ContentControl Grid.Row="5" Style="{StaticResource valueContainer}">
                         <CheckBox Name="enableGraphicAnnotationValue"/>
                     </ContentControl>
+                    <ContentControl Grid.Row="6" Style="{StaticResource captionContainer}">
+                        <TextBlock Name="themeCaption" Text="Theme"/>
+                    </ContentControl>
+                    <ContentControl Grid.Row="6" Style="{StaticResource valueContainer}">
+                        <ComboBox MinWidth="60" Name="themeValue" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+                    </ContentControl>
                 </Grid>
             </GroupBox>
             <GroupBox Name="eventCaption" Grid.Row="1" Header="Events settings:">

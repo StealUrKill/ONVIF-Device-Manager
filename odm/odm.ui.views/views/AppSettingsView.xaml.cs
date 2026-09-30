@@ -62,6 +62,8 @@ namespace odm.ui {
 						vs.Transport_Type = ((KeyValuePair<TransportProtocol, string>)transportTypes.SelectedValue).Key;
 						vs.OpenInExternalWebBrowser = webValue.IsChecked.Value;
                         vs.EnableGraphicAnnotation = enableGraphicAnnotationValue.IsChecked.Value;
+						vs.Theme = themeValue.SelectedValue as string ?? ThemeManager.System;
+						ThemeManager.Apply(vs.Theme);
 
 						vs.UseOnlyCommonFilterView = enableOnlyDefValue.IsChecked.Value;
 
@@ -131,6 +133,13 @@ namespace odm.ui {
 
 			webValue.IsChecked = vs.OpenInExternalWebBrowser;
             enableGraphicAnnotationValue.IsChecked = vs.EnableGraphicAnnotation;
+
+			themeValue.ItemsSource = new Dictionary<string, string> {
+				{ ThemeManager.System, Strings.themeSystem },
+				{ ThemeManager.Light, Strings.themeLight },
+				{ ThemeManager.Dark, Strings.themeDark }
+			};
+			themeValue.SelectedValue = String.IsNullOrEmpty(vs.Theme) ? ThemeManager.System : vs.Theme;
             
 			enableEventValue.IsChecked = vs.Events_IsEnabled;
 			collectEventsValue.IsChecked = vs.EventsCollect_IsEnabled;
@@ -174,6 +183,7 @@ namespace odm.ui {
 			enableCustomAnalyticsCaption.CreateBinding(TextBlock.TextProperty, Strings, x => x.enableCustomAnalyticsCaption);
 			enableEventCaption.CreateBinding(TextBlock.TextProperty, Strings, x => x.enableEventCaption);
             enableGraphicAnnotationCaption.CreateBinding(TextBlock.TextProperty, Strings, s => s.enableGraphicAnnotationCaption);
+			themeCaption.CreateBinding(TextBlock.TextProperty, Strings, s => s.themeCaption);
 			enableSnapshotCaption.CreateBinding(TextBlock.TextProperty, Strings, x => x.enableSnapshotCaption);
 			langCaption.CreateBinding(TextBlock.TextProperty, Strings, x => x.langCaption);
 			videoRenderingFpsCaption.CreateBinding(TextBlock.TextProperty, Strings, x => x.videoRenderingFpsCaption);

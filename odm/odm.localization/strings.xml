@@ -156,6 +156,10 @@
         <string name="removeFinishedCaption" value="Remove all finished tasks " />
     </module>
     <module name="LocalAppSettings" namespace="odm.ui">
+        <string name="themeCaption" value="Theme" />
+        <string name="themeLight" value="Light" />
+        <string name="themeDark" value="Dark" />
+        <string name="themeSystem" value="Use the Windows setting" />
         <string name="webbrowser" value="Open web in external browser" />
         <string name="videotransport" value="Video streaming transport" />
         <string name="eventOnlyPullPoint" value="Only PullPoint" />

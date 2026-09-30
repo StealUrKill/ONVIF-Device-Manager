@@ -569,6 +569,7 @@
     </Compile>
     <Compile Include="core\events.cs" />
     <Compile Include="core\ReplayDownloader.cs" />
+    <Compile Include="core\ThemeManager.cs" />
     <Compile Include="views\SectionDevice\IdentificationView.xaml.cs">
       <DependentUpon>IdentificationView.xaml</DependentUpon>
     </Compile>
@@ -963,6 +964,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="views\SectionDevice\IPAddressFilterView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="themes\DarkBrushes.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

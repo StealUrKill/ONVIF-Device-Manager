@@ -144,7 +144,7 @@
 			</DockPanel>
 		</l:ContentColumn.Footer>
 		<DockPanel>
-			<Grid DockPanel.Dock="Top" Name="gridFilter" HorizontalAlignment="Stretch" Background="LightGray">
+			<Grid DockPanel.Dock="Top" Name="gridFilter" HorizontalAlignment="Stretch" Background="{DynamicResource FilterBackground}">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition/>
 					<ColumnDefinition Width="Auto"/>

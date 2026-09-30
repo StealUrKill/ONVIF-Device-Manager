@@ -2,6 +2,29 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+	<!-- The dark theme (odm.ui.views\themes\DarkBrushes.xaml) has the same keys. -->
+	<SolidColorBrush x:Key="WindowBackground" Color="#FF778899" />
+	<SolidColorBrush x:Key="WindowForeground" Color="Gray" />
+	<SolidColorBrush x:Key="SurfaceBackground" Color="White" />
+	<SolidColorBrush x:Key="SurfaceForeground" Color="Gray" />
+	<SolidColorBrush x:Key="DialogForeground" Color="Black" />
+	<SolidColorBrush x:Key="PlaceholderForeground" Color="Gray" />
+	<SolidColorBrush x:Key="InputBorder" Color="#FFABADB3" />
+	<SolidColorBrush x:Key="LinkForeground" Color="Blue" />
+	<SolidColorBrush x:Key="LinkHoverForeground" Color="DarkBlue" />
+	<SolidColorBrush x:Key="LinkSelectedForeground" Color="Red" />
+	<SolidColorBrush x:Key="LinkDisabledForeground" Color="LightGray" />
+	<SolidColorBrush x:Key="FilterBackground" Color="LightGray" />
+	<SolidColorBrush x:Key="TagBackground" Color="White" />
+	<SolidColorBrush x:Key="TagForeground" Color="DarkRed" />
+	<SolidColorBrush x:Key="SmallButtonBackground" Color="Gray" />
+	<SolidColorBrush x:Key="DetailNameForeground" Color="Black" />
+	<SolidColorBrush x:Key="SelectedItemForeground" Color="Black" />
+	<SolidColorBrush x:Key="DeviceRowBackground" Color="LightGray" />
+	<SolidColorBrush x:Key="DetailValueForeground" Color="#FF646464" />
+	<SolidColorBrush x:Key="ExpanderHeaderBackground" Color="WhiteSmoke" />
+	<SolidColorBrush x:Key="ExpanderHeaderHoverBackground" Color="LightGray" />
+	<SolidColorBrush x:Key="ExpanderHeaderHoverForeground" Color="Black" />
 	<SolidColorBrush x:Key="ButtonBorder" Color="Gray" />
 	<!--<SolidColorBrush x:Key="ButtonBackground" Color="#FFACACA6" />-->
 	<!--<SolidColorBrush x:Key="ButtonBackground" Color="#FFAAAAAA" />-->
@@ -28,6 +51,7 @@
 	<SolidColorBrush x:Key="ForegroundPressed" Color="White"/>
 	<SolidColorBrush x:Key="BackgroundDisabled" Color="#FFCDCDCD"/>
 	<SolidColorBrush x:Key="ForegroundDisabled" Color="#FFCDCDCD"/>
+	<SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="White"/>
 	<SolidColorBrush x:Key="BorderBrush" Color="Gray"/>
 	<SolidColorBrush x:Key="BackgroundReadOnly" Color="#FFDEDEDE"/>
 	<SolidColorBrush x:Key="ForegroundReadOnly" Color="#FF8D8D8D"/>

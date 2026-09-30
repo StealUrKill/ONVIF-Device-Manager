@@ -7,6 +7,8 @@
 		<Setter Property="WindowStyle" Value="None"/>
 		<Setter Property="AllowsTransparency" Value="True"/>
 		<Setter Property="Background" Value="Transparent"/>
+		<!-- The content inherits this color. The default color of a window does not follow the theme. -->
+		<Setter Property="Foreground" Value="{DynamicResource DialogForeground}"/>
 		<Setter Property="ShowInTaskbar" Value="False"/>
 		<Setter Property="SnapsToDevicePixels" Value="true"/>
 		<Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -58,7 +60,7 @@
 							</DockPanel>
 						</Border>
 						<Border  
-							Grid.Row="1" Margin="0" Background="White" 
+							Grid.Row="1" Margin="0" Background="{DynamicResource SurfaceBackground}"
 							CornerRadius="0,0,5,5" BorderThickness="1"
 							BorderBrush="{DynamicResource BackgroundHighlight}">
 							<ContentPresenter Margin="0" Grid.Row="2" ContentSource="Content" VerticalAlignment="Center"/>

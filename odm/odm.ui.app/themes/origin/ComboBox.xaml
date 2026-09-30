@@ -24,9 +24,9 @@
 		<Setter Property="MinHeight" Value="0"/>
 		<Setter Property="Width" Value="Auto"/>
 		<Setter Property="Height" Value="Auto"/>
-		<Setter Property="Background" Value="#FFCDCDCD"/>
-		<Setter Property="Foreground" Value="Black"/>
-		<Setter Property="BorderBrush" Value="Gray"/>
+		<Setter Property="Background" Value="{DynamicResource ButtonBackground}"/>
+		<Setter Property="Foreground" Value="{DynamicResource ButtonForeground}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ButtonBorder}"/>
 		<Setter Property="Padding" Value="1"/>
 		<Setter Property="VerticalContentAlignment" Value="Center"/>
 		<Setter Property="Template">
@@ -57,7 +57,7 @@
 							CornerRadius="2,0,0,2" 
 							BorderBrush="{TemplateBinding BorderBrush}" 
 							BorderThickness="1,1,1,1" 
-							Background="White">
+							Background="{DynamicResource TextBoxBackground}">
 							<ContentPresenter
 								Margin="{TemplateBinding Padding}" 
 								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -76,7 +76,7 @@
 								<Condition Property="IsMouseOver" Value="True"/>
 								<Condition Property="IsChecked" Value="False"/>
 							</MultiTrigger.Conditions>
-							<Setter Property="Background" Value="#FF595959"/>
+							<Setter Property="Background" Value="{DynamicResource ButtonBackgroundHighlight}"/>
 							<Setter Property="Fill" TargetName="iso" Value="White"/>
 						</MultiTrigger>
 					</ControlTemplate.Triggers>
@@ -160,7 +160,7 @@
 				BorderBrush="{TemplateBinding BorderBrush}" 
 				BorderThickness="1"
 				CornerRadius="2"
-				Background="White">
+				Background="{DynamicResource TextBoxBackground}">
 				<Popup
 					x:Name="PART_Popup" Placement="Bottom"
 					AllowsTransparency="true" Focusable="False" 
@@ -238,9 +238,9 @@
 	</ControlTemplate>
 
 	<Style TargetType="{x:Type ComboBox}">
-		<Setter Property="Background" Value="#FFCDCDCD"/>
-		<Setter Property="Foreground" Value="Black"/>
-		<Setter Property="BorderBrush" Value="Gray"/>
+		<Setter Property="Background" Value="{DynamicResource ButtonBackground}"/>
+		<Setter Property="Foreground" Value="{DynamicResource ButtonForeground}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ButtonBorder}"/>
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="HorizontalAlignment" Value="Stretch"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
@@ -263,7 +263,7 @@
 							BorderBrush="{TemplateBinding BorderBrush}" 
 							BorderThickness="1"
 							CornerRadius="2"
-							Background="White">
+							Background="{DynamicResource TextBoxBackground}">
 							<Popup
 								x:Name="PART_Popup" Placement="Bottom"
 								AllowsTransparency="true" Focusable="False" 

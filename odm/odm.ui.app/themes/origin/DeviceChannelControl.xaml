@@ -15,12 +15,12 @@
 							VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
 							Background="{DynamicResource ButtonBackground}">
 							<TextBlock 
-								Margin="8,6,8,6" TextWrapping="Wrap" Foreground="Black"
+								Margin="8,6,8,6" TextWrapping="Wrap" Foreground="{DynamicResource ButtonForeground}"
 								Text="{TemplateBinding Title}" 
 								HorizontalAlignment="Left" VerticalAlignment="Bottom" 
 								FontSize="10" FontWeight="Bold"/>
 						</Border>
-						<Border Margin="0" Background="White">
+						<Border Margin="0" Background="{DynamicResource SurfaceBackground}">
 							<DockPanel HorizontalAlignment="Stretch">
 								<ContentPresenter HorizontalAlignment="Stretch" ContentSource="Content"/>
 							</DockPanel>
@@ -42,12 +42,12 @@
 							VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
 							Background="{DynamicResource ButtonBackground}">
                             <TextBlock 
-								Margin="8,6,8,6" TextWrapping="Wrap" Foreground="Black"
+								Margin="8,6,8,6" TextWrapping="Wrap" Foreground="{DynamicResource ButtonForeground}"
 								Text="{TemplateBinding Title}" 
 								HorizontalAlignment="Left" VerticalAlignment="Bottom" 
 								FontSize="10" FontWeight="Bold"/>
                         </Border>
-                        <Border Margin="0" Background="White">
+                        <Border Margin="0" Background="{DynamicResource SurfaceBackground}">
                             <DockPanel HorizontalAlignment="Stretch">
                                 <ContentPresenter HorizontalAlignment="Stretch" ContentSource="Content"/>
                             </DockPanel>

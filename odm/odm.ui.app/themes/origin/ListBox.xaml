@@ -50,7 +50,7 @@
 					<ControlTemplate.Triggers>
 						<Trigger Property="IsSelected" Value="true">
 							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource BackgroundHighlight}"/>
-							<Setter Property="Foreground" Value="Black"/>
+							<Setter Property="Foreground" Value="{DynamicResource SelectedItemForeground}"/>
 						</Trigger>
 						<MultiTrigger>
 							<MultiTrigger.Conditions>
@@ -58,7 +58,7 @@
 								<Condition Property="Selector.IsSelectionActive" Value="false"/>
 							</MultiTrigger.Conditions>
 							<Setter Property="Background" TargetName="Bd" Value="{DynamicResource ButtonBackground}"/>
-							<Setter Property="Foreground" Value="Black"/>
+							<Setter Property="Foreground" Value="{DynamicResource SelectedItemForeground}"/>
 						</MultiTrigger>
 						<Trigger Property="IsEnabled" Value="false">
 							<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>

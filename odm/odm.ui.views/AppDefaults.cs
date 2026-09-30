@@ -209,6 +209,8 @@ namespace odm.ui {
 			TRY_PULL,
 			ONLY_BASE
 		}
+		/// <summary>ThemeManager.Light, Dark or System. No value (old settings files) means System.</summary>
+		public string Theme { get; set; }
 		public bool OpenInExternalWebBrowser { get; set; }
         public bool EnableGraphicAnnotation { get; set; }
 		public bool UseOnlyCommonFilterView { get; set; }
