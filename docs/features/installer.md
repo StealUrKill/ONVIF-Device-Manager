@@ -63,6 +63,9 @@ build/swresample-5.dll
 
 - Per-machine install to `C:\Program Files\Synesis\ONVIF Device Manager`.
 - Desktop and Start menu shortcuts.
+- Dialogs: welcome, install folder, ready and finish. The finish dialog has a "Launch ONVIF Device Manager" check box (set by default).
+- It removes 2.2.x installs (UpgradeCode `{69653681-56F7-48B6-8BB6-69B7278106C6}`) and 3.x installs (the UpgradeCode of the package).
+- 2.2.x installed to `Program Files (x86)\Synesis\ONVIF Device Manager`. Its `config\` folder stays there after the upgrade.
 - It needs .NET Framework 4.8 (registry `Release` >= 528040).
 - The old vdproj MSI installed per-user by default. The new MSI cannot remove a per-user install. Remove it one time in "Installed apps".
 
