@@ -127,7 +127,6 @@ namespace odm.ui.core {
 			disposables = new CompositeDisposable();
 		}
 		CompositeDisposable disposables;
-		VideoBuffer vidBuff;
 
 		IUnityContainer CreateActivityContext(IUnityContainer container, ContentControl UIelement) {
 			var childContainer = container.CreateChildContainer();
@@ -171,8 +170,6 @@ namespace odm.ui.core {
 		}
 
 		public void Dispose() {
-			if (vidBuff != null)
-				vidBuff.Dispose();
 			disposables.Dispose();
 		}
 	}

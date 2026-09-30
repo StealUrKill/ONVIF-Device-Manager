@@ -32,8 +32,6 @@ namespace odm.ui.activities {
 		
 		PosixTz originPosixTz;
 		DateTime originUtcDateTime = default(DateTime);
-		TimeZoneViewModel originTimeZone;
-		TimeZoneViewModel newTimeZone;
 
 		private void Init(Model model) {
 			//Save model handle

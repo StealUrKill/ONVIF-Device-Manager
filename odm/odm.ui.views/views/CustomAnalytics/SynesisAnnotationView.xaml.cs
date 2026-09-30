@@ -222,7 +222,6 @@ namespace odm.ui.views.CustomAnalytics {
         odm.ui.activities.ConfigureAnalyticView.ModuleDescriptor modulDescr;
         odm.ui.activities.ConfigureAnalyticView.AnalyticsVideoDescriptor videoDescr;
         IUnityContainer container;
-        IVideoInfo videoInfo;
         
         public bool Init(IUnityContainer container, StreamInfoArgs args, odm.ui.activities.ConfigureAnalyticView.ModuleDescriptor modulDescr) {
 			this.modulDescr = modulDescr;

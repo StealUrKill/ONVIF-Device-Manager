@@ -434,8 +434,6 @@ namespace odm.ui.controls {
 						}
 					} else if (isimple != null) {
 						chld.Defaults = isimple.SimpleValues;
-					} else if (ipure != null) {
-						int i = 0;
 					}
 				});
 			} else {
@@ -474,8 +472,6 @@ namespace odm.ui.controls {
 					}
 
 				});
-			} else {
-				int i = 0;
 			}
 		}
 		
@@ -870,8 +866,7 @@ namespace odm.ui.controls {
 					if (schelem != null)
 						ElementsDict.Add(schelem.Name, ParceXsdElement(schelem, ElementTypes.top));
 				});
-			} catch (Exception err) {
-				//dbg.Error(err);
+			} catch (Exception) {
 			}
 		}
 	}

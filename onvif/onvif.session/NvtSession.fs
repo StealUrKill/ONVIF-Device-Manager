@@ -1209,28 +1209,8 @@ namespace odm.core
                 })
                 fun() -> comp
 
-            let MediaGetVideoAnalyticsConfigurationsImpl = 
-                let prefComp() = async {
-                    return 1
-                }
-                let altComp() = async {
-                    return 0
-                }
-                let rec comp = 
-                    let tramp = new Trampoline()
-                    //let resolved = ref false
-                    ref(fun()-> 
-                        async{
-                            try 
-                                let! res = prefComp()
-                                comp := prefComp
-                                return res
-                            with err->
-                                comp := altComp
-                                return! altComp()
-                        }
-                    )
-                let rec comp = async{
+            let MediaGetVideoAnalyticsConfigurationsImpl =
+                let comp = async{
                     try
                         let! med = GetMediaClient()
                         return! med.GetVideoAnalyticsConfigurations()

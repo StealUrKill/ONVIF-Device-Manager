@@ -34,19 +34,6 @@ namespace utils {
 		//public void AbortCreateWriter(IAsyncResult ar);
 	}
 
-	//usage example
-	public class MyHttpClient {
-		Dictionary<string, string> headers;
-		MyHttpClient(){
-		}
-		IOutputStream<byte> Post(Uri action, IInputStream<byte> requestStream, Encoding encoding) {
-			return null;
-		}
-		IOutputStream<byte> Get(Uri action) {
-			return null;
-		}
-	}
-
 	public static class StreamExtensions {
 		private class ConcatenatedStreamReader<T>: IStreamReader<T>{
 			IEnumerator<IOutputStream<T>> itor = null;

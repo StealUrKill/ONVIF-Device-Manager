@@ -94,7 +94,6 @@ namespace odm.ui {
         
 		public LocalDevice Strings { get { return LocalDevice.instance; } }
 		public LocalTitles Titles { get { return LocalTitles.instance; } }
-		Account anonymous;
 		bool isNotApply;
 		bool IsNotApply {
 			get { 

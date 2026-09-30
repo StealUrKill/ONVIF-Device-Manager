@@ -538,7 +538,7 @@ namespace odm.ui.views.CustomAnalytics {
 
 				model = new SynesisAnalyticsModel(modulDescr.schema);
 
-			} catch (Exception err) {
+			} catch (Exception) {
 				return false;
 			}
 

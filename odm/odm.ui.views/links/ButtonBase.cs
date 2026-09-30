@@ -354,10 +354,8 @@ namespace odm.ui.links {
     public class MetadataButton : ChannelButtonBase {
 		public MetadataButton(IEventAggregator eventAggregator, INvtSession session, String channelToken, Profile profile, Account currentAccount, IVideoInfo videoInfo)
             : base(eventAggregator, session, currentAccount, channelToken, profile, videoInfo) {
-                this.profile = profile;
             Init();
         }
-        Profile profile;
         
         MetadataEventArgs GetMetaEventArg() {
             var evArg = new MetadataEventArgs();
@@ -381,10 +379,8 @@ namespace odm.ui.links {
 	public class UITestButton : ChannelButtonBase {
 		public UITestButton(IEventAggregator eventAggregator, INvtSession session, String channelToken, Profile profile, Account currentAccount, IVideoInfo videoInfo)
 			: base(eventAggregator, session, currentAccount, channelToken, profile, videoInfo) {
-			this.profile = profile;
 			Init();
 		}
-		Profile profile;
 
 		UITestEventArgs GetTestEventArg() {
 			var evArg = new UITestEventArgs();

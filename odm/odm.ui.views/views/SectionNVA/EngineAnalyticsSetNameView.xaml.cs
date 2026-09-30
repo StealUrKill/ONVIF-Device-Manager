@@ -19,13 +19,9 @@ using odm.ui.controls;
 using onvif.services;
 using System.Reactive.Disposables;
 using odm.core;
-using odm.infra;
 using odm.player;
-using odm.ui.controls;
 using odm.ui.core;
 using odm.ui.views;
-using onvif.services;
-using utils;
 
 namespace odm.ui.activities {
 	/// <summary>

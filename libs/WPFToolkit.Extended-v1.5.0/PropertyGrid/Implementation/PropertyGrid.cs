@@ -353,7 +353,7 @@ namespace Microsoft.Windows.Controls.PropertyGrid
                         propertyItems.Add(CreatePropertyItem(descriptor, instance, this));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //TODO: handle this some how
             }
@@ -452,7 +452,7 @@ namespace Microsoft.Windows.Controls.PropertyGrid
                         editor = new TextBoxEditor();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //TODO: handle this some how
             }
