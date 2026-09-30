@@ -211,6 +211,10 @@ namespace odm.ui {
 		}
 		/// <summary>ThemeManager.Light, Dark or System. No value (old settings files) means System.</summary>
 		public string Theme { get; set; }
+		/// <summary>The subnets of the last scan, for example "10.10.10.0/24".</summary>
+		public string ScanRanges { get; set; }
+		/// <summary>Scan ScanRanges at start and on Refresh.</summary>
+		public bool ScanOnRefresh { get; set; }
 		public bool OpenInExternalWebBrowser { get; set; }
         public bool EnableGraphicAnnotation { get; set; }
 		public bool UseOnlyCommonFilterView { get; set; }

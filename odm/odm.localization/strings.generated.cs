@@ -3339,6 +3339,26 @@ namespace odm.ui {
 	
 
 
+		private const string s_subnetScan = @"Scan other subnets";
+		private string m_subnetScan=null;
+		[XPath(@"/localized-strings/module[@name='LocalTitles' and @namespace='odm.ui']/descendant::string[@name='subnetScan']/@value")]
+		public string subnetScan {
+			get { 
+				if( m_subnetScan == null){
+					return s_subnetScan;
+				}
+				return m_subnetScan; 
+			}
+			set { 
+				if( value != m_subnetScan){
+					m_subnetScan = value;
+					NotifyPropertyChanged("subnetScan");
+				}
+			}  
+		}
+	
+
+
 		private const string s_manualEdit = @"Edit URI";
 		private string m_manualEdit=null;
 		[XPath(@"/localized-strings/module[@name='LocalTitles' and @namespace='odm.ui']/descendant::string[@name='manualEdit']/@value")]
@@ -4997,6 +5017,226 @@ namespace odm.ui {
 				if( value != m_manualadd){
 					m_manualadd = value;
 					NotifyPropertyChanged("manualadd");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scan = @"Scan";
+		private string m_scan=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scan']/@value")]
+		public string scan {
+			get { 
+				if( m_scan == null){
+					return s_scan;
+				}
+				return m_scan; 
+			}
+			set { 
+				if( value != m_scan){
+					m_scan = value;
+					NotifyPropertyChanged("scan");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanning = @"Scanning...";
+		private string m_scanning=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanning']/@value")]
+		public string scanning {
+			get { 
+				if( m_scanning == null){
+					return s_scanning;
+				}
+				return m_scanning; 
+			}
+			set { 
+				if( value != m_scanning){
+					m_scanning = value;
+					NotifyPropertyChanged("scanning");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanAddresses = @"IP address:";
+		private string m_scanAddresses=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanAddresses']/@value")]
+		public string scanAddresses {
+			get { 
+				if( m_scanAddresses == null){
+					return s_scanAddresses;
+				}
+				return m_scanAddresses; 
+			}
+			set { 
+				if( value != m_scanAddresses){
+					m_scanAddresses = value;
+					NotifyPropertyChanged("scanAddresses");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanHint = @"An address in the subnet, for example 10.10.10.1. You can also enter a list: 10.10.10.0/24, 10.10.20.1-50";
+		private string m_scanHint=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanHint']/@value")]
+		public string scanHint {
+			get { 
+				if( m_scanHint == null){
+					return s_scanHint;
+				}
+				return m_scanHint; 
+			}
+			set { 
+				if( value != m_scanHint){
+					m_scanHint = value;
+					NotifyPropertyChanged("scanHint");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanOnRefresh = @"Scan these addresses at start and on Refresh";
+		private string m_scanOnRefresh=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanOnRefresh']/@value")]
+		public string scanOnRefresh {
+			get { 
+				if( m_scanOnRefresh == null){
+					return s_scanOnRefresh;
+				}
+				return m_scanOnRefresh; 
+			}
+			set { 
+				if( value != m_scanOnRefresh){
+					m_scanOnRefresh = value;
+					NotifyPropertyChanged("scanOnRefresh");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanInvalid = @"Enter an IP address, for example 10.10.10.1.";
+		private string m_scanInvalid=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanInvalid']/@value")]
+		public string scanInvalid {
+			get { 
+				if( m_scanInvalid == null){
+					return s_scanInvalid;
+				}
+				return m_scanInvalid; 
+			}
+			set { 
+				if( value != m_scanInvalid){
+					m_scanInvalid = value;
+					NotifyPropertyChanged("scanInvalid");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanTooMany = @"Scan not more than 65536 addresses at a time.";
+		private string m_scanTooMany=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanTooMany']/@value")]
+		public string scanTooMany {
+			get { 
+				if( m_scanTooMany == null){
+					return s_scanTooMany;
+				}
+				return m_scanTooMany; 
+			}
+			set { 
+				if( value != m_scanTooMany){
+					m_scanTooMany = value;
+					NotifyPropertyChanged("scanTooMany");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanMask = @"Subnet mask:";
+		private string m_scanMask=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanMask']/@value")]
+		public string scanMask {
+			get { 
+				if( m_scanMask == null){
+					return s_scanMask;
+				}
+				return m_scanMask; 
+			}
+			set { 
+				if( value != m_scanMask){
+					m_scanMask = value;
+					NotifyPropertyChanged("scanMask");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanMaskCount = @"{0} addresses";
+		private string m_scanMaskCount=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanMaskCount']/@value")]
+		public string scanMaskCount {
+			get { 
+				if( m_scanMaskCount == null){
+					return s_scanMaskCount;
+				}
+				return m_scanMaskCount; 
+			}
+			set { 
+				if( value != m_scanMaskCount){
+					m_scanMaskCount = value;
+					NotifyPropertyChanged("scanMaskCount");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanOneAddress = @"Only this address";
+		private string m_scanOneAddress=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanOneAddress']/@value")]
+		public string scanOneAddress {
+			get { 
+				if( m_scanOneAddress == null){
+					return s_scanOneAddress;
+				}
+				return m_scanOneAddress; 
+			}
+			set { 
+				if( value != m_scanOneAddress){
+					m_scanOneAddress = value;
+					NotifyPropertyChanged("scanOneAddress");
+				}
+			}  
+		}
+	
+
+
+		private const string s_scanMaskFromText = @"From the address box";
+		private string m_scanMaskFromText=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='scanMaskFromText']/@value")]
+		public string scanMaskFromText {
+			get { 
+				if( m_scanMaskFromText == null){
+					return s_scanMaskFromText;
+				}
+				return m_scanMaskFromText; 
+			}
+			set { 
+				if( value != m_scanMaskFromText){
+					m_scanMaskFromText = value;
+					NotifyPropertyChanged("scanMaskFromText");
 				}
 			}  
 		}

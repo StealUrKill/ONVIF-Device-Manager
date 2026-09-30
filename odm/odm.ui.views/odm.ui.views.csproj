@@ -155,6 +155,9 @@
     <Compile Include="dialogs\ManualUri.xaml.cs">
       <DependentUpon>ManualUri.xaml</DependentUpon>
     </Compile>
+    <Compile Include="dialogs\SubnetScan.xaml.cs">
+      <DependentUpon>SubnetScan.xaml</DependentUpon>
+    </Compile>
     <Compile Include="dialogs\ModalDialogView.xaml.cs">
       <DependentUpon>ModalDialogView.xaml</DependentUpon>
     </Compile>
@@ -569,6 +572,7 @@
     </Compile>
     <Compile Include="core\events.cs" />
     <Compile Include="core\ReplayDownloader.cs" />
+    <Compile Include="core\SubnetScanner.cs" />
     <Compile Include="core\ThemeManager.cs" />
     <Compile Include="views\SectionDevice\IdentificationView.xaml.cs">
       <DependentUpon>IdentificationView.xaml</DependentUpon>
@@ -648,6 +652,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="dialogs\ManualUri.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="dialogs\SubnetScan.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

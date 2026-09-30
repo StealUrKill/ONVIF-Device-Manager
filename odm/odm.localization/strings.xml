@@ -192,6 +192,7 @@
     <module name="LocalTitles" namespace="odm.ui">
         <string name="webPage" value="Web page" />
         <string name="manualAdd" value="Add device" />
+        <string name="subnetScan" value="Scan other subnets" />
         <string name="manualEdit" value="Edit URI" />
         <string name="uiTest" value="UI Test" />
         <string name="batchUpgrade" value="Batch firmware upgrade" />
@@ -280,6 +281,17 @@
         <string name="address" value="Address" />
         <string name="refresh" value="Refresh" />
         <string name="manualadd" value="Add" />
+        <string name="scan" value="Scan" />
+        <string name="scanning" value="Scanning..." />
+        <string name="scanAddresses" value="IP address:" />
+        <string name="scanHint" value="An address in the subnet, for example 10.10.10.1. You can also enter a list: 10.10.10.0/24, 10.10.20.1-50" />
+        <string name="scanOnRefresh" value="Scan these addresses at start and on Refresh" />
+        <string name="scanInvalid" value="Enter an IP address, for example 10.10.10.1." />
+        <string name="scanTooMany" value="Scan not more than 65536 addresses at a time." />
+        <string name="scanMask" value="Subnet mask:" />
+        <string name="scanMaskCount" value="{0} addresses" />
+        <string name="scanOneAddress" value="Only this address" />
+        <string name="scanMaskFromText" value="From the address box" />
         <string name="Filter" value="Filter: " />
         <string name="search" value="name, location or address"/>
     </module>

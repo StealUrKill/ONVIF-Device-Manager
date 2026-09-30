@@ -263,6 +263,83 @@ namespace odm.ui.viewModels {
 
 #endregion manual
 
+#region scan
+		// The devices that the subnet scan found. Refresh removes them, as it removes the discovered devices.
+		readonly HashSet<DeviceDescriptionHolder> scannedDevices = new HashSet<DeviceDescriptionHolder>();
+		readonly SerialDisposable scanSubscription = new SerialDisposable();
+
+		void ScanDialog() {
+			var vs = AppDefaults.visualSettings;
+			var dialog = new SubnetScan(vs.ScanRanges, vs.ScanOnRefresh);
+			dialog.Owner = Application.Current.MainWindow;
+			if (dialog.ShowDialog() != true)
+				return;
+			vs.ScanRanges = dialog.Ranges;
+			vs.ScanOnRefresh = dialog.ScanOnRefresh;
+			AppDefaults.UpdateVisualSettings(vs);
+			StartScan(dialog.Addresses);
+		}
+
+		void ScanSavedRanges() {
+			var vs = AppDefaults.visualSettings;
+			if (!vs.ScanOnRefresh)
+				return;
+			List<System.Net.IPAddress> addresses;
+			bool tooMany;
+			if (SubnetScanner.TryParse(vs.ScanRanges, out addresses, out tooMany))
+				StartScan(addresses);
+		}
+
+		void StartScan(List<System.Net.IPAddress> addresses) {
+			// Callbacks of a stopped scan can come later. The token makes sure that they do nothing.
+			var token = new object();
+			scanToken = token;
+			SetScanning(true);
+			scanSubscription.Disposable = SubnetScanner.Scan(addresses,
+				result => currentDispatcher.BeginInvoke(() => { if (scanToken == token) OnScanResult(result); }),
+				() => currentDispatcher.BeginInvoke(() => { if (scanToken == token) SetScanning(false); }));
+		}
+		object scanToken;
+
+		void StopScan() {
+			scanToken = null;
+			scanSubscription.Disposable = null;
+			SetScanning(false);
+		}
+
+		void SetScanning(bool scanning) {
+			ScanCaption = scanning ? Strings.scanning : Strings.scan;
+			isScanning = scanning;
+			var command = onScan as DelegateCommand;
+			if (command != null)
+				command.RaiseCanExecuteChanged();
+		}
+		bool isScanning;
+
+		static bool SameHost(DeviceDescriptionHolder dev, string host) {
+			if (dev.Uris == null)
+				return false;
+			return dev.Uris.Any(u => u.IsAbsoluteUri && string.Equals(u.Host, host, StringComparison.OrdinalIgnoreCase));
+		}
+
+		void OnScanResult(SubnetScanResult result) {
+			var host = result.Address.ToString();
+			// Do not show a device two times. The list can have it from discovery or as a manual device.
+			if (Devices.Any(d => SameHost(d, host)))
+				return;
+			var devHolder = new DeviceDescriptionHolder();
+			devHolder.Uris = result.Uris;
+			devHolder.Address = host;
+			devHolder.Name = ScopeHelper.GetName(result.Scopes);
+			devHolder.Location = ScopeHelper.GetLocation(result.Scopes);
+			devHolder.DeviceIconUri = ScopeHelper.GetDeviceIconUri(result.Scopes);
+			devHolder.Account = GetCurrentAccount();
+			SessionProcess(devHolder, false);
+			Devices.Add(devHolder);
+			scannedDevices.Add(devHolder);
+		}
+#endregion scan
+
 		void ReleaseDeviceSubscription() {
 			_deviceFactories.Clear();
 			IdentitySubscriptions.Dispose();
@@ -272,6 +349,8 @@ namespace odm.ui.viewModels {
 			if (discoverSubscription != null)
 				discoverSubscription.Dispose();
 			discoverSubscription = new SerialDisposable();
+			StopScan();
+			scannedDevices.Clear();
 		}
 
         void PublishBatchUpgrade(bool res) {
@@ -367,6 +446,7 @@ namespace odm.ui.viewModels {
 					 }, () => {
 					 });
 				deviceManager.Discover(TimeSpan.FromSeconds(20));
+				ScanSavedRanges();
 
 			} catch (Exception err) {
 				dbg.Error(err);
@@ -399,6 +479,11 @@ namespace odm.ui.viewModels {
 					devHolder.Location = ScopeHelper.GetLocation(scopes);
 					devHolder.DeviceIconUri = ScopeHelper.GetDeviceIconUri(scopes);
 					devHolder.Account = GetCurrentAccount();
+					// Discovery also tells when the device goes away. Thus use it in place of a scanned entry.
+					scannedDevices.Where(d => devHolder.Uris.Any(u => u.IsAbsoluteUri && SameHost(d, u.Host))).ToList().ForEach(d => {
+						scannedDevices.Remove(d);
+						Devices.Remove(d);
+					});
 					SessionProcess(devHolder, false);
 
 					Devices.Add(devHolder);
@@ -478,7 +563,25 @@ namespace odm.ui.viewModels {
 			onAdd = new DelegateCommand(() => {
 				ManualAdd();
 			});
+			onScan = new DelegateCommand(() => {
+				ScanDialog();
+			}, () => !isScanning);
+			ScanCaption = Strings.scan;
 		}
+		public ICommand onScan {
+			get { return (ICommand)GetValue(onScanProperty); }
+			set { SetValue(onScanProperty, value); }
+		}
+		public static readonly DependencyProperty onScanProperty =
+			DependencyProperty.Register("onScan", typeof(ICommand), typeof(DeviceListViewModel));
+
+		/// <summary>The text of the scan button. It shows that a scan runs.</summary>
+		public string ScanCaption {
+			get { return (string)GetValue(ScanCaptionProperty); }
+			set { SetValue(ScanCaptionProperty, value); }
+		}
+		public static readonly DependencyProperty ScanCaptionProperty =
+			DependencyProperty.Register("ScanCaption", typeof(string), typeof(DeviceListViewModel));
 		public ICommand onRefresh {
 			get { return (ICommand)GetValue(onRefreshProperty); }
 			set { SetValue(onRefreshProperty, value); }
@@ -531,6 +634,7 @@ namespace odm.ui.viewModels {
 		}
 
 		public void Dispose() {
+			scanSubscription.Dispose();
             if (BatchUpgradeSubscribtion != null)
                 eventAggregator.GetEvent<UpgradeButchClick>().Unsubscribe(BatchUpgradeSubscribtion);
             if (BatchRestoreSubscribtion != null)

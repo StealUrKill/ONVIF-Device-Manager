@@ -141,6 +141,11 @@
 					cmd:Click.Command="{Binding onAdd}"
 					HorizontalAlignment="Left" Content="{Binding Strings.manualadd}"
 					ToolTip="Manually add"/>
+				<!-- Finds devices in other subnets. Multicast discovery finds only the devices in the local subnet. -->
+				<Button DockPanel.Dock="Left" Margin="3,0,0,0"
+					cmd:Click.Command="{Binding onScan}"
+					HorizontalAlignment="Left" Content="{Binding ScanCaption}"
+					ToolTip="{Binding Titles.subnetScan}"/>
 			</DockPanel>
 		</l:ContentColumn.Footer>
 		<DockPanel>
