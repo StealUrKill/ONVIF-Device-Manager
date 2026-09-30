@@ -159,7 +159,7 @@ namespace odm.ui.activities {
 
         TopicExpressionType GetTopicExression() {
             var parts = (from Selector ctrl in valuesTopicExpr.Items
-                        where ctrl.SelectedItem != string.Empty
+                        where !string.IsNullOrEmpty(ctrl.SelectedItem as string)
                         select (string)ctrl.SelectedItem).ToArray();
             
             string dialect = @"http://www.onvif.org/ver10/tev/topicExpression/ConcreteSet";
