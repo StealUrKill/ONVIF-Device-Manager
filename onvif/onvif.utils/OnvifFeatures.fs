@@ -392,6 +392,24 @@ namespace onvif.utils
         member val DataUntil = Nullable<System.DateTime>() with get, set
         member val NumberRecordings = Nullable<int>() with get, set
 
+    /// One period with recorded data (a clip) inside a recording. Times are in UTC.
+    [<AllowNullLiteral>]
+    type RecordingClip(start:System.DateTime, finish:System.DateTime, open_:bool) =
+        member this.Start = start
+        member this.End = finish
+        /// True if the clip did not end in the searched period (it continues, or recording is still active).
+        member this.IsOpen = open_
+        member this.Duration = finish - start
+
+    /// One recording history event from FindEvents.
+    type RecordingEvent = {
+        Time: System.DateTime
+        /// "Recording" for tns1:RecordingHistory/Recording/State, "Track" for .../Track/State.
+        Kind: string
+        Track: string
+        IsOn: bool
+    }
+
     module Recordings =
         open Xml
 
@@ -483,6 +501,98 @@ namespace onvif.utils
                     stream = StreamType.rtpUnicast,
                     transport = new Transport(protocol = TransportProtocol.rtsp))
             session.GetReplayUri(recordingToken, setup)
+
+        let private fmtTime (t:System.DateTime) =
+            t.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'", inv)
+
+        /// Reads one Result of GetEventSearchResults. Returns None for events that are not recording history.
+        let parseEvent (result:XElement) =
+            let time = toTime (text (child result "Time"))
+            let topic =
+                result.Descendants() |> Seq.tryFind (fun e -> e.Name.LocalName = "Topic")
+                |> (fun t -> match t with Some e -> e.Value.Trim() | None -> "")
+            let items =
+                result.Descendants()
+                |> Seq.filter (fun e -> e.Name.LocalName = "SimpleItem")
+                |> Seq.map (fun e -> attr e "Name", attr e "Value")
+                |> Seq.toList
+            let item name = items |> List.tryFind (fun (n, _) -> n = name) |> Option.map snd
+            let track =
+                match item "Track" with
+                | Some t -> t
+                | None -> text (child result "TrackToken")
+            if not time.HasValue then None
+            elif topic.EndsWith("Recording/State") then
+                item "IsRecording" |> Option.map (fun v -> { Time = time.Value; Kind = "Recording"; Track = ""; IsOn = toBool v })
+            elif topic.EndsWith("Track/State") then
+                item "IsDataPresent" |> Option.map (fun v -> { Time = time.Value; Kind = "Track"; Track = track; IsOn = toBool v })
+            else None
+
+        /// Makes clips from on and off events. It uses the recording state, or the state of one track
+        /// if the camera sends only track events. A clip that is still on at the end ends at "until".
+        let buildClips (events:RecordingEvent seq) (videoTrack:string) (until:System.DateTime) =
+            let events = events |> Seq.toArray
+            let recordingEvents = events |> Array.filter (fun e -> e.Kind = "Recording")
+            let chosen =
+                if recordingEvents.Length > 0 then recordingEvents
+                else
+                    let tracks = events |> Array.filter (fun e -> e.Kind = "Track")
+                    let track =
+                        if tracks |> Array.exists (fun e -> e.Track = videoTrack) then videoTrack
+                        elif tracks.Length > 0 then tracks.[0].Track
+                        else ""
+                    tracks |> Array.filter (fun e -> e.Track = track)
+            let clips = new System.Collections.Generic.List<RecordingClip>()
+            let mutable openAt : System.DateTime option = None
+            for e in chosen |> Array.sortBy (fun e -> e.Time) do
+                match e.IsOn, openAt with
+                | true, None -> openAt <- Some e.Time
+                | false, Some start ->
+                    if e.Time > start then clips.Add(RecordingClip(start, e.Time, false))
+                    openAt <- None
+                | _ -> ()
+            match openAt with
+            | Some start when until > start -> clips.Add(RecordingClip(start, until, true))
+            | _ -> ()
+            clips.ToArray()
+
+        /// Finds the clips of a recording in a period with the search service (FindEvents).
+        let findClips (session:INvtSession) (recordingToken:string) (videoTrack:string) (from:System.DateTime) (until:System.DateTime) = async{
+            let! resp =
+                session.InvokeServiceRaw(OnvifNs.Search, "FindEvents",
+                    XElement(tse + "FindEvents",
+                        XElement(tse + "StartPoint", fmtTime from),
+                        XElement(tse + "EndPoint", fmtTime until),
+                        XElement(tse + "Scope", XElement(tt + "IncludedRecordings", recordingToken)),
+                        XElement(tse + "SearchFilter"),
+                        // The start state gives the clip that is already active at "from".
+                        XElement(tse + "IncludeStartState", "true"),
+                        XElement(tse + "KeepAliveTime", "PT60S")))
+            let token = text (child resp "SearchToken")
+            let results = new System.Collections.Generic.List<XElement>()
+            try
+                // The camera gives the results in pages. Read them until the search is complete.
+                let mutable completed = false
+                let mutable pages = 0
+                while not completed && pages < 200 do
+                    let! page =
+                        session.InvokeServiceRaw(OnvifNs.Search, "GetEventSearchResults",
+                            XElement(tse + "GetEventSearchResults",
+                                XElement(tse + "SearchToken", token),
+                                XElement(tse + "MaxResults", 500),
+                                XElement(tse + "WaitTime", "PT5S")))
+                    let list = child page "ResultList"
+                    results.AddRange(children list "Result")
+                    completed <- text (child list "SearchState") = "Completed"
+                    pages <- pages + 1
+            finally
+                // Release the search on the camera. An error here does not change the result.
+                session.InvokeServiceRaw(OnvifNs.Search, "EndSearch",
+                    XElement(tse + "EndSearch", XElement(tse + "SearchToken", token)))
+                |> Async.Ignore |> Async.Catch |> Async.Ignore |> Async.Start
+            let events = results |> Seq.choose parseEvent
+            return buildClips events videoTrack until
+        }
 
     // ------------------------------------------------------------------ page data
 
