@@ -129,6 +129,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Mp4Writer.cpp" />
     <ClCompile Include="libapi.cpp" />
   </ItemGroup>
   <ItemGroup>
