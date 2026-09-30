@@ -1,0 +1,14 @@
+<Project>
+  <!-- Single version source: version.json. Builds are dev builds unless OdmRelease=true. -->
+  <PropertyGroup>
+    <OdmRepoRoot>$(MSBuildThisFileDirectory)</OdmRepoRoot>
+    <OdmVersionJson>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)version.json'))</OdmVersionJson>
+    <OdmVersion>$([System.Text.RegularExpressions.Regex]::Match($(OdmVersionJson), '"version"\s*:\s*"(\d+\.\d+\.\d+)"').Groups[1].Value)</OdmVersion>
+    <OdmRelease Condition="'$(OdmRelease)' == ''">false</OdmRelease>
+    <!-- CI sets the run number; local builds use 0 -->
+    <OdmBuildNumber Condition="'$(OdmBuildNumber)' == ''">0</OdmBuildNumber>
+    <OdmVersionSuffix Condition="'$(OdmRelease)' != 'true'">-dev</OdmVersionSuffix>
+    <OdmDisplayVersion>$(OdmVersion)$(OdmVersionSuffix)</OdmDisplayVersion>
+    <OdmAssemblyVersion>$(OdmVersion).$(OdmBuildNumber)</OdmAssemblyVersion>
+  </PropertyGroup>
+</Project>

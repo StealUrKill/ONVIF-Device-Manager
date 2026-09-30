@@ -1,0 +1,42 @@
+<Project>
+  <!-- Stamp each C#/F# project that links ~cfg\AssemblyInfo.global.* with the version from version.json. -->
+  <Target Name="OdmGenerateVersion" BeforeTargets="CoreCompile"
+          Condition="'$(MSBuildProjectExtension)' == '.csproj' or '$(MSBuildProjectExtension)' == '.fsproj'">
+    <Error Condition="'$(OdmVersion)' == ''" Text="version.json must contain &quot;version&quot;: &quot;major.minor.patch&quot;." />
+    <ItemGroup>
+      <_OdmSharedInfo Include="@(Compile)" Condition="$([System.String]::Copy('%(Identity)').Contains('~cfg'))" />
+    </ItemGroup>
+
+    <Exec Condition="'@(_OdmSharedInfo)' != ''" Command="git rev-parse --short HEAD" WorkingDirectory="$(OdmRepoRoot)"
+          ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low" StandardErrorImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_OdmGitHash" />
+    </Exec>
+
+    <PropertyGroup Condition="'@(_OdmSharedInfo)' != ''">
+      <_OdmInfoVersion>$(OdmDisplayVersion)</_OdmInfoVersion>
+      <_OdmInfoVersion Condition="'$(_OdmGitHash)' != '' and !$(_OdmGitHash.Contains(' '))">$(OdmDisplayVersion)+$(_OdmGitHash)</_OdmInfoVersion>
+      <_OdmVersionFile Condition="'$(MSBuildProjectExtension)' == '.csproj'">$(IntermediateOutputPath)OdmVersion.g.cs</_OdmVersionFile>
+      <_OdmVersionFile Condition="'$(MSBuildProjectExtension)' == '.fsproj'">$(IntermediateOutputPath)OdmVersion.g.fs</_OdmVersionFile>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'@(_OdmSharedInfo)' != '' and '$(MSBuildProjectExtension)' == '.csproj'">
+      <_OdmVersionLine Include="[assembly: System.Reflection.AssemblyVersion(&quot;$(OdmAssemblyVersion)&quot;)]" />
+      <_OdmVersionLine Include="[assembly: System.Reflection.AssemblyFileVersion(&quot;$(OdmAssemblyVersion)&quot;)]" />
+      <_OdmVersionLine Include="[assembly: System.Reflection.AssemblyInformationalVersion(&quot;$(_OdmInfoVersion)&quot;)]" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_OdmSharedInfo)' != '' and '$(MSBuildProjectExtension)' == '.fsproj'">
+      <_OdmVersionLine Include="namespace global" />
+      <_OdmVersionLine Include="[&lt;assembly: System.Reflection.AssemblyVersion(&quot;$(OdmAssemblyVersion)&quot;)&gt;]" />
+      <_OdmVersionLine Include="[&lt;assembly: System.Reflection.AssemblyFileVersion(&quot;$(OdmAssemblyVersion)&quot;)&gt;]" />
+      <_OdmVersionLine Include="[&lt;assembly: System.Reflection.AssemblyInformationalVersion(&quot;$(_OdmInfoVersion)&quot;)&gt;]" />
+      <_OdmVersionLine Include="do ()" />
+    </ItemGroup>
+
+    <WriteLinesToFile Condition="'@(_OdmSharedInfo)' != ''" File="$(_OdmVersionFile)" Lines="@(_OdmVersionLine)"
+                      Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup Condition="'@(_OdmSharedInfo)' != ''">
+      <Compile Include="$(_OdmVersionFile)" />
+      <FileWrites Include="$(_OdmVersionFile)" />
+    </ItemGroup>
+  </Target>
+</Project>
