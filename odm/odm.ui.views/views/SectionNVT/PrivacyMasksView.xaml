@@ -20,13 +20,16 @@
 			<StackPanel Visibility="{Binding StateCommon}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
 				<TextBlock Margin="3" Text="{Binding Strings.maskDrawHint}"/>
 				<!-- The snapshot with the masks. Dragging on it adds a rectangle mask. -->
+				<!-- The Viewbox makes the image smaller in a narrow window. The mouse positions stay in canvas units. -->
+				<Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left">
 				<Border BorderThickness="1" BorderBrush="{DynamicResource BackgroundHighlight}" HorizontalAlignment="Left" Margin="3">
-					<Grid x:Name="maskArea" Width="480" Height="270" Background="Black" Cursor="Cross">
+					<Grid x:Name="maskArea" Width="960" Height="540" Background="Black" Cursor="Cross">
 						<Image Source="{Binding Snapshot}" Stretch="Fill"/>
 						<Canvas x:Name="maskCanvas" Background="Transparent" ClipToBounds="True"/>
 					</Grid>
 				</Border>
-				<TextBlock Margin="3" Text="{Binding Notice}" Foreground="OrangeRed" TextWrapping="Wrap" MaxWidth="480" HorizontalAlignment="Left"/>
+				</Viewbox>
+				<TextBlock Margin="3" Text="{Binding Notice}" Foreground="OrangeRed" TextWrapping="Wrap" MaxWidth="960" HorizontalAlignment="Left"/>
 
 				<Grid Margin="0,3,0,0">
 					<Grid.ColumnDefinitions>
