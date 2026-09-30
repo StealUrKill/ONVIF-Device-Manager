@@ -12551,6 +12551,306 @@ namespace odm.ui.controls {
 	
 
 
+		private const string s_clips = @"Clips";
+		private string m_clips=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clips']/@value")]
+		public string clips {
+			get { 
+				if( m_clips == null){
+					return s_clips;
+				}
+				return m_clips; 
+			}
+			set { 
+				if( value != m_clips){
+					m_clips = value;
+					NotifyPropertyChanged("clips");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipDay = @"Day";
+		private string m_clipDay=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipDay']/@value")]
+		public string clipDay {
+			get { 
+				if( m_clipDay == null){
+					return s_clipDay;
+				}
+				return m_clipDay; 
+			}
+			set { 
+				if( value != m_clipDay){
+					m_clipDay = value;
+					NotifyPropertyChanged("clipDay");
+				}
+			}  
+		}
+	
+
+
+		private const string s_findClips = @"Find clips";
+		private string m_findClips=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='findClips']/@value")]
+		public string findClips {
+			get { 
+				if( m_findClips == null){
+					return s_findClips;
+				}
+				return m_findClips; 
+			}
+			set { 
+				if( value != m_findClips){
+					m_findClips = value;
+					NotifyPropertyChanged("findClips");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipStart = @"Start";
+		private string m_clipStart=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipStart']/@value")]
+		public string clipStart {
+			get { 
+				if( m_clipStart == null){
+					return s_clipStart;
+				}
+				return m_clipStart; 
+			}
+			set { 
+				if( value != m_clipStart){
+					m_clipStart = value;
+					NotifyPropertyChanged("clipStart");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipEnd = @"End";
+		private string m_clipEnd=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipEnd']/@value")]
+		public string clipEnd {
+			get { 
+				if( m_clipEnd == null){
+					return s_clipEnd;
+				}
+				return m_clipEnd; 
+			}
+			set { 
+				if( value != m_clipEnd){
+					m_clipEnd = value;
+					NotifyPropertyChanged("clipEnd");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipDuration = @"Duration";
+		private string m_clipDuration=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipDuration']/@value")]
+		public string clipDuration {
+			get { 
+				if( m_clipDuration == null){
+					return s_clipDuration;
+				}
+				return m_clipDuration; 
+			}
+			set { 
+				if( value != m_clipDuration){
+					m_clipDuration = value;
+					NotifyPropertyChanged("clipDuration");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipsNone = @"No clips on this day.";
+		private string m_clipsNone=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipsNone']/@value")]
+		public string clipsNone {
+			get { 
+				if( m_clipsNone == null){
+					return s_clipsNone;
+				}
+				return m_clipsNone; 
+			}
+			set { 
+				if( value != m_clipsNone){
+					m_clipsNone = value;
+					NotifyPropertyChanged("clipsNone");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipsFound = @"{0} clips, {1} of video";
+		private string m_clipsFound=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipsFound']/@value")]
+		public string clipsFound {
+			get { 
+				if( m_clipsFound == null){
+					return s_clipsFound;
+				}
+				return m_clipsFound; 
+			}
+			set { 
+				if( value != m_clipsFound){
+					m_clipsFound = value;
+					NotifyPropertyChanged("clipsFound");
+				}
+			}  
+		}
+	
+
+
+		private const string s_clipDoubleClick = @"Double-click a clip to play it.";
+		private string m_clipDoubleClick=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='clipDoubleClick']/@value")]
+		public string clipDoubleClick {
+			get { 
+				if( m_clipDoubleClick == null){
+					return s_clipDoubleClick;
+				}
+				return m_clipDoubleClick; 
+			}
+			set { 
+				if( value != m_clipDoubleClick){
+					m_clipDoubleClick = value;
+					NotifyPropertyChanged("clipDoubleClick");
+				}
+			}  
+		}
+	
+
+
+		private const string s_download = @"Download";
+		private string m_download=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='download']/@value")]
+		public string download {
+			get { 
+				if( m_download == null){
+					return s_download;
+				}
+				return m_download; 
+			}
+			set { 
+				if( value != m_download){
+					m_download = value;
+					NotifyPropertyChanged("download");
+				}
+			}  
+		}
+	
+
+
+		private const string s_downloadStarting = @"The download starts.";
+		private string m_downloadStarting=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='downloadStarting']/@value")]
+		public string downloadStarting {
+			get { 
+				if( m_downloadStarting == null){
+					return s_downloadStarting;
+				}
+				return m_downloadStarting; 
+			}
+			set { 
+				if( value != m_downloadStarting){
+					m_downloadStarting = value;
+					NotifyPropertyChanged("downloadStarting");
+				}
+			}  
+		}
+	
+
+
+		private const string s_downloadProgress = @"Downloading: {0:0}% ({1:0.0} MB)";
+		private string m_downloadProgress=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='downloadProgress']/@value")]
+		public string downloadProgress {
+			get { 
+				if( m_downloadProgress == null){
+					return s_downloadProgress;
+				}
+				return m_downloadProgress; 
+			}
+			set { 
+				if( value != m_downloadProgress){
+					m_downloadProgress = value;
+					NotifyPropertyChanged("downloadProgress");
+				}
+			}  
+		}
+	
+
+
+		private const string s_downloadDone = @"Saved {0} ({1} frames).";
+		private string m_downloadDone=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='downloadDone']/@value")]
+		public string downloadDone {
+			get { 
+				if( m_downloadDone == null){
+					return s_downloadDone;
+				}
+				return m_downloadDone; 
+			}
+			set { 
+				if( value != m_downloadDone){
+					m_downloadDone = value;
+					NotifyPropertyChanged("downloadDone");
+				}
+			}  
+		}
+	
+
+
+		private const string s_downloadCanceled = @"The download was stopped.";
+		private string m_downloadCanceled=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='downloadCanceled']/@value")]
+		public string downloadCanceled {
+			get { 
+				if( m_downloadCanceled == null){
+					return s_downloadCanceled;
+				}
+				return m_downloadCanceled; 
+			}
+			set { 
+				if( value != m_downloadCanceled){
+					m_downloadCanceled = value;
+					NotifyPropertyChanged("downloadCanceled");
+				}
+			}  
+		}
+	
+
+
+		private const string s_downloadFailed = @"The download failed: {0}";
+		private string m_downloadFailed=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='downloadFailed']/@value")]
+		public string downloadFailed {
+			get { 
+				if( m_downloadFailed == null){
+					return s_downloadFailed;
+				}
+				return m_downloadFailed; 
+			}
+			set { 
+				if( value != m_downloadFailed){
+					m_downloadFailed = value;
+					NotifyPropertyChanged("downloadFailed");
+				}
+			}  
+		}
+	
+
+
 		private const string s_filterType = @"Filter type";
 		private string m_filterType=null;
 		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterType']/@value")]

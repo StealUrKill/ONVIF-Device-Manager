@@ -5,6 +5,8 @@ namespace odm.ui.controls {
 		public RecordingsView(RecordingsViewModel viewModel) {
 			InitializeComponent();
 			this.DataContext = viewModel;
+			// A double click on a clip plays it from its start.
+			clipsList.MouseDoubleClick += (s, e) => viewModel.PlayClip(clipsList.SelectedItem as ClipViewModel);
 		}
 	}
 }

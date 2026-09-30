@@ -729,6 +729,21 @@
         <string name="play" value="Play" />
         <string name="stop" value="Stop" />
         <string name="playFrom" value="Start time" />
+        <string name="clips" value="Clips" />
+        <string name="clipDay" value="Day" />
+        <string name="findClips" value="Find clips" />
+        <string name="clipStart" value="Start" />
+        <string name="clipEnd" value="End" />
+        <string name="clipDuration" value="Duration" />
+        <string name="clipsNone" value="No clips on this day." />
+        <string name="clipsFound" value="{0} clips, {1} of video" />
+        <string name="clipDoubleClick" value="Double-click a clip to play it." />
+        <string name="download" value="Download" />
+        <string name="downloadStarting" value="The download starts." />
+        <string name="downloadProgress" value="Downloading: {0:0}% ({1:0.0} MB)" />
+        <string name="downloadDone" value="Saved {0} ({1} frames)." />
+        <string name="downloadCanceled" value="The download was stopped." />
+        <string name="downloadFailed" value="The download failed: {0}" />
         <string name="filterType" value="Filter type" />
         <string name="filterAddresses" value="IPv4 addresses" />
         <string name="filterAddress" value="Address" />

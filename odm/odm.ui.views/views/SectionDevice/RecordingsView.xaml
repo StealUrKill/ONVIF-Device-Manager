@@ -13,49 +13,83 @@
 				<Label Content="{Binding AppStrings.loading}" DockPanel.Dock="Top"/>
 				<ProgressBar IsIndeterminate="True" Width="250" Height="16" DockPanel.Dock="Top"/>
 			</DockPanel>
-			<StackPanel Visibility="{Binding StateCommon}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
-				<TextBlock Margin="3" Text="{Binding Summary}"/>
-				<ListView Margin="3" MinHeight="120" MaxHeight="320" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
-					<ListView.View>
-						<GridView>
-							<GridViewColumn Header="Token" DisplayMemberBinding="{Binding Token}" Width="130"/>
-							<GridViewColumn DisplayMemberBinding="{Binding Source}" Width="150">
-								<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingSource, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
-							</GridViewColumn>
-							<GridViewColumn DisplayMemberBinding="{Binding From}" Width="140">
-								<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingFrom, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
-							</GridViewColumn>
-							<GridViewColumn DisplayMemberBinding="{Binding Until}" Width="140">
-								<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingUntil, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
-							</GridViewColumn>
-							<GridViewColumn DisplayMemberBinding="{Binding Status}" Width="90">
-								<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingStatus, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
-							</GridViewColumn>
-							<GridViewColumn DisplayMemberBinding="{Binding Tracks}" Width="150">
-								<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingTracks, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
-							</GridViewColumn>
-						</GridView>
-					</ListView.View>
-				</ListView>
-				<StackPanel Orientation="Horizontal" Margin="3">
-					<Button Margin="0,0,3,0" Command="{Binding GetReplayUriCommand}" Content="{Binding Strings.getReplayUri}"/>
-					<Button Command="{Binding RefreshCommand}" Content="{Binding Strings.refresh}"/>
+			<ScrollViewer Visibility="{Binding StateCommon}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+				<StackPanel Margin="3" HorizontalAlignment="Left" VerticalAlignment="Top" Orientation="Vertical">
+					<TextBlock Margin="3" Text="{Binding Summary}"/>
+					<ListView Margin="3" MinHeight="60" MaxHeight="140" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}">
+						<ListView.View>
+							<GridView>
+								<GridViewColumn Header="Token" DisplayMemberBinding="{Binding Token}" Width="130"/>
+								<GridViewColumn DisplayMemberBinding="{Binding Source}" Width="150">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingSource, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding From}" Width="140">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingFrom, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding Until}" Width="140">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingUntil, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding Status}" Width="90">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingStatus, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding Tracks}" Width="150">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.recordingTracks, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+							</GridView>
+						</ListView.View>
+					</ListView>
+					<StackPanel Orientation="Horizontal" Margin="3">
+						<Button Margin="0,0,3,0" Command="{Binding GetReplayUriCommand}" Content="{Binding Strings.getReplayUri}"/>
+						<Button Command="{Binding RefreshCommand}" Content="{Binding Strings.refresh}"/>
+					</StackPanel>
+					<DockPanel Margin="3" LastChildFill="True">
+						<Label DockPanel.Dock="Left" Content="{Binding Strings.replayUri}"/>
+						<Button DockPanel.Dock="Right" Margin="3,0,0,0" Command="{Binding CopyCommand}" Content="{Binding Strings.copy}"/>
+						<TextBox IsReadOnly="True" Text="{Binding ReplayUri, Mode=OneWay}" VerticalContentAlignment="Center"/>
+					</DockPanel>
+
+					<!-- The clips (periods with video) of the selected recording on one day. -->
+					<Label Margin="0,9,0,0" Content="{Binding Strings.clips}"/>
+					<Rectangle Height="2" HorizontalAlignment="Stretch" Fill="{DynamicResource BackgroundHighlight}" Margin="2,2,10,6"/>
+					<StackPanel Orientation="Horizontal" Margin="3">
+						<Label Content="{Binding Strings.clipDay}" VerticalAlignment="Center"/>
+						<DatePicker Margin="3,0" Width="120" SelectedDate="{Binding ClipDay}" VerticalAlignment="Center"/>
+						<Button Margin="3,0" Command="{Binding FindClipsCommand}" Content="{Binding Strings.findClips}"/>
+						<TextBlock Margin="6,0" VerticalAlignment="Center" Text="{Binding ClipsStatus}"/>
+					</StackPanel>
+					<ListView x:Name="clipsList" Margin="3" MinHeight="80" MaxHeight="200" ItemsSource="{Binding Clips}" SelectedItem="{Binding SelectedClip}">
+						<ListView.View>
+							<GridView>
+								<GridViewColumn DisplayMemberBinding="{Binding Start}" Width="150">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.clipStart, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding End}" Width="90">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.clipEnd, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+								<GridViewColumn DisplayMemberBinding="{Binding Duration}" Width="80">
+									<GridViewColumn.Header><TextBlock Text="{Binding DataContext.Strings.clipDuration, RelativeSource={RelativeSource AncestorType=l:BasePropertyControl}}"/></GridViewColumn.Header>
+								</GridViewColumn>
+							</GridView>
+						</ListView.View>
+					</ListView>
+
+					<StackPanel Orientation="Horizontal" Margin="3">
+						<Button Margin="0,0,3,0" Command="{Binding DownloadCommand}" Content="{Binding Strings.download}"/>
+						<Button Margin="0,0,3,0" Command="{Binding CancelDownloadCommand}" Content="{Binding ButtonsStrings.cancel}"/>
+						<TextBlock Margin="6,0" VerticalAlignment="Center" Text="{Binding DownloadStatus}" TextWrapping="Wrap" MaxWidth="560"/>
+					</StackPanel>
+
+					<StackPanel Orientation="Horizontal" Margin="3,9,3,3">
+						<Label Content="{Binding Strings.playFrom}" VerticalAlignment="Center"/>
+						<DatePicker Margin="3,0" Width="120" SelectedDate="{Binding PlayDate}" VerticalAlignment="Center"/>
+						<TextBox Margin="3,0" Width="70" Text="{Binding PlayTime}" VerticalContentAlignment="Center" ToolTip="HH:mm:ss"/>
+						<Button Margin="3,0" Command="{Binding PlayCommand}" Content="{Binding Strings.play}"/>
+						<Button Margin="3,0" Command="{Binding StopCommand}" Content="{Binding Strings.stop}"/>
+					</StackPanel>
+					<TextBlock Margin="3" Text="{Binding PlayError}" Foreground="OrangeRed" TextWrapping="Wrap"/>
+					<ContentControl Margin="3" Width="640" Height="360" HorizontalAlignment="Left" Content="{Binding PlayerContent}"/>
 				</StackPanel>
-				<DockPanel Margin="3" LastChildFill="True">
-					<Label DockPanel.Dock="Left" Content="{Binding Strings.replayUri}"/>
-					<Button DockPanel.Dock="Right" Margin="3,0,0,0" Command="{Binding CopyCommand}" Content="{Binding Strings.copy}"/>
-					<TextBox IsReadOnly="True" Text="{Binding ReplayUri, Mode=OneWay}" VerticalContentAlignment="Center"/>
-				</DockPanel>
-				<StackPanel Orientation="Horizontal" Margin="3,9,3,3">
-					<Label Content="{Binding Strings.playFrom}" VerticalAlignment="Center"/>
-					<DatePicker Margin="3,0" Width="120" SelectedDate="{Binding PlayDate}" VerticalAlignment="Center"/>
-					<TextBox Margin="3,0" Width="70" Text="{Binding PlayTime}" VerticalContentAlignment="Center" ToolTip="HH:mm:ss"/>
-					<Button Margin="3,0" Command="{Binding PlayCommand}" Content="{Binding Strings.play}"/>
-					<Button Margin="3,0" Command="{Binding StopCommand}" Content="{Binding Strings.stop}"/>
-				</StackPanel>
-				<TextBlock Margin="3" Text="{Binding PlayError}" Foreground="OrangeRed" TextWrapping="Wrap"/>
-				<ContentControl Margin="3" Width="640" Height="360" HorizontalAlignment="Left" Content="{Binding PlayerContent}"/>
-			</StackPanel>
+			</ScrollViewer>
 		</Grid>
 	</l:ContentColumn>
 </l:BasePropertyControl>
