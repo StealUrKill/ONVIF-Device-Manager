@@ -157,6 +157,8 @@ public:
       // (Note that the returned "username" and "password" are either NULL, or heap-allocated strings that the caller must later delete[].)
 
   void setUserAgentString(char const* userAgentName);
+  // ODM: send "Require: <value>" in each request (for example "onvif-replay"). NULL stops the header.
+  void setRequireString(char const* requireValue);
       // sets an alternative string to be used in RTSP "User-Agent:" headers
 
   unsigned sessionTimeoutParameter() const { return fSessionTimeoutParameter; }
@@ -291,6 +293,8 @@ private:
   portNumBits fTunnelOverHTTPPortNum;
   char* fUserAgentHeaderStr;
   unsigned fUserAgentHeaderStrLen;
+  char* fRequireHeaderStr; // ODM
+  char* fSubsessionURLPrefix; // ODM: the session URL without its query
   int fInputSocketNum, fOutputSocketNum;
   netAddressBits fServerAddress;
   char* fBaseURL;

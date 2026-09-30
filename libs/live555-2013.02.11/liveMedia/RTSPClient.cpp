@@ -291,6 +291,16 @@ void RTSPClient::setUserAgentString(char const* userAgentName) {
   fUserAgentHeaderStrLen = strlen(fUserAgentHeaderStr);
 }
 
+void RTSPClient::setRequireString(char const* requireValue) {
+  // ODM: an empty string in the request format keeps the old requests as they are.
+  delete[] fRequireHeaderStr;
+  fRequireHeaderStr = NULL;
+  if (requireValue == NULL) return;
+  char const* const formatStr = "Require: %s\r\n";
+  fRequireHeaderStr = new char[strlen(formatStr) + strlen(requireValue)];
+  sprintf(fRequireHeaderStr, formatStr, requireValue);
+}
+
 unsigned RTSPClient::responseBufferSize = 20000; // default value; you can reassign this in your application if you need to
 
 RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
@@ -299,6 +309,7 @@ RTSPClient::RTSPClient(UsageEnvironment& env, char const* rtspURL,
   : Medium(env),
     fVerbosityLevel(verbosityLevel), fCSeq(1),
     fTunnelOverHTTPPortNum(tunnelOverHTTPPortNum), fUserAgentHeaderStr(NULL), fUserAgentHeaderStrLen(0),
+    fRequireHeaderStr(NULL), fSubsessionURLPrefix(NULL),
     fInputSocketNum(-1), fOutputSocketNum(-1), fServerAddress(0), fBaseURL(NULL), fTCPStreamIdCount(0),
     fLastSessionId(NULL), fSessionTimeoutParameter(0), fSessionCookieCounter(0), fHTTPTunnelingConnectionIsPending(False) {
   setBaseURL(rtspURL);
@@ -329,6 +340,8 @@ RTSPClient::~RTSPClient() {
 
   delete[] fResponseBuffer;
   delete[] fUserAgentHeaderStr;
+  delete[] fRequireHeaderStr;
+  delete[] fSubsessionURLPrefix;
 }
 
 Boolean RTSPClient::isRTSPClient() const {
@@ -749,13 +762,16 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
       "%s"
       "%s"
       "%s"
+      "%s"
       "\r\n"
       "%s";
+    char const* requireStr = fRequireHeaderStr == NULL ? "" : fRequireHeaderStr; // ODM
     unsigned cmdSize = strlen(cmdFmt)
       + strlen(request->commandName()) + strlen(cmdURL) + strlen(protocolStr)
       + 20 /* max int len */
       + strlen(authenticatorStr)
       + fUserAgentHeaderStrLen
+      + strlen(requireStr)
       + strlen(extraHeaders)
       + strlen(contentLengthHeader)
       + contentStrLen;
@@ -765,6 +781,7 @@ unsigned RTSPClient::sendRequest(RequestRecord* request) {
 	    request->cseq(),
 	    authenticatorStr,
 	    fUserAgentHeaderStr,
+	    requireStr,
             extraHeaders,
 	    contentLengthHeader,
 	    contentStr);
@@ -1245,6 +1262,18 @@ void RTSPClient::constructSubsessionURL(MediaSubsession const& subsession,
 
   suffix = subsession.controlPath();
   if (suffix == NULL) suffix = "";
+
+  // ODM: a path after a query is not valid. Some cameras give a session URL with a query
+  // (for example ".../Recording?replaymode=onvifreplay"). Then join the track to the part before the query.
+  char const* query = strchr(prefix, '?');
+  if (query != NULL && !isAbsoluteURL(suffix)) {
+    delete[] fSubsessionURLPrefix;
+    unsigned len = query - prefix;
+    fSubsessionURLPrefix = new char[len + 1];
+    strncpy(fSubsessionURLPrefix, prefix, len);
+    fSubsessionURLPrefix[len] = '\0';
+    prefix = fSubsessionURLPrefix;
+  }
 
   if (isAbsoluteURL(suffix)) {
     prefix = separator = "";
