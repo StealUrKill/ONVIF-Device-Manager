@@ -21,10 +21,25 @@ namespace odm.ui {
 				return "Onvif Device Manager";
 			}
 		}
+		// "--data-dir <folder>" puts config and other data in that folder. The portable exe uses it.
+		static readonly string dataDir = ReadDataDir();
+		static string ReadDataDir() {
+			var args = Environment.GetCommandLineArgs();
+			for (int i = 1; i < args.Length; i++) {
+				string value = null;
+				if (args[i] == "--data-dir" && i + 1 < args.Length)
+					value = args[i + 1];
+				else if (args[i].StartsWith("--data-dir=", StringComparison.Ordinal))
+					value = args[i].Substring("--data-dir=".Length);
+				if (!String.IsNullOrWhiteSpace(value))
+					return Path.GetFullPath(value.Trim().Trim('"')).TrimEnd('\\');
+			}
+			return null;
+		}
 		static public string SystemFolderPath {
 			get {
 				//string path = Environment.GetEnvironmentVariable("USERPROFILE") + @"\" + SystemFolder + @"\";
-				string path = AppDomain.CurrentDomain.BaseDirectory + @"\";// +SystemFolder + @"\";
+				string path = (dataDir ?? AppDomain.CurrentDomain.BaseDirectory) + @"\";// +SystemFolder + @"\";
 				if (!Directory.Exists(path))
 					Directory.CreateDirectory(path);
 				return path;
