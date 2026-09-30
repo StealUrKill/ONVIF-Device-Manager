@@ -13,17 +13,10 @@ schtasks /Create /TN "ODM-dev" /TR "C:\akhil\git\ONVIF-Device-Manager\build\ODM.
 
 ## Deploy steps — run ALL steps every time, no exceptions
 
-### Step 1 — Increment version (MANDATORY — do this before every deploy)
+### Step 1 — Check the version
 
-Edit `odm\~cfg\AssemblyInfo.global.cs` — bump the 4th part on all three lines:
-
-```
-[assembly: AssemblyVersion("2.2.252.X")]
-[assembly: AssemblyFileVersion("2.2.252.X")]
-[assembly: System.Reflection.AssemblyInformationalVersion("2.2.252.X-dev")]
-```
-
-Commit the version bump before building.
+`version.json` is the only version source. Local builds show `-dev` and the git hash (for example `3.0.3-dev+a91ee72` in the file properties).
+Commit your changes before building, so the git hash identifies the build.
 
 ### Step 2 — Kill the running process
 
@@ -36,20 +29,15 @@ powershell -Command "schtasks /Run /TN 'ODM-kill'; Start-Sleep 2"
 ### Step 3 — Build
 
 ```
-powershell -Command "& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' 'C:\akhil\git\ONVIF-Device-Manager\odm.sln' /p:Configuration=Release /p:Platform=x64 /v:minimal"
+powershell -Command "& 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' 'C:\akhil\git\ONVIF-Device-Manager\build.slnx' /restore /p:Configuration=Release /p:Platform=x64 /v:minimal"
 ```
 
 Build must complete with 0 errors before continuing.
 
-### Step 4 — Package (MANDATORY — copies exe + DLLs + assets to build\)
+### Step 4 — Check build\
 
-`package.bat` copies the output from `bin\Release\x64\` to `build\`. Without this step the running binary is NOT updated.
-
-```
-powershell -Command "& 'C:\akhil\git\ONVIF-Device-Manager\deploy.ps1'"
-```
-
-(`deploy.ps1` wraps the package.bat logic using `Copy-Item /Y` — it prints the timestamp of `build\odm.exe` on success.)
+The build of `build.slnx` fills `build\` (target `OdmStage` in `installer\odm.stage.targets`). It also makes the MSI and the portable exe in `out\`.
+Make sure that the timestamp of `build\odm.exe` is new.
 
 ### Step 5 — Launch
 
@@ -59,22 +47,22 @@ powershell -Command "schtasks /Run /TN 'ODM-dev'"
 
 ### Step 6 — Verify
 
-Check the window title shows the new version (e.g. `v2.2.252.4`).
+Check the window title shows the version with `-dev` (e.g. `v3.0.3-dev`). The file properties of `build\odm.exe` show the git hash.
 
 ---
 
 ## One-liner (steps 2–5 combined)
 
 ```powershell
-powershell -Command "schtasks /Run /TN 'ODM-kill'; Start-Sleep 2; & 'C:\akhil\git\ONVIF-Device-Manager\deploy.ps1'; schtasks /Run /TN 'ODM-dev'"
+powershell -Command "schtasks /Run /TN 'ODM-kill'; Start-Sleep 2; & 'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe' 'C:\akhil\git\ONVIF-Device-Manager\build.slnx' /restore /p:Configuration=Release /p:Platform=x64 /v:minimal; schtasks /Run /TN 'ODM-dev'"
 ```
 
-Run this **after** bumping the version (Step 1) and **after** building (Step 3).
+The one-liner builds too, so it replaces steps 2 to 5.
 
 ---
 
 ## Common mistakes to avoid
 
-- **Skipping package step** — build output goes to `bin\Release\x64\`, NOT `build\`. The scheduled task runs from `build\`. Always run deploy.ps1 after building.
-- **Forgetting the version bump** — the window title shows the version; without bumping it is impossible to tell which build is running.
+- **Building only one project** — only `build.slnx` fills `build\`. The scheduled task runs from `build\`.
+- **Building uncommitted changes** — the git hash in the version then does not identify the build.
 - **Killing after building** — kill BEFORE building, not after, or the copy will fail on locked DLLs.

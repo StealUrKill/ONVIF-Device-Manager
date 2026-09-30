@@ -1,65 +1,49 @@
 # Installer Pipeline
 
-Delivered in Sprint 4.
-
 ---
 
 ## Overview
 
-Each CI build produces two artifacts from the same `build/` staging area:
+`msbuild build.slnx /restore /p:Configuration=Release /p:Platform=x64` makes two packages from the same `build/` stage folder:
 
-| Artifact | Contents | PDB files |
+| Package | Project | Contents |
 |---|---|---|
-| `odm-build-zip` (zip of `build/`) | `odm.exe`, all DLLs, FFmpeg DLLs, assets | Included (for debugging) |
-| `odm-installer` (`odm.setup.msi`) | Same binaries as zip | Stripped before MSI build |
+| `out/odm-<version>-x64.msi` | `installer/odm.installer.wixproj` (WiX v5) | All files in `build/` |
+| `out/odm-<version>-x64-portable.exe` | `installer/portable/odm.portable.csproj` | `build/` as an embedded zip |
+
+CI uploads them as the `odm-installer` and `odm-portable` artifacts. See [ci.md](../ci.md).
 
 ---
 
 ## Versioning Scheme
 
-All CI builds use the `3.0.<run_number>` versioning scheme:
+`version.json` is the only version source. `Directory.Build.props` reads it, and `Directory.Build.targets` writes the assembly attributes at build time.
 
-| Field | Format | Example |
-|-------|--------|---------|
-| `AssemblyVersion` / `AssemblyFileVersion` | `3.0.<run>.0` | `3.0.42.0` |
-| `AssemblyInformationalVersion` | `3.0.<run>+<git_short_hash>` | `3.0.42+b7ee223` |
-| MSI `ProductVersion` | `3.0.<run>` | `3.0.42` |
-| MSI `ProductCode` | Fresh GUID per build | `{F3A1B2C4-...}` |
+| Field | Dev build | Release build (`OdmRelease=true`) |
+|-------|-----------|-----------------------------------|
+| `AssemblyVersion` / `AssemblyFileVersion` | `3.0.3.<OdmBuildNumber>` | `3.0.3.<OdmBuildNumber>` |
+| `AssemblyInformationalVersion` | `3.0.3-dev+<git hash>` | `3.0.3+<git hash>` |
+| Window title | `v3.0.3-dev` | `v3.0.3` |
+| MSI `ProductVersion` | `3.0.3` | `3.0.3` |
+| MSI `ProductName` | `ONVIF Device Manager (dev)` | `ONVIF Device Manager` |
+| MSI `ProductCode` | New GUID for each build (WiX) | New GUID for each build (WiX) |
 
-**Why `3.0.x`:** All previous shipped builds used `2.x` versioning. Using `3.0.x` ensures every CI build is strictly greater than any existing installed version, so Windows Installer's major-upgrade comparison (`ProductVersion` must increase) always triggers the automatic uninstall-and-reinstall flow without requiring manual uninstall.
-
-**Why a fresh ProductCode per build:** Windows Installer uses `ProductCode` as the primary identity for upgrade detection. Rotating it on every build ensures that every new CI build is treated as a different product for upgrade purposes, enabling clean major upgrades even when the version number changes are small.
-
----
-
-## Version Patching (Single Source of Truth)
-
-The CI workflow (`odm.yml` — "Set build version" step) patches all version strings in one PowerShell step before the build runs:
-
-**C# AssemblyInfo files patched:**
-- `odm/~cfg/AssemblyInfo.global.cs`
-- `onvif/~cfg/AssemblyInfo.global.cs`
-- `utils/~cfg/AssemblyInfo.global.cs`
-
-**F# AssemblyInfo files patched:**
-- `odm/~cfg/AssemblyInfo.global.fs`
-- `onvif/~cfg/AssemblyInfo.global.fs`
-- `utils/~cfg/AssemblyInfo.global.fs`
-
-**Installer patched:**
-- `odm.setup/odm.setup.vdproj` — `ProductVersion` and `ProductCode` fields
-
-This single step replaced the previous pattern of committing version bumps to source, which caused noise in the git history and created race conditions in CI.
+The MSI keeps the UpgradeCode of the old vdproj installer. `MajorUpgrade` with `AllowSameVersionUpgrades` replaces an install of the same or an older version.
 
 ---
 
-## `build/` Staging Area
+## `build/` Stage Folder
 
-`package.bat` (run as the "Collect artifacts" CI step) copies all output from `odm/odm.ui.app/bin/x64/Release/` into `build/`. The `build/` directory serves as both:
-- The runtime directory for local test deploys (the `ODM-dev` scheduled task runs `build/odm.exe`)
-- The source for the zip artifact upload
+`installer/odm.stage.targets` (target `OdmStage`) fills `build/`. It replaces `package.bat`. It copies:
 
-**Required artifacts verified by CI** (will fail the build if missing):
+- the top-level files of `odm/odm.ui.app/bin/Release/x64/` without `*.pdb`
+- `odm.player.net.dll` from the native player output
+- the FFmpeg DLLs from `libs/ffmpeg-n7.1-lgpl-shared/x64/bin/`
+- `images/wheel_zoom.cur`, `locales/`, `meta/` and `logs/`
+
+`OdmSkipStage=true` keeps `build/` as it is. CI uses it to make the packages again after it signs the exe files in `build/`.
+
+**Required files verified by CI** (the build fails if one is missing):
 
 ```
 build/odm.exe
@@ -75,21 +59,18 @@ build/swresample-5.dll
 
 ---
 
-## PDB Stripping
+## MSI
 
-PDBs are stripped from the installer inputs but kept in the zip artifact. The "Strip PDB files" CI step removes `*.pdb` from:
-- `odm/odm.ui.app/bin/x64/Release/` (MSI source directory)
-- `build/` (already-packaged artifacts)
-
-This runs after the zip artifact upload and before the MSI build, so the zip retains PDBs for post-deploy debugging while the MSI shipped to end users does not embed them.
+- Per-machine install to `C:\Program Files\Synesis\ONVIF Device Manager`.
+- Desktop and Start menu shortcuts.
+- It needs .NET Framework 4.8 (registry `Release` >= 528040).
+- The old vdproj MSI installed per-user by default. The new MSI cannot remove a per-user install. Remove it one time in "Installed apps".
 
 ---
 
-## MSI Build Constraints
+## Portable exe
 
-The Visual Studio Deployment Project (`odm.setup.vdproj`) requires in-process MSBuild — it cannot be built with `/m` parallel builds and will silently produce an empty MSI if attempted. The CI workflow handles this by:
-
-1. Building the full solution with parallel MSBuild: `msbuild odm.sln /m`
-2. Building the installer separately with `devenv /Build /Project odm.setup` (which sets `DisableOutOfProcBuild` first)
-
-This separation was the fix for issue #1 — previously, using `/Project odm.ui.app` could silently skip the native C++/CLI player projects (`live555`, `odm.player.lib`, `odm.player.net`), leaving stale or absent `odm.player.net.dll` in the output.
+- It extracts `build/` to `%TEMP%\ONVIF Device Manager\portable\<version>` and starts `odm.exe` from there.
+- It gives `odm.exe` the option `--data-dir <folder of the portable exe>`. Config and data go next to the portable exe.
+- A new build of the same version replaces the files in the cache. If an older build still runs from the cache, the new build uses a separate folder.
+- If files are missing from the cache (for example after disk cleanup), it extracts them again.
