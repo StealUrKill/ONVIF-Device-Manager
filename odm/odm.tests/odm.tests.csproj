@@ -66,4 +66,10 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
 
+  <!-- odm.player.net.dll needs the FFmpeg DLLs. Copy them, because the PATH of a CI runner does not have them. -->
+  <ItemGroup>
+    <None Include="$(OdmRepoRoot)libs\ffmpeg-n7.1-lgpl-shared\x64\bin\*.dll" Link="%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+
 </Project>
