@@ -479,6 +479,11 @@
         <string name="timesettings" value="Time settings" />
         <string name="networkSettings" value="Network settings" />
         <string name="digitalIO" value="Relays" />
+        <string name="osd" value="OSD" />
+        <string name="privacyMasks" value="Privacy masks" />
+        <string name="videoSource" value="Video source" />
+        <string name="recordings" value="Recordings" />
+        <string name="ipAddressFilter" value="IP address filter" />
         <string name="maintenance" value="Maintenance" />
         <string name="systemLog" value="System log" />
         <string name="onvifExplorer" value="ONVIF explorer" />
@@ -678,7 +683,55 @@
         <string name="obtainDns" value="Obtain DNS from DHCP" />
         <string name="macAddr" value="MAC address" />
     </module>
-    <module name="PropertyDigitalIOStrings" namespace="odm.ui.controls">
+    <module name="FeatureStrings" namespace="odm.ui.controls">
+        <string name="add" value="Add" />
+        <string name="delete" value="Delete" />
+        <string name="save" value="Save" />
+        <string name="refresh" value="Refresh" />
+        <string name="notSupported" value="The device does not support this function." />
+        <string name="osdItems" value="OSD items" />
+        <string name="osdTextType" value="Text type" />
+        <string name="osdText" value="Text" />
+        <string name="osdDateFormat" value="Date format" />
+        <string name="osdTimeFormat" value="Time format" />
+        <string name="osdFontSize" value="Font size" />
+        <string name="osdPosition" value="Position" />
+        <string name="osdX" value="X (-1 left, 1 right)" />
+        <string name="osdY" value="Y (-1 bottom, 1 top)" />
+        <string name="osdNotText" value="This item is not text. ODM cannot change it." />
+        <string name="osdLimits" value="Maximum number of items" />
+        <string name="masks" value="Privacy masks" />
+        <string name="maskType" value="Type" />
+        <string name="maskEnabled" value="Enabled" />
+        <string name="maskPoints" value="Points (x, y from -1 to 1)" />
+        <string name="maskDrawHint" value="Drag on the image to add a mask." />
+        <string name="maskRemovedByCamera" value="The camera removed the mask after the change. Some cameras remove masks that are not enabled." />
+        <string name="maskMax" value="Maximum number of masks" />
+        <string name="maskRectangleOnly" value="The camera accepts only rectangles." />
+        <string name="videoSourceModes" value="Video source modes" />
+        <string name="setMode" value="Set mode" />
+        <string name="modeRebootWarning" value="The camera reboots to use this mode. Continue?" />
+        <string name="modeRebooting" value="The camera reboots now. Connect again after the reboot." />
+        <string name="rotation" value="Rotation" />
+        <string name="rotationMode" value="Mode" />
+        <string name="rotationDegree" value="Degrees" />
+        <string name="rotationNotSupported" value="The camera does not support rotation." />
+        <string name="recordings" value="Recordings" />
+        <string name="recordingFrom" value="From" />
+        <string name="recordingUntil" value="Until" />
+        <string name="recordingStatus" value="Status" />
+        <string name="recordingSource" value="Source" />
+        <string name="recordingTracks" value="Tracks" />
+        <string name="replayUri" value="Replay URI" />
+        <string name="getReplayUri" value="Get replay URI" />
+        <string name="copy" value="Copy" />
+        <string name="recordingSummary" value="All recordings" />
+        <string name="filterType" value="Filter type" />
+        <string name="filterAddresses" value="IPv4 addresses" />
+        <string name="filterAddress" value="Address" />
+        <string name="filterPrefix" value="Prefix length" />
+        <string name="filterAllowWarning" value="An Allow filter blocks all other addresses. Make sure that the address of this computer is in the list." />
+    </module>    <module name="PropertyDigitalIOStrings" namespace="odm.ui.controls">
         <string name="outputs" value="Digital outputs (relays)" />
         <string name="relayOptions" value="Relay options:" />
         <string name="relayState" value="Relay state:" />

@@ -8527,6 +8527,106 @@ namespace odm.ui.controls {
 	
 
 
+		private const string s_osd = @"OSD";
+		private string m_osd=null;
+		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osd']/@value")]
+		public string osd {
+			get { 
+				if( m_osd == null){
+					return s_osd;
+				}
+				return m_osd; 
+			}
+			set { 
+				if( value != m_osd){
+					m_osd = value;
+					NotifyPropertyChanged("osd");
+				}
+			}  
+		}
+	
+
+
+		private const string s_privacyMasks = @"Privacy masks";
+		private string m_privacyMasks=null;
+		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='privacyMasks']/@value")]
+		public string privacyMasks {
+			get { 
+				if( m_privacyMasks == null){
+					return s_privacyMasks;
+				}
+				return m_privacyMasks; 
+			}
+			set { 
+				if( value != m_privacyMasks){
+					m_privacyMasks = value;
+					NotifyPropertyChanged("privacyMasks");
+				}
+			}  
+		}
+	
+
+
+		private const string s_videoSource = @"Video source";
+		private string m_videoSource=null;
+		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='videoSource']/@value")]
+		public string videoSource {
+			get { 
+				if( m_videoSource == null){
+					return s_videoSource;
+				}
+				return m_videoSource; 
+			}
+			set { 
+				if( value != m_videoSource){
+					m_videoSource = value;
+					NotifyPropertyChanged("videoSource");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordings = @"Recordings";
+		private string m_recordings=null;
+		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordings']/@value")]
+		public string recordings {
+			get { 
+				if( m_recordings == null){
+					return s_recordings;
+				}
+				return m_recordings; 
+			}
+			set { 
+				if( value != m_recordings){
+					m_recordings = value;
+					NotifyPropertyChanged("recordings");
+				}
+			}  
+		}
+	
+
+
+		private const string s_ipAddressFilter = @"IP address filter";
+		private string m_ipAddressFilter=null;
+		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='ipAddressFilter']/@value")]
+		public string ipAddressFilter {
+			get { 
+				if( m_ipAddressFilter == null){
+					return s_ipAddressFilter;
+				}
+				return m_ipAddressFilter; 
+			}
+			set { 
+				if( value != m_ipAddressFilter){
+					m_ipAddressFilter = value;
+					NotifyPropertyChanged("ipAddressFilter");
+				}
+			}  
+		}
+	
+
+
 		private const string s_maintenance = @"Maintenance";
 		private string m_maintenance=null;
 		[XPath(@"/localized-strings/module[@name='LinkButtonsStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maintenance']/@value")]
@@ -11537,6 +11637,954 @@ namespace odm.ui.controls {
 				if( value != m_macAddr){
 					m_macAddr = value;
 					NotifyPropertyChanged("macAddr");
+				}
+			}  
+		}
+	
+	}
+
+}
+	
+
+namespace odm.ui.controls {
+	public partial class FeatureStrings: LocalizedStringsBase<FeatureStrings>{
+		
+
+
+		private const string s_add = @"Add";
+		private string m_add=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='add']/@value")]
+		public string add {
+			get { 
+				if( m_add == null){
+					return s_add;
+				}
+				return m_add; 
+			}
+			set { 
+				if( value != m_add){
+					m_add = value;
+					NotifyPropertyChanged("add");
+				}
+			}  
+		}
+	
+
+
+		private const string s_delete = @"Delete";
+		private string m_delete=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='delete']/@value")]
+		public string delete {
+			get { 
+				if( m_delete == null){
+					return s_delete;
+				}
+				return m_delete; 
+			}
+			set { 
+				if( value != m_delete){
+					m_delete = value;
+					NotifyPropertyChanged("delete");
+				}
+			}  
+		}
+	
+
+
+		private const string s_save = @"Save";
+		private string m_save=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='save']/@value")]
+		public string save {
+			get { 
+				if( m_save == null){
+					return s_save;
+				}
+				return m_save; 
+			}
+			set { 
+				if( value != m_save){
+					m_save = value;
+					NotifyPropertyChanged("save");
+				}
+			}  
+		}
+	
+
+
+		private const string s_refresh = @"Refresh";
+		private string m_refresh=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='refresh']/@value")]
+		public string refresh {
+			get { 
+				if( m_refresh == null){
+					return s_refresh;
+				}
+				return m_refresh; 
+			}
+			set { 
+				if( value != m_refresh){
+					m_refresh = value;
+					NotifyPropertyChanged("refresh");
+				}
+			}  
+		}
+	
+
+
+		private const string s_notSupported = @"The device does not support this function.";
+		private string m_notSupported=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='notSupported']/@value")]
+		public string notSupported {
+			get { 
+				if( m_notSupported == null){
+					return s_notSupported;
+				}
+				return m_notSupported; 
+			}
+			set { 
+				if( value != m_notSupported){
+					m_notSupported = value;
+					NotifyPropertyChanged("notSupported");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdItems = @"OSD items";
+		private string m_osdItems=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdItems']/@value")]
+		public string osdItems {
+			get { 
+				if( m_osdItems == null){
+					return s_osdItems;
+				}
+				return m_osdItems; 
+			}
+			set { 
+				if( value != m_osdItems){
+					m_osdItems = value;
+					NotifyPropertyChanged("osdItems");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdTextType = @"Text type";
+		private string m_osdTextType=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdTextType']/@value")]
+		public string osdTextType {
+			get { 
+				if( m_osdTextType == null){
+					return s_osdTextType;
+				}
+				return m_osdTextType; 
+			}
+			set { 
+				if( value != m_osdTextType){
+					m_osdTextType = value;
+					NotifyPropertyChanged("osdTextType");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdText = @"Text";
+		private string m_osdText=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdText']/@value")]
+		public string osdText {
+			get { 
+				if( m_osdText == null){
+					return s_osdText;
+				}
+				return m_osdText; 
+			}
+			set { 
+				if( value != m_osdText){
+					m_osdText = value;
+					NotifyPropertyChanged("osdText");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdDateFormat = @"Date format";
+		private string m_osdDateFormat=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdDateFormat']/@value")]
+		public string osdDateFormat {
+			get { 
+				if( m_osdDateFormat == null){
+					return s_osdDateFormat;
+				}
+				return m_osdDateFormat; 
+			}
+			set { 
+				if( value != m_osdDateFormat){
+					m_osdDateFormat = value;
+					NotifyPropertyChanged("osdDateFormat");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdTimeFormat = @"Time format";
+		private string m_osdTimeFormat=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdTimeFormat']/@value")]
+		public string osdTimeFormat {
+			get { 
+				if( m_osdTimeFormat == null){
+					return s_osdTimeFormat;
+				}
+				return m_osdTimeFormat; 
+			}
+			set { 
+				if( value != m_osdTimeFormat){
+					m_osdTimeFormat = value;
+					NotifyPropertyChanged("osdTimeFormat");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdFontSize = @"Font size";
+		private string m_osdFontSize=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdFontSize']/@value")]
+		public string osdFontSize {
+			get { 
+				if( m_osdFontSize == null){
+					return s_osdFontSize;
+				}
+				return m_osdFontSize; 
+			}
+			set { 
+				if( value != m_osdFontSize){
+					m_osdFontSize = value;
+					NotifyPropertyChanged("osdFontSize");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdPosition = @"Position";
+		private string m_osdPosition=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdPosition']/@value")]
+		public string osdPosition {
+			get { 
+				if( m_osdPosition == null){
+					return s_osdPosition;
+				}
+				return m_osdPosition; 
+			}
+			set { 
+				if( value != m_osdPosition){
+					m_osdPosition = value;
+					NotifyPropertyChanged("osdPosition");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdX = @"X (-1 left, 1 right)";
+		private string m_osdX=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdX']/@value")]
+		public string osdX {
+			get { 
+				if( m_osdX == null){
+					return s_osdX;
+				}
+				return m_osdX; 
+			}
+			set { 
+				if( value != m_osdX){
+					m_osdX = value;
+					NotifyPropertyChanged("osdX");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdY = @"Y (-1 bottom, 1 top)";
+		private string m_osdY=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdY']/@value")]
+		public string osdY {
+			get { 
+				if( m_osdY == null){
+					return s_osdY;
+				}
+				return m_osdY; 
+			}
+			set { 
+				if( value != m_osdY){
+					m_osdY = value;
+					NotifyPropertyChanged("osdY");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdNotText = @"This item is not text. ODM cannot change it.";
+		private string m_osdNotText=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdNotText']/@value")]
+		public string osdNotText {
+			get { 
+				if( m_osdNotText == null){
+					return s_osdNotText;
+				}
+				return m_osdNotText; 
+			}
+			set { 
+				if( value != m_osdNotText){
+					m_osdNotText = value;
+					NotifyPropertyChanged("osdNotText");
+				}
+			}  
+		}
+	
+
+
+		private const string s_osdLimits = @"Maximum number of items";
+		private string m_osdLimits=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='osdLimits']/@value")]
+		public string osdLimits {
+			get { 
+				if( m_osdLimits == null){
+					return s_osdLimits;
+				}
+				return m_osdLimits; 
+			}
+			set { 
+				if( value != m_osdLimits){
+					m_osdLimits = value;
+					NotifyPropertyChanged("osdLimits");
+				}
+			}  
+		}
+	
+
+
+		private const string s_masks = @"Privacy masks";
+		private string m_masks=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='masks']/@value")]
+		public string masks {
+			get { 
+				if( m_masks == null){
+					return s_masks;
+				}
+				return m_masks; 
+			}
+			set { 
+				if( value != m_masks){
+					m_masks = value;
+					NotifyPropertyChanged("masks");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskType = @"Type";
+		private string m_maskType=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskType']/@value")]
+		public string maskType {
+			get { 
+				if( m_maskType == null){
+					return s_maskType;
+				}
+				return m_maskType; 
+			}
+			set { 
+				if( value != m_maskType){
+					m_maskType = value;
+					NotifyPropertyChanged("maskType");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskEnabled = @"Enabled";
+		private string m_maskEnabled=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskEnabled']/@value")]
+		public string maskEnabled {
+			get { 
+				if( m_maskEnabled == null){
+					return s_maskEnabled;
+				}
+				return m_maskEnabled; 
+			}
+			set { 
+				if( value != m_maskEnabled){
+					m_maskEnabled = value;
+					NotifyPropertyChanged("maskEnabled");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskPoints = @"Points (x, y from -1 to 1)";
+		private string m_maskPoints=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskPoints']/@value")]
+		public string maskPoints {
+			get { 
+				if( m_maskPoints == null){
+					return s_maskPoints;
+				}
+				return m_maskPoints; 
+			}
+			set { 
+				if( value != m_maskPoints){
+					m_maskPoints = value;
+					NotifyPropertyChanged("maskPoints");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskDrawHint = @"Drag on the image to add a mask.";
+		private string m_maskDrawHint=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskDrawHint']/@value")]
+		public string maskDrawHint {
+			get { 
+				if( m_maskDrawHint == null){
+					return s_maskDrawHint;
+				}
+				return m_maskDrawHint; 
+			}
+			set { 
+				if( value != m_maskDrawHint){
+					m_maskDrawHint = value;
+					NotifyPropertyChanged("maskDrawHint");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskRemovedByCamera = @"The camera removed the mask after the change. Some cameras remove masks that are not enabled.";
+		private string m_maskRemovedByCamera=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskRemovedByCamera']/@value")]
+		public string maskRemovedByCamera {
+			get { 
+				if( m_maskRemovedByCamera == null){
+					return s_maskRemovedByCamera;
+				}
+				return m_maskRemovedByCamera; 
+			}
+			set { 
+				if( value != m_maskRemovedByCamera){
+					m_maskRemovedByCamera = value;
+					NotifyPropertyChanged("maskRemovedByCamera");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskMax = @"Maximum number of masks";
+		private string m_maskMax=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskMax']/@value")]
+		public string maskMax {
+			get { 
+				if( m_maskMax == null){
+					return s_maskMax;
+				}
+				return m_maskMax; 
+			}
+			set { 
+				if( value != m_maskMax){
+					m_maskMax = value;
+					NotifyPropertyChanged("maskMax");
+				}
+			}  
+		}
+	
+
+
+		private const string s_maskRectangleOnly = @"The camera accepts only rectangles.";
+		private string m_maskRectangleOnly=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='maskRectangleOnly']/@value")]
+		public string maskRectangleOnly {
+			get { 
+				if( m_maskRectangleOnly == null){
+					return s_maskRectangleOnly;
+				}
+				return m_maskRectangleOnly; 
+			}
+			set { 
+				if( value != m_maskRectangleOnly){
+					m_maskRectangleOnly = value;
+					NotifyPropertyChanged("maskRectangleOnly");
+				}
+			}  
+		}
+	
+
+
+		private const string s_videoSourceModes = @"Video source modes";
+		private string m_videoSourceModes=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='videoSourceModes']/@value")]
+		public string videoSourceModes {
+			get { 
+				if( m_videoSourceModes == null){
+					return s_videoSourceModes;
+				}
+				return m_videoSourceModes; 
+			}
+			set { 
+				if( value != m_videoSourceModes){
+					m_videoSourceModes = value;
+					NotifyPropertyChanged("videoSourceModes");
+				}
+			}  
+		}
+	
+
+
+		private const string s_setMode = @"Set mode";
+		private string m_setMode=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='setMode']/@value")]
+		public string setMode {
+			get { 
+				if( m_setMode == null){
+					return s_setMode;
+				}
+				return m_setMode; 
+			}
+			set { 
+				if( value != m_setMode){
+					m_setMode = value;
+					NotifyPropertyChanged("setMode");
+				}
+			}  
+		}
+	
+
+
+		private const string s_modeRebootWarning = @"The camera reboots to use this mode. Continue?";
+		private string m_modeRebootWarning=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='modeRebootWarning']/@value")]
+		public string modeRebootWarning {
+			get { 
+				if( m_modeRebootWarning == null){
+					return s_modeRebootWarning;
+				}
+				return m_modeRebootWarning; 
+			}
+			set { 
+				if( value != m_modeRebootWarning){
+					m_modeRebootWarning = value;
+					NotifyPropertyChanged("modeRebootWarning");
+				}
+			}  
+		}
+	
+
+
+		private const string s_modeRebooting = @"The camera reboots now. Connect again after the reboot.";
+		private string m_modeRebooting=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='modeRebooting']/@value")]
+		public string modeRebooting {
+			get { 
+				if( m_modeRebooting == null){
+					return s_modeRebooting;
+				}
+				return m_modeRebooting; 
+			}
+			set { 
+				if( value != m_modeRebooting){
+					m_modeRebooting = value;
+					NotifyPropertyChanged("modeRebooting");
+				}
+			}  
+		}
+	
+
+
+		private const string s_rotation = @"Rotation";
+		private string m_rotation=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='rotation']/@value")]
+		public string rotation {
+			get { 
+				if( m_rotation == null){
+					return s_rotation;
+				}
+				return m_rotation; 
+			}
+			set { 
+				if( value != m_rotation){
+					m_rotation = value;
+					NotifyPropertyChanged("rotation");
+				}
+			}  
+		}
+	
+
+
+		private const string s_rotationMode = @"Mode";
+		private string m_rotationMode=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='rotationMode']/@value")]
+		public string rotationMode {
+			get { 
+				if( m_rotationMode == null){
+					return s_rotationMode;
+				}
+				return m_rotationMode; 
+			}
+			set { 
+				if( value != m_rotationMode){
+					m_rotationMode = value;
+					NotifyPropertyChanged("rotationMode");
+				}
+			}  
+		}
+	
+
+
+		private const string s_rotationDegree = @"Degrees";
+		private string m_rotationDegree=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='rotationDegree']/@value")]
+		public string rotationDegree {
+			get { 
+				if( m_rotationDegree == null){
+					return s_rotationDegree;
+				}
+				return m_rotationDegree; 
+			}
+			set { 
+				if( value != m_rotationDegree){
+					m_rotationDegree = value;
+					NotifyPropertyChanged("rotationDegree");
+				}
+			}  
+		}
+	
+
+
+		private const string s_rotationNotSupported = @"The camera does not support rotation.";
+		private string m_rotationNotSupported=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='rotationNotSupported']/@value")]
+		public string rotationNotSupported {
+			get { 
+				if( m_rotationNotSupported == null){
+					return s_rotationNotSupported;
+				}
+				return m_rotationNotSupported; 
+			}
+			set { 
+				if( value != m_rotationNotSupported){
+					m_rotationNotSupported = value;
+					NotifyPropertyChanged("rotationNotSupported");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordings = @"Recordings";
+		private string m_recordings=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordings']/@value")]
+		public string recordings {
+			get { 
+				if( m_recordings == null){
+					return s_recordings;
+				}
+				return m_recordings; 
+			}
+			set { 
+				if( value != m_recordings){
+					m_recordings = value;
+					NotifyPropertyChanged("recordings");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingFrom = @"From";
+		private string m_recordingFrom=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingFrom']/@value")]
+		public string recordingFrom {
+			get { 
+				if( m_recordingFrom == null){
+					return s_recordingFrom;
+				}
+				return m_recordingFrom; 
+			}
+			set { 
+				if( value != m_recordingFrom){
+					m_recordingFrom = value;
+					NotifyPropertyChanged("recordingFrom");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingUntil = @"Until";
+		private string m_recordingUntil=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingUntil']/@value")]
+		public string recordingUntil {
+			get { 
+				if( m_recordingUntil == null){
+					return s_recordingUntil;
+				}
+				return m_recordingUntil; 
+			}
+			set { 
+				if( value != m_recordingUntil){
+					m_recordingUntil = value;
+					NotifyPropertyChanged("recordingUntil");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingStatus = @"Status";
+		private string m_recordingStatus=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingStatus']/@value")]
+		public string recordingStatus {
+			get { 
+				if( m_recordingStatus == null){
+					return s_recordingStatus;
+				}
+				return m_recordingStatus; 
+			}
+			set { 
+				if( value != m_recordingStatus){
+					m_recordingStatus = value;
+					NotifyPropertyChanged("recordingStatus");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingSource = @"Source";
+		private string m_recordingSource=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingSource']/@value")]
+		public string recordingSource {
+			get { 
+				if( m_recordingSource == null){
+					return s_recordingSource;
+				}
+				return m_recordingSource; 
+			}
+			set { 
+				if( value != m_recordingSource){
+					m_recordingSource = value;
+					NotifyPropertyChanged("recordingSource");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingTracks = @"Tracks";
+		private string m_recordingTracks=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingTracks']/@value")]
+		public string recordingTracks {
+			get { 
+				if( m_recordingTracks == null){
+					return s_recordingTracks;
+				}
+				return m_recordingTracks; 
+			}
+			set { 
+				if( value != m_recordingTracks){
+					m_recordingTracks = value;
+					NotifyPropertyChanged("recordingTracks");
+				}
+			}  
+		}
+	
+
+
+		private const string s_replayUri = @"Replay URI";
+		private string m_replayUri=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='replayUri']/@value")]
+		public string replayUri {
+			get { 
+				if( m_replayUri == null){
+					return s_replayUri;
+				}
+				return m_replayUri; 
+			}
+			set { 
+				if( value != m_replayUri){
+					m_replayUri = value;
+					NotifyPropertyChanged("replayUri");
+				}
+			}  
+		}
+	
+
+
+		private const string s_getReplayUri = @"Get replay URI";
+		private string m_getReplayUri=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='getReplayUri']/@value")]
+		public string getReplayUri {
+			get { 
+				if( m_getReplayUri == null){
+					return s_getReplayUri;
+				}
+				return m_getReplayUri; 
+			}
+			set { 
+				if( value != m_getReplayUri){
+					m_getReplayUri = value;
+					NotifyPropertyChanged("getReplayUri");
+				}
+			}  
+		}
+	
+
+
+		private const string s_copy = @"Copy";
+		private string m_copy=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='copy']/@value")]
+		public string copy {
+			get { 
+				if( m_copy == null){
+					return s_copy;
+				}
+				return m_copy; 
+			}
+			set { 
+				if( value != m_copy){
+					m_copy = value;
+					NotifyPropertyChanged("copy");
+				}
+			}  
+		}
+	
+
+
+		private const string s_recordingSummary = @"All recordings";
+		private string m_recordingSummary=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='recordingSummary']/@value")]
+		public string recordingSummary {
+			get { 
+				if( m_recordingSummary == null){
+					return s_recordingSummary;
+				}
+				return m_recordingSummary; 
+			}
+			set { 
+				if( value != m_recordingSummary){
+					m_recordingSummary = value;
+					NotifyPropertyChanged("recordingSummary");
+				}
+			}  
+		}
+	
+
+
+		private const string s_filterType = @"Filter type";
+		private string m_filterType=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterType']/@value")]
+		public string filterType {
+			get { 
+				if( m_filterType == null){
+					return s_filterType;
+				}
+				return m_filterType; 
+			}
+			set { 
+				if( value != m_filterType){
+					m_filterType = value;
+					NotifyPropertyChanged("filterType");
+				}
+			}  
+		}
+	
+
+
+		private const string s_filterAddresses = @"IPv4 addresses";
+		private string m_filterAddresses=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterAddresses']/@value")]
+		public string filterAddresses {
+			get { 
+				if( m_filterAddresses == null){
+					return s_filterAddresses;
+				}
+				return m_filterAddresses; 
+			}
+			set { 
+				if( value != m_filterAddresses){
+					m_filterAddresses = value;
+					NotifyPropertyChanged("filterAddresses");
+				}
+			}  
+		}
+	
+
+
+		private const string s_filterAddress = @"Address";
+		private string m_filterAddress=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterAddress']/@value")]
+		public string filterAddress {
+			get { 
+				if( m_filterAddress == null){
+					return s_filterAddress;
+				}
+				return m_filterAddress; 
+			}
+			set { 
+				if( value != m_filterAddress){
+					m_filterAddress = value;
+					NotifyPropertyChanged("filterAddress");
+				}
+			}  
+		}
+	
+
+
+		private const string s_filterPrefix = @"Prefix length";
+		private string m_filterPrefix=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterPrefix']/@value")]
+		public string filterPrefix {
+			get { 
+				if( m_filterPrefix == null){
+					return s_filterPrefix;
+				}
+				return m_filterPrefix; 
+			}
+			set { 
+				if( value != m_filterPrefix){
+					m_filterPrefix = value;
+					NotifyPropertyChanged("filterPrefix");
+				}
+			}  
+		}
+	
+
+
+		private const string s_filterAllowWarning = @"An Allow filter blocks all other addresses. Make sure that the address of this computer is in the list.";
+		private string m_filterAllowWarning=null;
+		[XPath(@"/localized-strings/module[@name='FeatureStrings' and @namespace='odm.ui.controls']/descendant::string[@name='filterAllowWarning']/@value")]
+		public string filterAllowWarning {
+			get { 
+				if( m_filterAllowWarning == null){
+					return s_filterAllowWarning;
+				}
+				return m_filterAllowWarning; 
+			}
+			set { 
+				if( value != m_filterAllowWarning){
+					m_filterAllowWarning = value;
+					NotifyPropertyChanged("filterAllowWarning");
 				}
 			}  
 		}
