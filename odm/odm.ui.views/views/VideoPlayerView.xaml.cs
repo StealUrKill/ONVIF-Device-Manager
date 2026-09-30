@@ -135,7 +135,15 @@ namespace odm.ui.activities {
 					transp = MediaStreamInfo.Transport.Udp;
 					break;
 			}
-			MediaStreamInfo mstrInfo = new MediaStreamInfo(model.mediaUri.uri, transp, utoken);
+			// A recording page registers the replay start time in the activity container. Live video does not.
+			string replayStartTime = null;
+			try {
+				if (activityContext != null && activityContext.container.IsRegistered<ReplayStartTime>())
+					replayStartTime = activityContext.container.Resolve<ReplayStartTime>().Value;
+			} catch (Exception err) {
+				dbg.Error(err);
+			}
+			MediaStreamInfo mstrInfo = new MediaStreamInfo(model.mediaUri.uri, transp, utoken, replayStartTime);
 			disposables.Add(player.Play(mstrInfo, this));
 			InitPlayback(videoBuff);
 		}
@@ -401,5 +409,11 @@ namespace odm.ui.activities {
 	}
 	public interface IVideoPlayerActivity {
 		FSharpAsync<Unit> Run(IUnityContainer ctx, VideoPlayerActivityModel model);
+	}
+
+	/// <summary>The ONVIF replay start time for the player, in the format of the RTSP "Range: clock=" header.</summary>
+	public class ReplayStartTime {
+		public ReplayStartTime(string value) { Value = value; }
+		public readonly string Value;
 	}
 }

@@ -209,6 +209,7 @@ namespace odm{
 				IntPtr urlIntPtr = IntPtr::Zero;
 				IntPtr userNameIntPtr = IntPtr::Zero;
 				IntPtr passwordIntPtr = IntPtr::Zero;
+				IntPtr replayIntPtr = IntPtr::Zero;
 				auto msi = std::make_shared< onvifmp::MediaStreamInfo >();
 				if(mediaStreamInfo->transport == MediaStreamInfo::Transport::Udp){
 					msi->transport = onvifmp::StreamTransport::Udp;
@@ -261,12 +262,19 @@ namespace odm{
 					
 					msi->url = url;
 					msi->authenticator = authenticator;
+					if(!String::IsNullOrEmpty(mediaStreamInfo->replayStartTime)){
+						replayIntPtr = Marshal::StringToHGlobalAnsi(mediaStreamInfo->replayStartTime);
+						msi->replayStartTime = static_cast<char*>(replayIntPtr.ToPointer());
+					}
 
 					onvifmpInstance->Run(msi.get(), proxyController);
 					Cleanup();
 				}finally{
 					if(urlIntPtr != IntPtr::Zero){
 						Marshal::FreeHGlobal(urlIntPtr);
+					}
+					if(replayIntPtr != IntPtr::Zero){
+						Marshal::FreeHGlobal(replayIntPtr);
 					}
 				}
 			}

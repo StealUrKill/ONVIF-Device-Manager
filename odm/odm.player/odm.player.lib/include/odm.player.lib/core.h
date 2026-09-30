@@ -64,9 +64,12 @@ namespace onvifmp{
 
 	class MediaStreamInfo{
 	public:
+		MediaStreamInfo(): url(nullptr), authenticator(nullptr), transport(Udp), replayStartTime(nullptr) {}
 		char* url;
 		Authenticator* authenticator;
 		StreamTransport transport;
+		// ONVIF replay start time in UTC, "YYYYMMDDTHHMMSSZ". nullptr for a live stream.
+		char* replayStartTime;
 	};
 	
 	enum VideoPlaybackMode{

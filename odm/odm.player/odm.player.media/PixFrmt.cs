@@ -21,11 +21,19 @@ namespace odm.player {
 		public readonly string url;
 		public readonly Transport transport;
 		public readonly UserNameToken userNameToken;
+		/// <summary>ONVIF replay start time in UTC, "yyyyMMddTHHmmssZ". Null for a live stream.</summary>
+		public readonly string replayStartTime;
 
-		public MediaStreamInfo(string url, Transport transport = Transport.Udp, UserNameToken userNameToken = null) {
+		public MediaStreamInfo(string url, Transport transport = Transport.Udp, UserNameToken userNameToken = null, string replayStartTime = null) {
 			this.url = url;
 			this.transport = transport;
 			this.userNameToken = userNameToken;
+			this.replayStartTime = replayStartTime;
+		}
+
+		/// <summary>The replay start time in the format of the RTSP "Range: clock=" header.</summary>
+		public static string ReplayTime(DateTime time) {
+			return time.ToUniversalTime().ToString("yyyyMMdd'T'HHmmss'Z'", System.Globalization.CultureInfo.InvariantCulture);
 		}
 	}
 

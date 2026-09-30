@@ -63,6 +63,11 @@ namespace onvifmp{
 
 	}
 
+	// The replay PLAY is asynchronous. The stream shows whether it worked, so the response needs no action.
+	static void IgnorePlayResponse(RTSPClient* client, int resultCode, char* resultString){
+		delete[] resultString;
+	}
+
 	void Live555::Run(MediaStreamInfo* mediaStreamInfo, IPlaybackController* playbackController){
 #ifdef DEBUG
 		OpenConsole();
@@ -88,7 +93,12 @@ namespace onvifmp{
 			return;
 		}
 		
-		rtspClient->playMediaSession(*mediaSession);
+		if(mediaStreamInfo->replayStartTime != nullptr && mediaStreamInfo->replayStartTime[0] != '\0'){
+			// ONVIF replay starts at an absolute time: "Range: clock=<start>-". The event loop gets the response.
+			rtspClient->sendPlayCommand(*mediaSession, &IgnorePlayResponse, mediaStreamInfo->replayStartTime, nullptr, 1.0f, mediaStreamInfo->authenticator);
+		}else{
+			rtspClient->playMediaSession(*mediaSession);
+		}
 
 		//synchronize via fake GET_PARAMETER request
 		//if(rtspOptions.getParamSupported){
@@ -251,6 +261,10 @@ namespace onvifmp{
 			return false;
 		}
 
+		// The ONVIF replay specification asks for this header in each request.
+		if(mediaStreamInfo->replayStartTime != nullptr){
+			rtspClient->setRequireString("onvif-replay");
+		}
 		//rtspClient->fCurrentAuthenticator = mediaStreamInfo->authenticator;
 		auto options = rtspClient->sendOptionsCmd(mediaStreamInfo->url, nullptr, nullptr, mediaStreamInfo->authenticator, 5/*timeout in seconds*/);
 		rtspOptions.getParamSupported = (options!= nullptr && strstr(options, "GET_PARAMETER")!=nullptr);

@@ -171,7 +171,7 @@ namespace odm.player {
 					ub.Port = defPort;
 				}
 				url = ub.Uri;
-				mediaStreamInfo = new MediaStreamInfo(url.ToString(), mediaStreamInfo.transport, mediaStreamInfo.userNameToken);
+				mediaStreamInfo = new MediaStreamInfo(url.ToString(), mediaStreamInfo.transport, mediaStreamInfo.userNameToken, mediaStreamInfo.replayStartTime);
 			}
 
 			var disposable = new SingleAssignmentDisposable();
