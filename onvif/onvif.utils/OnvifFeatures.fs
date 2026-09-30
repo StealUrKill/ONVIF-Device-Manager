@@ -483,3 +483,104 @@ namespace onvif.utils
                     stream = StreamType.rtpUnicast,
                     transport = new Transport(protocol = TransportProtocol.rtsp))
             session.GetReplayUri(recordingToken, setup)
+
+    // ------------------------------------------------------------------ page data
+
+    /// Everything that the OSD page shows for one video source configuration.
+    [<AllowNullLiteral>]
+    type OsdPageData(configToken:string, items:OsdItem[], options:OsdOptions) =
+        member this.ConfigToken = configToken
+        member this.Items = items
+        member this.Options = options
+
+    [<AllowNullLiteral>]
+    type MaskPageData(configToken:string, items:MaskItem[], options:MaskOptions) =
+        member this.ConfigToken = configToken
+        member this.Items = items
+        member this.Options = options
+
+    /// The video source modes (Media2) and the rotation (Media1) of one video source.
+    /// ModesError is empty when the modes loaded; the page shows the error in place of the modes.
+    [<AllowNullLiteral>]
+    type VideoSourcePageData(sourceToken:string, configuration:VideoSourceConfiguration, modes:VideoSourceModeItem[], modesError:string, rotateOptions:RotateOptions) =
+        member this.SourceToken = sourceToken
+        member this.Configuration = configuration
+        member this.Modes = modes
+        member this.ModesError = modesError
+        member this.RotateOptions = rotateOptions
+
+    [<AllowNullLiteral>]
+    type RecordingsPageData(summary:RecordingSummaryInfo, recordings:RecordingItem[]) =
+        member this.Summary = summary
+        member this.Recordings = recordings
+
+    module FeaturePages =
+        let private videoSourceConfiguration (session:INvtSession) (profileToken:string) = async{
+            let! profile = session.GetProfile(profileToken)
+            let vsc = if Xml.isNil profile then null else profile.videoSourceConfiguration
+            if Xml.isNil vsc then
+                return failwithf "the profile '%s' has no video source configuration" profileToken
+            else
+                return vsc
+        }
+
+        let private orDefault (f:unit -> 'T) (comp:Async<'T>) = async{
+            try
+                return! comp
+            with err ->
+                dbg.Error(err)
+                return f()
+        }
+
+        let loadOsd (session:INvtSession) (profileToken:string) = async{
+            let! vsc = videoSourceConfiguration session profileToken
+            let! items = Osd.load session vsc.token
+            // Without options the page still works, with free text input.
+            let! options = Osd.loadOptions session vsc.token |> orDefault (fun () -> OsdOptions())
+            return OsdPageData(vsc.token, items, options)
+        }
+
+        let loadMasks (session:INvtSession) (profileToken:string) = async{
+            let! vsc = videoSourceConfiguration session profileToken
+            let! items = Masks.load session vsc.token
+            let! options = Masks.loadOptions session vsc.token |> orDefault (fun () -> MaskOptions())
+            return MaskPageData(vsc.token, items, options)
+        }
+
+        let loadVideoSource (session:INvtSession) (profileToken:string) = async{
+            let! vsc = videoSourceConfiguration session profileToken
+            let! modes, modesError = async{
+                try
+                    let! modes = VideoSourceModes.load session vsc.sourceToken
+                    return modes, ""
+                with err ->
+                    dbg.Error(err)
+                    let rec inner (e:exn) = if Xml.isNil e.InnerException then e else inner e.InnerException
+                    return [||], (inner err).Message
+            }
+            // The configuration from GetVideoSourceConfiguration has the rotation; the profile copy can be old.
+            let! cfg = session.GetVideoSourceConfiguration(vsc.token) |> orDefault (fun () -> vsc)
+            let! options = session.GetVideoSourceConfigurationOptions(vsc.token, profileToken) |> orDefault (fun () -> null)
+            let rotate =
+                if Xml.isNil options || Xml.isNil options.extension then null else options.extension.rotate
+            return VideoSourcePageData(vsc.sourceToken, cfg, modes, modesError, rotate)
+        }
+
+        /// Sets the rotation and writes the configuration. The camera keeps the change after a reboot.
+        let setRotation (session:INvtSession) (cfg:VideoSourceConfiguration) (mode:RotateMode) (degree:Nullable<int>) = async{
+            if Xml.isNil cfg.extension then
+                cfg.extension <- new VideoSourceConfigurationExtension()
+            let rotate = new Rotate()
+            rotate.mode <- mode
+            if degree.HasValue then
+                rotate.degree <- degree.Value
+                rotate.degreeSpecified <- true
+            cfg.extension.rotate <- rotate
+            do! session.SetVideoSourceConfiguration(cfg, true)
+        }
+
+        let loadRecordings (session:INvtSession) = async{
+            let! summary = Recordings.loadSummary session |> orDefault (fun () -> RecordingSummaryInfo())
+            let! recordings = Recordings.load session
+            return RecordingsPageData(summary, recordings)
+        }
