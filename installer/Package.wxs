@@ -1,9 +1,14 @@
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <!-- Do not change the UpgradeCode. The MSI uses it to find and replace older versions. -->
   <Package Name="$(ProductName)" Manufacturer="Synesis" Version="$(ProductVersion)"
            UpgradeCode="FA8AD70A-97A7-484E-B2A0-A4A3BAE9BA35" Scope="perMachine" Compressed="yes">
     <MajorUpgrade AllowSameVersionUpgrades="yes"
                   DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <!-- The 2.2.x installers used a different UpgradeCode. Remove those installs too. -->
+    <Upgrade Id="69653681-56F7-48B6-8BB6-69B7278106C6">
+      <UpgradeVersion Minimum="0.0.0" IncludeMinimum="yes" Property="OLDODMFOUND" />
+    </Upgrade>
     <MediaTemplate EmbedCab="yes" />
 
     <Property Id="NETFXRELEASE">
@@ -43,5 +48,21 @@
     <Feature Id="Main">
       <ComponentGroupRef Id="AppFiles" />
     </Feature>
+
+    <!-- The same dialogs as the 2.2.x setup: welcome, install folder, ready, and finish. -->
+    <UI>
+      <ui:WixUI Id="WixUI_InstallDir" InstallDirectory="INSTALLFOLDER" />
+      <!-- Skip the license dialog. -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="2" />
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2" />
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication"
+               Condition="WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed" />
+    </UI>
+
+    <!-- The finish dialog starts ODM when the box is checked. ShellExecute shows the UAC prompt. -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch ONVIF Device Manager" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#odm.exe]" />
+    <CustomAction Id="LaunchApplication" BinaryRef="Wix4UtilCA_X64" DllEntry="WixShellExec" Impersonate="yes" />
   </Package>
 </Wix>

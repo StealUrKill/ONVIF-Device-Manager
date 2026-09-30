@@ -10,6 +10,11 @@
     <OdmProductName Condition="'$(OdmRelease)' != 'true'">ONVIF Device Manager (dev)</OdmProductName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+  </ItemGroup>
+
   <Import Project="odm.stage.targets" />
 
   <PropertyGroup>
