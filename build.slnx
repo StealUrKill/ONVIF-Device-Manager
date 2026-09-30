@@ -2,6 +2,12 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
+  <Folder Name="/installer/">
+    <Project Path="installer/odm.installer.wixproj" Type="B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0">
+      <BuildDependency Project="odm/odm.ui.app/odm.ui.app.csproj" />
+      <BuildDependency Project="odm/odm.player/odm.player.net/odm.player.net.vcxproj" />
+    </Project>
+  </Folder>
   <Folder Name="/libs/">
     <Project Path="libs/bccrypto-net-1.7-src-ext/crypto.csproj" />
     <Project Path="libs/live555-2013.02.11/live555.vcxproj" />

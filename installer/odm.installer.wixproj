@@ -1,0 +1,20 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+  <!-- Makes the MSI from build\. The version and the dev name come from Directory.Build.props. -->
+  <PropertyGroup>
+    <OutputName>odm-$(OdmDisplayVersion)-x64</OutputName>
+    <OutputPath>$(OdmRepoRoot)out\</OutputPath>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <!-- ICE61 warns about AllowSameVersionUpgrades, which is intentional. -->
+    <SuppressIces>ICE61</SuppressIces>
+    <OdmProductName>ONVIF Device Manager</OdmProductName>
+    <OdmProductName Condition="'$(OdmRelease)' != 'true'">ONVIF Device Manager (dev)</OdmProductName>
+  </PropertyGroup>
+
+  <Import Project="odm.stage.targets" />
+
+  <PropertyGroup>
+    <DefineConstants>ProductName=$(OdmProductName);ProductVersion=$(OdmVersion);StageDir=$(OdmStageDir);IconFile=$(OdmRepoRoot)odm\odm.ui.app\odm.ico</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="OdmStageForInstaller" BeforeTargets="CoreCompile" DependsOnTargets="OdmStage" />
+</Project>

@@ -1,0 +1,47 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <!-- Do not change the UpgradeCode. The MSI uses it to find and replace older versions. -->
+  <Package Name="$(ProductName)" Manufacturer="Synesis" Version="$(ProductVersion)"
+           UpgradeCode="FA8AD70A-97A7-484E-B2A0-A4A3BAE9BA35" Scope="perMachine" Compressed="yes">
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Property Id="NETFXRELEASE">
+      <RegistrySearch Id="NetFxRelease" Root="HKLM" Key="SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full"
+                      Name="Release" Type="raw" Bitness="always64" />
+    </Property>
+    <!-- 528040 is the first Release value of .NET Framework 4.8. -->
+    <Launch Condition="Installed OR (NETFXRELEASE AND NETFXRELEASE &gt;= &quot;#528040&quot;)"
+            Message="[ProductName] needs .NET Framework 4.8 or later. Install it and then start this setup again." />
+
+    <Icon Id="odm.ico" SourceFile="$(IconFile)" />
+    <Property Id="ARPPRODUCTICON" Value="odm.ico" />
+    <Property Id="ARPCONTACT" Value="Apra Labs Inc" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="SynesisFolder" Name="Synesis">
+        <Directory Id="INSTALLFOLDER" Name="ONVIF Device Manager" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="DesktopFolder" />
+    <StandardDirectory Id="ProgramMenuFolder" />
+
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component>
+        <File Id="odm.exe" Source="$(StageDir)odm.exe" KeyPath="yes">
+          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="$(ProductName)"
+                    WorkingDirectory="INSTALLFOLDER" Icon="odm.ico" Advertise="yes" />
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="$(ProductName)"
+                    WorkingDirectory="INSTALLFOLDER" Icon="odm.ico" Advertise="yes" />
+        </File>
+      </Component>
+      <Files Include="$(StageDir)**">
+        <Exclude Files="$(StageDir)odm.exe" />
+      </Files>
+    </ComponentGroup>
+
+    <Feature Id="Main">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+  </Package>
+</Wix>

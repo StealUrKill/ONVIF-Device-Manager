@@ -2,6 +2,7 @@
 **/bin/
 **/obj/
 build/
+out/
 build_output.txt
 odm.setup/Debug/
 odm.setup/Release/

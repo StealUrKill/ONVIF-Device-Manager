@@ -1,0 +1,31 @@
+<Project>
+  <!-- Collects the runnable application into build\ for the MSI and the portable exe. -->
+  <PropertyGroup>
+    <OdmAppOutput>$(OdmRepoRoot)odm\odm.ui.app\bin\Release\x64\</OdmAppOutput>
+    <OdmPlayerNetOutput>$(OdmRepoRoot)odm\odm.player\odm.player.net\bin\x64\Release\</OdmPlayerNetOutput>
+    <OdmStageDir>$(OdmRepoRoot)build\</OdmStageDir>
+  </PropertyGroup>
+
+  <!-- Set OdmSkipStage=true to use build\ as it is (for example after code signing). -->
+  <Target Name="OdmStage" Condition="'$(OdmSkipStage)' != 'true'">
+    <Error Condition="!Exists('$(OdmAppOutput)odm.exe')"
+           Text="$(OdmAppOutput)odm.exe does not exist. Build build.slnx with Configuration=Release and Platform=x64." />
+    <ItemGroup>
+      <_OdmStageFile Include="$(OdmAppOutput)*.*" Exclude="$(OdmAppOutput)*.pdb" />
+      <_OdmStageFile Include="$(OdmPlayerNetOutput)odm.player.net.dll" Condition="Exists('$(OdmPlayerNetOutput)odm.player.net.dll')" />
+      <_OdmStageFile Include="$(OdmRepoRoot)libs\ffmpeg-n7.1-lgpl-shared\x64\bin\*.dll" />
+      <_OdmStageImage Include="$(OdmRepoRoot)odm\odm.ui.views\images\wheel_zoom.cur" />
+      <_OdmStageLocale Include="$(OdmRepoRoot)odm\odm.localization\locales\*.*" />
+      <_OdmStageMeta Include="$(OdmRepoRoot)odm\odm.ui.app\meta\*.*" />
+      <_OdmStageLog Include="$(OdmRepoRoot)odm\odm.ui.app\logs\*.*" />
+    </ItemGroup>
+    <RemoveDir Directories="$(OdmStageDir)" />
+    <Copy SourceFiles="@(_OdmStageFile)" DestinationFolder="$(OdmStageDir)" />
+    <Copy SourceFiles="@(_OdmStageImage)" DestinationFolder="$(OdmStageDir)images\" />
+    <Copy SourceFiles="@(_OdmStageLocale)" DestinationFolder="$(OdmStageDir)locales\" />
+    <Copy SourceFiles="@(_OdmStageMeta)" DestinationFolder="$(OdmStageDir)meta\" />
+    <Copy SourceFiles="@(_OdmStageLog)" DestinationFolder="$(OdmStageDir)logs\" />
+    <Error Condition="!Exists('$(OdmStageDir)odm.player.net.dll')" Text="odm.player.net.dll is missing from build\." />
+    <Message Importance="high" Text="ODM $(OdmDisplayVersion) is staged in $(OdmStageDir)" />
+  </Target>
+</Project>
