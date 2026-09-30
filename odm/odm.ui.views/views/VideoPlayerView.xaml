@@ -26,7 +26,8 @@
 				<TextBlock DockPanel.Dock="Top" Name="renderingFps" Text="91.35" Foreground="#FFF3FA00" />
 				<TextBlock DockPanel.Dock="Top" Name="decodingFps" Text="12.33" Foreground="#FFF3FA00" />
 			</StackPanel>
-			<Grid Margin="6">
+			<!-- Left and top: with the statistics on, the grid is wider than the button. -->
+			<Grid Margin="6" HorizontalAlignment="Left" VerticalAlignment="Top">
 				<Button Name="btnPause" Width="32" Height="32" Style="{DynamicResource btnPause}"/>
 				<Button Name="btnResume" Width="32" Height="32" Style="{DynamicResource btnPlay}"/>
 			</Grid>
