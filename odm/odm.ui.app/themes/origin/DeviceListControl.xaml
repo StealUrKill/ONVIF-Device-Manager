@@ -52,9 +52,11 @@
 													Background="White" 
 													Visibility="{Binding IsManual, Converter={StaticResource BoolToVisConverter}}"
 													Grid.Row="3" Grid.Column="0">
+												<!-- No fixed height: at a display scale above 100 % a fixed height cuts the text. -->
 												<Label Content="Manual"
 													   HorizontalContentAlignment="Center"
-													   Height="16" Padding="1"
+													   VerticalContentAlignment="Center"
+													   MinHeight="16" Padding="4,0"
 													   FontSize="12"
 														Foreground="DarkRed" 
 														FontWeight="Bold" />
@@ -68,10 +70,10 @@
 												
 												<Button
 													Command="{Binding deleteDevice}"
-													Margin="1" DockPanel.Dock="Right" Content="Delete" Height="16" Padding="1" Background="Gray"/>
+													Margin="1" DockPanel.Dock="Right" Content="Delete" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="Gray"/>
 												<Button
 													Command="{Binding editDeviceUri}"
-													Margin="1" DockPanel.Dock="Right"  Content="Edit" Height="16" Padding="1" Background="Gray"/>
+													Margin="1" DockPanel.Dock="Right"  Content="Edit" MinHeight="18" Padding="6,0" VerticalContentAlignment="Center" Background="Gray"/>
 											</DockPanel>
 										</Grid>
 									</Grid>

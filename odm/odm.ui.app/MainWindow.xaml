@@ -16,7 +16,7 @@
 	Icon="{StaticResource ResourceKey='images.odm_icon'}" 
 	TextOptions.TextRenderingMode="ClearType"
 	TextOptions.TextFormattingMode="Display"
-	SnapsToDevicePixels="True" IsEnabled="True">
+	SnapsToDevicePixels="True" UseLayoutRounding="True" IsEnabled="True">
 
 	<!--xmlns:p="http://www.codeplex.com/prism"-->
 	<Window.CommandBindings>

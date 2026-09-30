@@ -10,19 +10,19 @@
     <DockPanel>
         <StackPanel Orientation="Vertical" DockPanel.Dock="Bottom">
             <ContentControl ToolTip="{Binding Strings.cameraRedirectedTip, ElementName=ctrl}">
-                <CheckBox Content="{Binding Strings.cameraRedirected, ElementName=ctrl}" IsEnabled="{Binding isCameraRedirectedEnabled, ElementName=ctrl}" Name="cameraRedirected" Height="16"/>
+                <CheckBox Content="{Binding Strings.cameraRedirected, ElementName=ctrl}" IsEnabled="{Binding isCameraRedirectedEnabled, ElementName=ctrl}" Name="cameraRedirected"/>
             </ContentControl>
             <ContentControl ToolTip="{Binding Strings.cameraObstructedTip, ElementName=ctrl}">
-                <CheckBox Content="{Binding Strings.cameraObstructed, ElementName=ctrl}" IsEnabled="{Binding isCameraObstructedEnabled, ElementName=ctrl}" Name="cameraObstructed" Height="16"/>
+                <CheckBox Content="{Binding Strings.cameraObstructed, ElementName=ctrl}" IsEnabled="{Binding isCameraObstructedEnabled, ElementName=ctrl}" Name="cameraObstructed"/>
             </ContentControl>
             <Rectangle DockPanel.Dock="Top" Margin="2,10,2,10" 
 				HorizontalAlignment="Left" MinWidth="350" VerticalAlignment="Stretch" 
 				Height="2"
 				Fill="{DynamicResource BackgroundHighlight}"/>
-            <CheckBox Content="{Binding Strings.imageTooDark, ElementName=ctrl}" Name="imageTooDark" Height="16" Grid.Column="0" Grid.Row="2"/>
-            <CheckBox Content="{Binding Strings.imageTooBlurry, ElementName=ctrl}" Name="imageTooBlurry" Height="16" Grid.Column="0" Grid.Row="0"/>
-            <CheckBox Content="{Binding Strings.imageTooBright, ElementName=ctrl}" Name="imageTooBright" Height="16" Grid.Column="0" Grid.Row="1"/>
-            <CheckBox Content="{Binding Strings.imageTooNoisy, ElementName=ctrl}" Name="imageTooNoisy" Height="16" Grid.Column="0" Grid.Row="2"/>
+            <CheckBox Content="{Binding Strings.imageTooDark, ElementName=ctrl}" Name="imageTooDark" Grid.Column="0" Grid.Row="2"/>
+            <CheckBox Content="{Binding Strings.imageTooBlurry, ElementName=ctrl}" Name="imageTooBlurry" Grid.Column="0" Grid.Row="0"/>
+            <CheckBox Content="{Binding Strings.imageTooBright, ElementName=ctrl}" Name="imageTooBright" Grid.Column="0" Grid.Row="1"/>
+            <CheckBox Content="{Binding Strings.imageTooNoisy, ElementName=ctrl}" Name="imageTooNoisy" Grid.Column="0" Grid.Row="2"/>
         </StackPanel>
 		<Border x:Name="playerHolder"  Background="Black" Margin="0,0,0,6"/>
 	</DockPanel>
