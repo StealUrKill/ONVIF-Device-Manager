@@ -4,12 +4,12 @@
 
 ## Overview
 
-`msbuild build.slnx /restore /p:Configuration=Release /p:Platform=x64` makes two packages from the same `build/` stage folder:
+`msbuild build.slnx /restore /p:Configuration=Release /p:Platform=x64` makes two packages from the same `out/package/` folder:
 
 | Package | Project | Contents |
 |---|---|---|
-| `out/odm-<version>-x64.msi` | `installer/odm.installer.wixproj` (WiX v5) | All files in `build/` |
-| `out/odm-<version>-x64-portable.exe` | `installer/portable/odm.portable.csproj` | `build/` as an embedded zip |
+| `out/odm-<version>-x64.msi` | `installer/odm.installer.wixproj` (WiX v5) | All files in `out/package/` |
+| `out/odm-<version>-x64-portable.exe` | `installer/portable/odm.portable.csproj` | `out/package/` as an embedded zip |
 
 CI uploads them as the `odm-installer` and `odm-portable` artifacts. See [ci.md](../ci.md).
 
@@ -32,16 +32,21 @@ The MSI keeps the UpgradeCode of the old vdproj installer. `MajorUpgrade` with `
 
 ---
 
-## `build/` Stage Folder
+## `build/` and `out/package/`
 
-`installer/odm.stage.targets` (target `OdmStage`) fills `build/`. It replaces `package.bat`. It copies:
+`installer/odm.stage.targets` (target `OdmStage`) fills two folders with the same files. It replaces `package.bat`.
+
+- `build/` is the folder to run ODM from. ODM writes its config, logins and logs there, so the build copies only changed files and deletes nothing. If ODM runs, the build stops with "file in use".
+- `out/package/` is deleted and made again on each build. The packages use it, so they never get local data.
+
+The files are:
 
 - the top-level files of `odm/odm.ui.app/bin/Release/x64/` without `*.pdb`
 - `odm.player.net.dll` from the native player output
 - the FFmpeg DLLs from `libs/ffmpeg-n7.1-lgpl-shared/x64/bin/`
 - `images/wheel_zoom.cur`, `locales/`, `meta/` and `logs/`
 
-`OdmSkipStage=true` keeps `build/` as it is. CI uses it to make the packages again after it signs the exe files in `build/`.
+`OdmSkipStage=true` keeps `out/package/` as it is. CI uses it to make the packages again after it signs the exe files in `out/package/`.
 
 **Required files verified by CI** (the build fails if one is missing):
 
@@ -73,7 +78,7 @@ build/swresample-5.dll
 
 ## Portable exe
 
-- It extracts `build/` to `%TEMP%\ONVIF Device Manager\portable\<version>` and starts `odm.exe` from there.
+- It extracts `out/package/` to `%TEMP%\ONVIF Device Manager\portable\<version>` and starts `odm.exe` from there.
 - It gives `odm.exe` the option `--data-dir <folder of the portable exe>`. Config and data go next to the portable exe.
 - A new build of the same version replaces the files in the cache. If an older build still runs from the cache, the new build uses a separate folder.
 - If files are missing from the cache (for example after disk cleanup), it extracts them again.

@@ -1,13 +1,17 @@
 <Project>
-  <!-- Collects the runnable application into build\ for the MSI and the portable exe. -->
+  <!-- Collects the runnable application:
+       - build\ is the folder to run ODM from. ODM writes its config and logs there, so the build only copies changed files.
+       - out\package\ is always new. The MSI and the portable exe use it, so they never get local config or logins. -->
   <PropertyGroup>
     <OdmAppOutput>$(OdmRepoRoot)odm\odm.ui.app\bin\Release\x64\</OdmAppOutput>
     <OdmPlayerNetOutput>$(OdmRepoRoot)odm\odm.player\odm.player.net\bin\x64\Release\</OdmPlayerNetOutput>
-    <OdmStageDir>$(OdmRepoRoot)build\</OdmStageDir>
+    <OdmRunDir>$(OdmRepoRoot)build\</OdmRunDir>
+    <OdmStageDir>$(OdmRepoRoot)out\package\</OdmStageDir>
+    <!-- Outside the package folder, so the packages do not contain it. -->
+    <OdmStamp>$(OdmRepoRoot)out\package.stamp</OdmStamp>
   </PropertyGroup>
 
-  <!-- Set OdmSkipStage=true to use build\ as it is (for example after code signing). -->
-  <Target Name="OdmStage" Condition="'$(OdmSkipStage)' != 'true'">
+  <Target Name="OdmStageItems">
     <Error Condition="!Exists('$(OdmAppOutput)odm.exe')"
            Text="$(OdmAppOutput)odm.exe does not exist. Build build.slnx with Configuration=Release and Platform=x64." />
     <ItemGroup>
@@ -19,13 +23,35 @@
       <_OdmStageMeta Include="$(OdmRepoRoot)odm\odm.ui.app\meta\*.*" />
       <_OdmStageLog Include="$(OdmRepoRoot)odm\odm.ui.app\logs\*.*" />
     </ItemGroup>
+  </Target>
+
+  <!-- The MSI and the portable exe both need the stage. The stamp file makes the second project skip it.
+       Set OdmSkipStage=true to use out\package\ as it is (for example after code signing). -->
+  <Target Name="OdmStage" Condition="'$(OdmSkipStage)' != 'true'" DependsOnTargets="OdmStageItems"
+          Inputs="@(_OdmStageFile);@(_OdmStageImage);@(_OdmStageLocale);@(_OdmStageMeta);@(_OdmStageLog);$(MSBuildThisFileFullPath)"
+          Outputs="$(OdmStamp)">
+
+    <!-- The package folder: always complete and clean. -->
     <RemoveDir Directories="$(OdmStageDir)" />
     <Copy SourceFiles="@(_OdmStageFile)" DestinationFolder="$(OdmStageDir)" />
     <Copy SourceFiles="@(_OdmStageImage)" DestinationFolder="$(OdmStageDir)images\" />
     <Copy SourceFiles="@(_OdmStageLocale)" DestinationFolder="$(OdmStageDir)locales\" />
     <Copy SourceFiles="@(_OdmStageMeta)" DestinationFolder="$(OdmStageDir)meta\" />
     <Copy SourceFiles="@(_OdmStageLog)" DestinationFolder="$(OdmStageDir)logs\" />
-    <Error Condition="!Exists('$(OdmStageDir)odm.player.net.dll')" Text="odm.player.net.dll is missing from build\." />
-    <Message Importance="high" Text="ODM $(OdmDisplayVersion) is staged in $(OdmStageDir)" />
+    <Error Condition="!Exists('$(OdmStageDir)odm.player.net.dll')" Text="odm.player.net.dll is missing from $(OdmStageDir)." />
+
+    <!-- The run folder: copy only changed files. If ODM runs from it, the copy stops with "file in use" and deletes nothing. -->
+    <Copy SourceFiles="@(_OdmStageFile)" DestinationFolder="$(OdmRunDir)" SkipUnchangedFiles="true" Retries="2" RetryDelayMilliseconds="500" />
+    <Copy SourceFiles="@(_OdmStageImage)" DestinationFolder="$(OdmRunDir)images\" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_OdmStageLocale)" DestinationFolder="$(OdmRunDir)locales\" SkipUnchangedFiles="true" />
+    <!-- ODM writes to meta\ and logs\ while it runs. Copy only the files that are not there. -->
+    <ItemGroup>
+      <_OdmRunMeta Include="@(_OdmStageMeta)" Condition="!Exists('$(OdmRunDir)meta\%(Filename)%(Extension)')" />
+      <_OdmRunLog Include="@(_OdmStageLog)" Condition="!Exists('$(OdmRunDir)logs\%(Filename)%(Extension)')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_OdmRunMeta)" DestinationFolder="$(OdmRunDir)meta\" />
+    <Copy SourceFiles="@(_OdmRunLog)" DestinationFolder="$(OdmRunDir)logs\" />
+    <Touch Files="$(OdmStamp)" AlwaysCreate="true" />
+    <Message Importance="high" Text="ODM $(OdmDisplayVersion) is in $(OdmRunDir) and packaged from $(OdmStageDir)" />
   </Target>
 </Project>

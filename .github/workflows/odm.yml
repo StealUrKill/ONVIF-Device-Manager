@@ -132,13 +132,13 @@ jobs:
         endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
         trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT }}
         certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE }}
-        files-folder: build
+        files-folder: out/package
         files-folder-filter: exe
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
 
-    # Make the packages again from the signed files in build\. OdmSkipStage keeps build\ as it is.
+    # Make the packages again from the signed files in out\package\. OdmSkipStage keeps the folder as it is.
     - name: Package signed files
       if: env.Sign_Release == 'true'
       run: |

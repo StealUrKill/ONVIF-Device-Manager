@@ -20,11 +20,12 @@ This command builds:
 | Output | What it is |
 |--------|------------|
 | `odm\odm.ui.app\bin\Release\x64\` | The application build output |
-| `build\` | The files that ODM needs to run (the stage folder) |
+| `build\` | The folder to run ODM from. The build copies only changed files, so the config and logs of ODM stay |
+| `out\package\` | A clean copy of the same files for the MSI and the portable exe |
 | `out\odm-<version>-x64.msi` | The MSI installer (WiX v5, `installer\odm.installer.wixproj`) |
 | `out\odm-<version>-x64-portable.exe` | The portable exe (`installer\portable\odm.portable.csproj`) |
 
-`installer\odm.stage.targets` fills `build\`. It replaces `package.bat`. The MSI and the portable exe both use `build\`.
+`installer\odm.stage.targets` fills `build\` and `out\package\`. It replaces `package.bat`. The MSI and the portable exe use `out\package\`, so they never contain the local config or logins of a developer who runs ODM from `build\`.
 
 ---
 
@@ -42,7 +43,7 @@ This command builds:
 |----------|---------|--------|
 | `OdmRelease` | `false` | When `false`, the version gets `-dev` (`3.2.0-dev`) and the MSI name gets ` (dev)` |
 | `OdmBuildNumber` | `0` | The 4th part of the file version (`3.2.0.<n>`). CI sets it to `github.run_number` |
-| `OdmSkipStage` | `false` | When `true`, the MSI and the portable exe use `build\` as it is (used after code signing) |
+| `OdmSkipStage` | `false` | When `true`, the MSI and the portable exe use `out\package\` as it is (used after code signing) |
 
 The window title shows `v3.2.0-dev` or `v3.2.0`. The informational version also has the git hash (`3.2.0-dev+a91ee72`).
 
@@ -65,7 +66,7 @@ To make a release:
 | Restore / Build / Run tests | `odm.tests` with `vstest.console.exe`. Integration tests skip via `Assert.Inconclusive` |
 | Verify required DLLs present | Checks `build\` and that `out\` has one MSI and one portable exe |
 | Note unsigned release | Tags without the signing secrets only. Writes a warning in the run summary |
-| Azure Login, Sign application exe files | Signed tags only. Signs the exe files in `build\` |
+| Azure Login, Sign application exe files | Signed tags only. Signs the exe files in `out\package\` |
 | Package signed files | Signed tags only. Makes the MSI and the portable exe again with `OdmSkipStage=true` |
 | Sign packages | Signed tags only. Signs the MSI and the portable exe in `out\` |
 | Upload installer / portable exe | Artifacts `odm-installer` and `odm-portable` |
@@ -91,7 +92,7 @@ Old per-user installs: the old vdproj MSI installed per-user by default. A per-m
 
 ### `odm-portable` (`out/odm-<version>-x64-portable.exe`)
 
-- One exe. It holds `build\` as an embedded zip.
+- One exe. It holds `out\package\` as an embedded zip.
 - On start, it extracts the files to `%TEMP%\ONVIF Device Manager\portable\<version>` and starts `odm.exe` from there. The next start uses the same folder. A new build of the same version replaces the files.
 - It starts `odm.exe` with `--data-dir <folder of the portable exe>`. Config and data (`config\`, credentials, trusted certificates) go next to the portable exe.
 - If disk cleanup removes files from the cache, the next start extracts them again.
