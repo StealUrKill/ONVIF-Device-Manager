@@ -64,12 +64,19 @@ To make a release:
 | Build | `msbuild build.slnx /restore ...` with `OdmBuildNumber`, and `OdmRelease=true` on tags |
 | Restore / Build / Run tests | `odm.tests` with `vstest.console.exe`. Integration tests skip via `Assert.Inconclusive` |
 | Verify required DLLs present | Checks `build\` and that `out\` has one MSI and one portable exe |
-| Azure Login, Sign application exe files | Tags only. Signs the exe files in `build\` |
-| Package signed files | Tags only. Makes the MSI and the portable exe again with `OdmSkipStage=true` |
-| Sign packages | Tags only. Signs the MSI and the portable exe in `out\` |
+| Note unsigned release | Tags without the signing secrets only. Writes a warning in the run summary |
+| Azure Login, Sign application exe files | Signed tags only. Signs the exe files in `build\` |
+| Package signed files | Signed tags only. Makes the MSI and the portable exe again with `OdmSkipStage=true` |
+| Sign packages | Signed tags only. Signs the MSI and the portable exe in `out\` |
 | Upload installer / portable exe | Artifacts `odm-installer` and `odm-portable` |
 | Create GitHub release | Tags only. Attaches the MSI and the portable exe |
 
+---
+
+## Code Signing
+
+Tag builds are signed only when all six secrets are set: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `AZURE_SIGNING_ENDPOINT`, `AZURE_SIGNING_ACCOUNT` and `AZURE_CERT_PROFILE`.
+If one is missing, CI skips the signing steps and the release has unsigned files. The `Sign_Release` value in `odm.yml` makes this decision, because a step `if` cannot read secrets.
 ---
 
 ## Artifacts

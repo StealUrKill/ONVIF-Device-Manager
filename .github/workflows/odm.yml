@@ -22,6 +22,8 @@ jobs:
       Solution_Name: build.slnx
       # A tag build is a release build: no -dev suffix and no "(dev)" in the MSI name.
       Release_Args: ${{ startsWith(github.ref, 'refs/tags/v') && '/p:OdmRelease=true' || '' }}
+      # Sign only tag builds, and only when all signing secrets are set. A step "if" cannot read secrets.
+      Sign_Release: ${{ startsWith(github.ref, 'refs/tags/v') && secrets.AZURE_CLIENT_ID != '' && secrets.AZURE_TENANT_ID != '' && secrets.AZURE_SUBSCRIPTION_ID != '' && secrets.AZURE_SIGNING_ENDPOINT != '' && secrets.AZURE_SIGNING_ACCOUNT != '' && secrets.AZURE_CERT_PROFILE != '' }}
 
     steps:
     - name: Checkout
@@ -111,8 +113,12 @@ jobs:
         }
         Write-Host "All required DLLs and packages present."
 
+    - name: Note unsigned release
+      if: startsWith(github.ref, 'refs/tags/v') && env.Sign_Release != 'true'
+      run: echo "::warning::The signing secrets are not set. The MSI and the portable exe of this release are not signed."
+
     - name: Azure Login (OIDC)
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: env.Sign_Release == 'true'
       uses: azure/login@v2
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -120,7 +126,7 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Sign application exe files
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: env.Sign_Release == 'true'
       uses: azure/trusted-signing-action@v0
       with:
         endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
@@ -134,13 +140,13 @@ jobs:
 
     # Make the packages again from the signed files in build\. OdmSkipStage keeps build\ as it is.
     - name: Package signed files
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: env.Sign_Release == 'true'
       run: |
         msbuild installer\odm.installer.wixproj /p:Configuration=Release /p:Platform=x64 /p:OdmBuildNumber=${{ github.run_number }} ${{ env.Release_Args }} /p:OdmSkipStage=true /nologo /v:minimal
         msbuild installer\portable\odm.portable.csproj /p:Configuration=Release /p:Platform=x64 /p:OdmBuildNumber=${{ github.run_number }} ${{ env.Release_Args }} /p:OdmSkipStage=true /nologo /v:minimal
 
     - name: Sign packages
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: env.Sign_Release == 'true'
       uses: azure/trusted-signing-action@v0
       with:
         endpoint: ${{ secrets.AZURE_SIGNING_ENDPOINT }}
