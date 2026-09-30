@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Serialization;
@@ -22,6 +23,7 @@ namespace odm.ui.core
         readonly string _legacyPath = AppDefaults.ConfigFolderPath + "account.def.xml";
 
         List<Account> _credentials;
+        List<DeviceBinding> _bindings = new List<DeviceBinding>();
 
         private CredentialStore()
         {
@@ -39,7 +41,7 @@ namespace odm.ui.core
 
         public void Add(Account account)
         {
-            _credentials.Add(account);
+            _credentials.Add(WithId(account));
             Save();
         }
 
@@ -57,8 +59,52 @@ namespace odm.ui.core
 
         public void SetAll(List<Account> credentials)
         {
-            _credentials = new List<Account>(credentials);
+            _credentials = credentials.Select(WithId).ToList();
+            // A device that used a deleted account uses all accounts again.
+            _bindings.RemoveAll(b => !_credentials.Any(c => c.Id == b.AccountId));
             Save();
+        }
+
+        // ------------------------------------------------------------------ //
+        // Device bindings: one account for one device                         //
+        // ------------------------------------------------------------------ //
+
+        /// <summary>
+        /// A device that must use only one account. Other accounts can lock out
+        /// the user on devices that count failed logins.
+        /// </summary>
+        public class DeviceBinding
+        {
+            public string Host { get; set; }
+            public string AccountId { get; set; }
+        }
+
+        /// <summary>The account for the device, or null if the device uses all accounts.</summary>
+        public Account? GetAccountFor(string host)
+        {
+            var binding = _bindings.FirstOrDefault(b => string.Equals(b.Host, host, StringComparison.OrdinalIgnoreCase));
+            if (binding == null)
+                return null;
+            foreach (var account in _credentials)
+                if (account.Id == binding.AccountId)
+                    return account;
+            return null;
+        }
+
+        /// <summary>Makes the device use only this account. A null or empty id makes it use all accounts.</summary>
+        public void SetAccountFor(string host, string accountId)
+        {
+            _bindings.RemoveAll(b => string.Equals(b.Host, host, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(accountId))
+                _bindings.Add(new DeviceBinding { Host = host, AccountId = accountId });
+            Save();
+        }
+
+        static Account WithId(Account account)
+        {
+            if (string.IsNullOrEmpty(account.Id))
+                account.Id = Guid.NewGuid().ToString("N");
+            return account;
         }
 
         // ------------------------------------------------------------------ //
@@ -69,7 +115,8 @@ namespace odm.ui.core
         public class CredentialList
         {
             public List<Account> Items { get; set; }
-            public CredentialList() { Items = new List<Account>(); }
+            public List<DeviceBinding> Bindings { get; set; }
+            public CredentialList() { Items = new List<Account>(); Bindings = new List<DeviceBinding>(); }
         }
 
         private List<Account> Load()
@@ -95,7 +142,10 @@ namespace odm.ui.core
             {
                 try
                 {
-                    return ReadStore(_storePath);
+                    var list = ReadStore(_storePath);
+                    _bindings = list.Bindings ?? new List<DeviceBinding>();
+                    // Stores from older versions have no ids. The next save keeps the new ids.
+                    return (list.Items ?? new List<Account>()).Select(WithId).ToList();
                 }
                 catch (Exception err)
                 {
@@ -120,7 +170,7 @@ namespace odm.ui.core
 
                     var migrated = new List<Account>();
                     if (!legacy.IsAnonymous)
-                        migrated.Add(legacy);
+                        migrated.Add(WithId(legacy));
 
                     // Persist to new encrypted store before touching the old file
                     var credList = new CredentialList { Items = migrated };
@@ -142,11 +192,11 @@ namespace odm.ui.core
 
         private void Save()
         {
-            var credList = new CredentialList { Items = _credentials };
+            var credList = new CredentialList { Items = _credentials, Bindings = _bindings };
             SaveInternal(credList);
         }
 
-        private static List<Account> ReadStore(string path)
+        private static CredentialList ReadStore(string path)
         {
             byte[] cipherBytes = File.ReadAllBytes(path);
             byte[] plainBytes = ProtectedData.Unprotect(cipherBytes, null, DataProtectionScope.CurrentUser);
@@ -155,8 +205,7 @@ namespace odm.ui.core
             var serializer = new XmlSerializer(typeof(CredentialList));
             using (var reader = new StringReader(xml))
             {
-                var list = (CredentialList)serializer.Deserialize(reader);
-                return list.Items ?? new List<Account>();
+                return (CredentialList)serializer.Deserialize(reader);
             }
         }
 

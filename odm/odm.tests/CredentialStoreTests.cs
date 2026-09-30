@@ -46,6 +46,8 @@ namespace odm.tests
 
             // Start each test with an empty in-memory list (no disk read needed)
             _credentialsField.SetValue(_store, new List<Account>());
+            type.GetField("_bindings", BindingFlags.NonPublic | BindingFlags.Instance)
+                .SetValue(_store, new List<CredentialStore.DeviceBinding>());
         }
 
         [TestCleanup]
@@ -244,6 +246,119 @@ namespace odm.tests
             Assert.AreEqual(0, loaded.Count);
             Assert.IsFalse(File.Exists(_tempStorePath), "unreadable store should be moved aside");
             Assert.AreEqual(1, Directory.GetFiles(_tempDir, "test_credentials.dat.unreadable-*").Length);
+        }
+
+        [TestMethod]
+        public void Notes_SurviveReload()
+        {
+            _store.Add(new Account { Name = "a", Password = "1", Notes = "Cameras on the second floor" });
+            _credentialsField.SetValue(_store, new List<Account>());
+
+            var loaded = InvokeLoad();
+
+            Assert.AreEqual(1, loaded.Count);
+            Assert.AreEqual("Cameras on the second floor", loaded[0].Notes);
+        }
+
+        [TestMethod]
+        public void Load_StoreWithoutNotes_GivesEmptyNotes()
+        {
+            // A store from a version before the notes has no Notes element.
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><Credentials><Items><Account>" +
+                      "<Password>pw</Password><Name>old</Name></Account></Items></Credentials>";
+            var cipher = System.Security.Cryptography.ProtectedData.Protect(
+                System.Text.Encoding.UTF8.GetBytes(xml), null,
+                System.Security.Cryptography.DataProtectionScope.CurrentUser);
+            File.WriteAllBytes(_tempStorePath, cipher);
+
+            var loaded = InvokeLoad();
+
+            Assert.AreEqual(1, loaded.Count);
+            Assert.AreEqual("old", loaded[0].Name);
+            Assert.AreEqual("pw", loaded[0].Password);
+            Assert.AreEqual(string.Empty, loaded[0].Notes);
+        }
+
+        [TestMethod]
+        public void Equals_IgnoresNotes()
+        {
+            var a = new Account { Name = "a", Password = "1", Notes = "first" };
+            var b = new Account { Name = "a", Password = "1", Notes = "second" };
+            Assert.AreEqual(a, b);
+            Assert.AreEqual(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [TestMethod]
+        public void Add_GivesAnId()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            Assert.IsFalse(string.IsNullOrEmpty(_store.GetAll()[0].Id));
+        }
+
+        [TestMethod]
+        public void Load_StoreWithoutIds_GivesIds()
+        {
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-16\"?><Credentials><Items><Account>" +
+                      "<Password>pw</Password><Name>old</Name></Account></Items></Credentials>";
+            File.WriteAllBytes(_tempStorePath, System.Security.Cryptography.ProtectedData.Protect(
+                System.Text.Encoding.UTF8.GetBytes(xml), null,
+                System.Security.Cryptography.DataProtectionScope.CurrentUser));
+
+            var loaded = InvokeLoad();
+
+            Assert.IsFalse(string.IsNullOrEmpty(loaded[0].Id));
+        }
+
+        [TestMethod]
+        public void DeviceAccount_SurvivesReload()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            _store.Add(new Account { Name = "b", Password = "2" });
+            var id = _store.GetAll()[1].Id;
+            _store.SetAccountFor("10.10.10.5", id);
+
+            _credentialsField.SetValue(_store, InvokeLoad());
+
+            var account = _store.GetAccountFor("10.10.10.5");
+            Assert.IsTrue(account.HasValue);
+            Assert.AreEqual("b", account.Value.Name);
+            Assert.IsFalse(_store.GetAccountFor("10.10.10.6").HasValue);
+        }
+
+        [TestMethod]
+        public void DeviceAccount_EmptyId_UsesAllAccounts()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            _store.SetAccountFor("10.10.10.5", _store.GetAll()[0].Id);
+            _store.SetAccountFor("10.10.10.5", null);
+            Assert.IsFalse(_store.GetAccountFor("10.10.10.5").HasValue);
+        }
+
+        [TestMethod]
+        public void DeviceAccount_DeletedAccount_IsRemoved()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            _store.Add(new Account { Name = "b", Password = "2" });
+            var all = _store.GetAll();
+            _store.SetAccountFor("10.10.10.5", all[1].Id);
+
+            // The credential window sets the list without "b".
+            _store.SetAll(new List<Account> { all[0] });
+
+            Assert.IsFalse(_store.GetAccountFor("10.10.10.5").HasValue);
+        }
+
+        [TestMethod]
+        public void DeviceAccount_EditedAccount_IsKept()
+        {
+            _store.Add(new Account { Name = "a", Password = "1" });
+            var id = _store.GetAll()[0].Id;
+            _store.SetAccountFor("10.10.10.5", id);
+
+            // The credential window keeps the id when the user changes the password.
+            _store.SetAll(new List<Account> { new Account { Id = id, Name = "a", Password = "new" } });
+
+            Assert.AreEqual("new", _store.GetAccountFor("10.10.10.5").Value.Password);
         }
 
         [TestMethod]

@@ -20,6 +20,7 @@ namespace odm.ui.views
     {
         string _name;
         string _password;
+        string _notes;
 
         public string Name
         {
@@ -33,9 +34,18 @@ namespace odm.ui.views
             set { _password = value; OnPropertyChanged("Password"); }
         }
 
+        public string Notes
+        {
+            get { return _notes ?? string.Empty; }
+            set { _notes = value; OnPropertyChanged("Notes"); }
+        }
+
+        /// <summary>Keeps the account id through edits, so that the devices that use the account keep it.</summary>
+        public string Id { get; set; }
+
         public Account ToAccount()
         {
-            return new Account { Name = Name, Password = Password };
+            return new Account { Id = Id, Name = Name, Password = Password, Notes = Notes };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -78,7 +88,7 @@ namespace odm.ui.views
         {
             _items = new ObservableCollection<CredentialItem>();
             foreach (var account in CredentialStore.Instance.GetAll())
-                _items.Add(new CredentialItem { Name = account.Name, Password = account.Password });
+                _items.Add(new CredentialItem { Id = account.Id, Name = account.Name, Password = account.Password, Notes = account.Notes });
             credGrid.ItemsSource = _items;
         }
 
@@ -212,13 +222,20 @@ namespace odm.ui.views
                 credGrid.CommitEdit(DataGridEditingUnit.Cell, true);
                 credGrid.CurrentCell = new DataGridCellInfo(_items[rowIdx], credGrid.Columns[2]);
                 credGrid.SelectedItem = _items[rowIdx];
+                credGrid.BeginEdit();
+            }
+            else if (colIdx == 2)
+            {
+                credGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+                credGrid.CurrentCell = new DataGridCellInfo(_items[rowIdx], credGrid.Columns[3]);
+                credGrid.SelectedItem = _items[rowIdx];
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     var btn = GetButtonInCurrentCell();
                     btn?.Focus();
                 }), System.Windows.Threading.DispatcherPriority.Input);
             }
-            else if (colIdx == 2)
+            else if (colIdx == 3)
             {
                 int nextRow = rowIdx + 1;
                 if (nextRow < _items.Count)

@@ -292,6 +292,11 @@
         <string name="scanMaskCount" value="{0} addresses" />
         <string name="scanOneAddress" value="Only this address" />
         <string name="scanMaskFromText" value="From the address box" />
+        <string name="menuAdd" value="Add to the list" />
+        <string name="menuCredentials" value="Credentials" />
+        <string name="menuAllCredentials" value="Try all saved credentials" />
+        <string name="menuNoCredentials" value="No saved credentials" />
+        <string name="menuCredentialsHint" value="Use one account only, so that failed logins do not lock the device" />
         <string name="Filter" value="Filter: " />
         <string name="search" value="name, location or address"/>
     </module>

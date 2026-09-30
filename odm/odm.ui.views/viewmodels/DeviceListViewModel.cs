@@ -209,7 +209,7 @@ namespace odm.ui.viewModels {
 			SaveManualList();
 		}
 		void ManualSessionProcess(DeviceDescriptionHolder devHolder) {
-			var creds = GetAllNetworkCredentials();
+			var creds = GetCredentialsFor(devHolder);
 			TryManualSessionWithCredentials(devHolder, creds, 0);
 		}
 
@@ -413,6 +413,56 @@ namespace odm.ui.viewModels {
 			return currentAccount;
 		}
 
+#region device credentials
+		/// <summary>The host that identifies the device. Link-local addresses come last, because they change.</summary>
+		public static string PrimaryHost(DeviceDescriptionHolder dev) {
+			if (dev.Uris == null)
+				return null;
+			var hosts = dev.Uris.Where(u => u.IsAbsoluteUri).Select(u => u.Host).ToList();
+			var preferred = hosts.FirstOrDefault(h => !h.StartsWith("169.254.") && !h.StartsWith("[fe80", StringComparison.OrdinalIgnoreCase));
+			return preferred ?? hosts.FirstOrDefault();
+		}
+
+		/// <summary>The account that the user selected for the device, or null if the device uses all accounts.</summary>
+		public Account? AccountFor(DeviceDescriptionHolder dev) {
+			var host = PrimaryHost(dev);
+			return host == null ? null : CredentialStore.Instance.GetAccountFor(host);
+		}
+
+		// A device with a selected account gets only that account. Other accounts can lock the user out.
+		List<System.Net.NetworkCredential> GetCredentialsFor(DeviceDescriptionHolder dev) {
+			var account = AccountFor(dev);
+			if (account == null)
+				return GetAllNetworkCredentials();
+			return new List<System.Net.NetworkCredential> {
+				new System.Net.NetworkCredential { UserName = account.Value.Name, Password = account.Value.Password }
+			};
+		}
+
+		/// <summary>Makes the device use only this account, or all accounts for a null or empty id. Then logs in again.</summary>
+		public void SetAccountFor(DeviceDescriptionHolder dev, string accountId) {
+			var host = PrimaryHost(dev);
+			if (host == null)
+				return;
+			CredentialStore.Instance.SetAccountFor(host, accountId);
+			_deviceFactories.Remove(dev);
+			SessionProcess(dev, dev == SelectedDevice);
+		}
+
+		/// <summary>Keeps a discovered or scanned device in the list, as the Add button does.</summary>
+		public void AddToList(DeviceDescriptionHolder dev) {
+			if (dev.IsManual || dev.Uris == null)
+				return;
+			var host = PrimaryHost(dev);
+			var uri = dev.Uris.FirstOrDefault(u => u.IsAbsoluteUri && u.Host == host);
+			if (uri == null)
+				return;
+			scannedDevices.Remove(dev);
+			Devices.Remove(dev);
+			ManualLoaded(uri.OriginalString);
+		}
+#endregion device credentials
+
 		List<System.Net.NetworkCredential> GetAllNetworkCredentials() {
 			var result = new List<System.Net.NetworkCredential>();
 			if (!AccountManager.Instance.LoggedOutExplicitly) {
@@ -457,6 +507,9 @@ namespace odm.ui.viewModels {
 		void OnNodeLoaded(INvtNode node) {
 			if (node.identity.uris.Count() != 0) {
 				try {
+					// The user added this device to the list. Do not show it two times.
+					if (Devices.Any(d => d.IsManual && node.identity.uris.Any(u => u.IsAbsoluteUri && SameHost(d, u.Host))))
+						return;
 					DeviceDescriptionHolder devHolder = new DeviceDescriptionHolder();
 					var scopes = node.identity.scopes.Select(x => x.OriginalString);
 					devHolder.Uris = node.identity.uris;
@@ -514,7 +567,7 @@ namespace odm.ui.viewModels {
 			}
 		}
 		void SessionProcess(DeviceDescriptionHolder devHolder, bool publishEvent) {
-			var creds = GetAllNetworkCredentials();
+			var creds = GetCredentialsFor(devHolder);
 			TrySessionWithCredentials(devHolder, publishEvent, creds, 0);
 		}
 
@@ -629,7 +682,12 @@ namespace odm.ui.viewModels {
 			DeviceSelectedEventArgs evargs = new DeviceSelectedEventArgs();
 			evargs.devHolder = dev;
 			NvtSessionFactory f;
-			evargs.sessionFactory = _deviceFactories.TryGetValue(dev, out f) ? f : sessionFactory;
+			if (!_deviceFactories.TryGetValue(dev, out f)) {
+				// Do not try the current account on a device that must use another account.
+				var creds = GetCredentialsFor(dev);
+				f = AccountFor(dev) != null ? new NvtSessionFactory(creds[0]) : sessionFactory;
+			}
+			evargs.sessionFactory = f;
 			eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(evargs);
 		}
 

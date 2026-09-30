@@ -5243,6 +5243,106 @@ namespace odm.ui {
 	
 
 
+		private const string s_menuAdd = @"Add to the list";
+		private string m_menuAdd=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='menuAdd']/@value")]
+		public string menuAdd {
+			get { 
+				if( m_menuAdd == null){
+					return s_menuAdd;
+				}
+				return m_menuAdd; 
+			}
+			set { 
+				if( value != m_menuAdd){
+					m_menuAdd = value;
+					NotifyPropertyChanged("menuAdd");
+				}
+			}  
+		}
+	
+
+
+		private const string s_menuCredentials = @"Credentials";
+		private string m_menuCredentials=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='menuCredentials']/@value")]
+		public string menuCredentials {
+			get { 
+				if( m_menuCredentials == null){
+					return s_menuCredentials;
+				}
+				return m_menuCredentials; 
+			}
+			set { 
+				if( value != m_menuCredentials){
+					m_menuCredentials = value;
+					NotifyPropertyChanged("menuCredentials");
+				}
+			}  
+		}
+	
+
+
+		private const string s_menuAllCredentials = @"Try all saved credentials";
+		private string m_menuAllCredentials=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='menuAllCredentials']/@value")]
+		public string menuAllCredentials {
+			get { 
+				if( m_menuAllCredentials == null){
+					return s_menuAllCredentials;
+				}
+				return m_menuAllCredentials; 
+			}
+			set { 
+				if( value != m_menuAllCredentials){
+					m_menuAllCredentials = value;
+					NotifyPropertyChanged("menuAllCredentials");
+				}
+			}  
+		}
+	
+
+
+		private const string s_menuNoCredentials = @"No saved credentials";
+		private string m_menuNoCredentials=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='menuNoCredentials']/@value")]
+		public string menuNoCredentials {
+			get { 
+				if( m_menuNoCredentials == null){
+					return s_menuNoCredentials;
+				}
+				return m_menuNoCredentials; 
+			}
+			set { 
+				if( value != m_menuNoCredentials){
+					m_menuNoCredentials = value;
+					NotifyPropertyChanged("menuNoCredentials");
+				}
+			}  
+		}
+	
+
+
+		private const string s_menuCredentialsHint = @"Use one account only, so that failed logins do not lock the device";
+		private string m_menuCredentialsHint=null;
+		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='menuCredentialsHint']/@value")]
+		public string menuCredentialsHint {
+			get { 
+				if( m_menuCredentialsHint == null){
+					return s_menuCredentialsHint;
+				}
+				return m_menuCredentialsHint; 
+			}
+			set { 
+				if( value != m_menuCredentialsHint){
+					m_menuCredentialsHint = value;
+					NotifyPropertyChanged("menuCredentialsHint");
+				}
+			}  
+		}
+	
+
+
 		private const string s_Filter = @"Filter: ";
 		private string m_Filter=null;
 		[XPath(@"/localized-strings/module[@name='LocalDeviceList' and @namespace='odm.ui']/descendant::string[@name='Filter']/@value")]

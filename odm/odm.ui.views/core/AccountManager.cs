@@ -16,6 +16,11 @@ namespace odm.ui.core
         public string Password { get { return _password ?? string.Empty; } set { _password = value; } }
         string _name;
         public string Name { get { return _name ?? string.Empty; } set { _name = value; } }
+        /// <summary>A fixed identifier. A device that uses this account refers to it. Equals does not use it.</summary>
+        public string Id { get; set; }
+        string _notes;
+        /// <summary>A text for the user about the account. Equals does not use it: a note does not make a different account.</summary>
+        public string Notes { get { return _notes ?? string.Empty; } set { _notes = value; } }
 
         public static readonly Account Anonymous = new Account() { Name=string.Empty, Password = string.Empty };
         public bool IsAnonymous { get { return Anonymous.Equals(this); } }
